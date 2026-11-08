@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'wodlog_theme.dart';
 import '../features/workout/presentation/today_screen.dart';
 import '../features/workout/presentation/progress_screen.dart';
 import '../features/workout/presentation/workout_history_screen.dart';
@@ -52,25 +53,7 @@ class WodLogApp extends StatelessWidget {
           supportedLocales,
         );
       },
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF176B5B)),
-        scaffoldBackgroundColor: const Color(0xFFF8FAF8),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF8FAF8),
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-        ),
-        cardTheme: CardThemeData(
-          color: Colors.white,
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(color: Color(0xFFE7ECE8)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        useMaterial3: true,
-      ),
+      theme: WodLogTheme.light,
       routerConfig: _router,
     );
   }

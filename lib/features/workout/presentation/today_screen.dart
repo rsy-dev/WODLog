@@ -46,7 +46,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -78,7 +78,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               sessions.when(
                 loading: () => const LinearProgressIndicator(),
                 error: (error, stackTrace) => const SizedBox.shrink(),
@@ -91,7 +91,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                   locale: locale,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 22),
               Expanded(
                 child: sessions.when(
                   loading: () =>
@@ -116,16 +116,66 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                   isUtc: true,
                                 ).toLocal();
                             return Card(
-                              child: ListTile(
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20),
                                 onTap: () =>
                                     context.push('/sessions/${session.id}'),
-                                leading: const Icon(Icons.fitness_center),
-                                title: Text(session.title ?? l10n.workoutLog),
-                                subtitle: Text(
-                                  TimeOfDay.fromDateTime(localCreatedAt)
-                                      .format(context),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 15,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 44,
+                                        height: 44,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFEAF3FF),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.fitness_center_rounded,
+                                          color: Color(0xFF3182F6),
+                                          size: 21,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              session.title ?? l10n.workoutLog,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleMedium,
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              TimeOfDay.fromDateTime(
+                                                localCreatedAt,
+                                              ).format(context),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 15,
+                                        color: Color(0xFF9AA4B2),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                trailing: const Icon(Icons.chevron_right),
                               ),
                             );
                           },
@@ -234,28 +284,63 @@ class _DailySummary extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.todaySummary,
-              style: Theme.of(context).textTheme.titleSmall,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 20,
-              runSpacing: 12,
+            const SizedBox(height: 18),
+            Row(
               children: [
-                _Metric(value: '$sessionCount', label: l10n.sessionsLabel),
-                _Metric(
-                  value: '${movements.length}',
-                  label: l10n.movementsLabel,
+                Expanded(
+                  child: _Metric(
+                    value: '$sessionCount',
+                    label: l10n.sessionsLabel,
+                    prominent: true,
+                  ),
                 ),
-                _Metric(value: '$setCount', label: l10n.setsLabel),
-                _Metric(
-                  value: '${number.format(volumeKg)} kg',
-                  label: l10n.weightedVolume,
+                Expanded(
+                  child: _Metric(
+                    value: '${movements.length}',
+                    label: l10n.movementsLabel,
+                    prominent: true,
+                  ),
+                ),
+                Expanded(
+                  child: _Metric(
+                    value: '$setCount',
+                    label: l10n.setsLabel,
+                    prominent: true,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(height: 1, color: const Color(0xFFE9EDF2)),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Icon(
+                  Icons.bolt_rounded,
+                  size: 17,
+                  color: Color(0xFF3182F6),
+                ),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    l10n.weightedVolume,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+                Text(
+                  '${number.format(volumeKg)} kg',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: const Color(0xFF3182F6),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -267,22 +352,31 @@ class _DailySummary extends StatelessWidget {
 }
 
 class _Metric extends StatelessWidget {
-  const _Metric({required this.value, required this.label});
+  const _Metric({
+    required this.value,
+    required this.label,
+    this.prominent = false,
+  });
 
   final String value;
   final String label;
+  final bool prominent;
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 68),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(value, style: Theme.of(context).textTheme.titleMedium),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style:
+              (prominent
+                      ? Theme.of(context).textTheme.headlineSmall
+                      : Theme.of(context).textTheme.titleMedium)
+                  ?.copyWith(color: const Color(0xFF191F28)),
+        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 }

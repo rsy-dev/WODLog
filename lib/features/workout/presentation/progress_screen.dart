@@ -61,16 +61,16 @@ class ProgressScreen extends ConsumerWidget {
           }
 
           return ListView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
             children: [
               Text(
                 l10n.trainingOverview,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Wrap(
                     spacing: 20,
                     runSpacing: 12,
@@ -94,9 +94,9 @@ class ProgressScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               Text(
                 l10n.progress,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               _MovementTypeTrends(
                 progress: items,
                 locale: locale,
@@ -338,14 +338,32 @@ class _MovementProgressCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(progress.name, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    progress.name,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                if (progress.volumeChangeKg != null ||
+                    progress.repChange != null)
+                  _ChangePill(
+                    value:
+                        progress.volumeChangeKg ??
+                        progress.repChange!.toDouble(),
+                    number: number,
+                    suffix: progress.volumeChangeKg != null ? 'kg' : l10n.reps,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
             Wrap(
               spacing: 16,
               runSpacing: 4,
@@ -439,6 +457,40 @@ class _ChangeLabel extends StatelessWidget {
       '$label: $prefix${number.format(value)} $suffix',
       style: Theme.of(context).textTheme.labelLarge
           ?.copyWith(color: color, fontWeight: FontWeight.w700),
+    );
+  }
+}
+
+class _ChangePill extends StatelessWidget {
+  const _ChangePill({
+    required this.value,
+    required this.number,
+    required this.suffix,
+  });
+
+  final double value;
+  final NumberFormat number;
+  final String suffix;
+
+  @override
+  Widget build(BuildContext context) {
+    final positive = value >= 0;
+    final color = positive ? const Color(0xFF15966A) : const Color(0xFFE5484D);
+    final text = '${value > 0 ? '+' : ''}${number.format(value)} $suffix';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: positive ? const Color(0xFFEAF8F2) : const Color(0xFFFFEEEE),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w700,
+          fontSize: 12,
+        ),
+      ),
     );
   }
 }
