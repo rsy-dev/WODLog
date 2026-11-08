@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "ラウンド＋回数",
   "resultLoad": "重量",
-  "resultOther": "その他"
+  "resultOther": "その他",
+  "editSet": "セットを編集",
+  "deleteSet": "セットを削除",
+  "confirmDeleteSet": "このセットを削除しますか？"
 }

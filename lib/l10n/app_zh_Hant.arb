@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "回合 + 次數",
   "resultLoad": "負重",
-  "resultOther": "其他"
+  "resultOther": "其他",
+  "editSet": "編輯組",
+  "deleteSet": "刪除組",
+  "confirmDeleteSet": "要刪除這個訓練組嗎？"
 }

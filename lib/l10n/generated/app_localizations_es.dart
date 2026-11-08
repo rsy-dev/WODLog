@@ -182,4 +182,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get resultOther => 'Otro';
+
+  @override
+  String get editSet => 'Editar serie';
+
+  @override
+  String get deleteSet => 'Eliminar serie';
+
+  @override
+  String get confirmDeleteSet => '¿Eliminar esta serie?';
 }

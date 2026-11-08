@@ -462,6 +462,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get resultOther;
+
+  /// No description provided for @editSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit set'**
+  String get editSet;
+
+  /// No description provided for @deleteSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete set'**
+  String get deleteSet;
+
+  /// No description provided for @confirmDeleteSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this set?'**
+  String get confirmDeleteSet;
 }
 
 class _AppLocalizationsDelegate

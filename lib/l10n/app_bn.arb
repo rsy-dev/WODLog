@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Rounds + reps",
   "resultLoad": "Load",
-  "resultOther": "Other"
+  "resultOther": "Other",
+  "editSet": "সেট সম্পাদনা করুন",
+  "deleteSet": "সেট মুছুন",
+  "confirmDeleteSet": "এই সেটটি মুছবেন?"
 }

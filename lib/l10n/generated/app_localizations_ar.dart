@@ -179,4 +179,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'تعديل المجموعة';
+
+  @override
+  String get deleteSet => 'حذف المجموعة';
+
+  @override
+  String get confirmDeleteSet => 'هل تريد حذف هذه المجموعة؟';
 }

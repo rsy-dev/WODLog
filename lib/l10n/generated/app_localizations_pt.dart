@@ -181,6 +181,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get resultOther => 'Outro';
+
+  @override
+  String get editSet => 'Editar série';
+
+  @override
+  String get deleteSet => 'Excluir série';
+
+  @override
+  String get confirmDeleteSet => 'Excluir esta série?';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -359,4 +368,13 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get resultOther => 'Outro';
+
+  @override
+  String get editSet => 'Editar série';
+
+  @override
+  String get deleteSet => 'Excluir série';
+
+  @override
+  String get confirmDeleteSet => 'Excluir esta série?';
 }

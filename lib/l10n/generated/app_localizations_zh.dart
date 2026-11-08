@@ -176,6 +176,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get resultOther => '其他';
+
+  @override
+  String get editSet => '编辑组';
+
+  @override
+  String get deleteSet => '删除组';
+
+  @override
+  String get confirmDeleteSet => '删除这个训练组吗？';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -349,6 +358,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get resultOther => '其他';
+
+  @override
+  String get editSet => '编辑组';
+
+  @override
+  String get deleteSet => '删除组';
+
+  @override
+  String get confirmDeleteSet => '删除这个训练组吗？';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -522,4 +540,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get resultOther => '其他';
+
+  @override
+  String get editSet => '編輯組';
+
+  @override
+  String get deleteSet => '刪除組';
+
+  @override
+  String get confirmDeleteSet => '要刪除這個訓練組嗎？';
 }

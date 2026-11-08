@@ -179,4 +179,13 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'Edit set';
+
+  @override
+  String get deleteSet => 'Hapus set';
+
+  @override
+  String get confirmDeleteSet => 'Hapus set ini?';
 }

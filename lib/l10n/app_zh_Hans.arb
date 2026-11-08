@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "轮数 + 次数",
   "resultLoad": "负重",
-  "resultOther": "其他"
+  "resultOther": "其他",
+  "editSet": "编辑组",
+  "deleteSet": "删除组",
+  "confirmDeleteSet": "删除这个训练组吗？"
 }

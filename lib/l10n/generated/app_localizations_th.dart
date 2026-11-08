@@ -179,4 +179,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'แก้ไขเซต';
+
+  @override
+  String get deleteSet => 'ลบเซต';
+
+  @override
+  String get confirmDeleteSet => 'ลบเซตนี้หรือไม่?';
 }

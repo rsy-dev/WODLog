@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Rounds + reps",
   "resultLoad": "Load",
-  "resultOther": "Other"
+  "resultOther": "Other",
+  "editSet": "Edit set",
+  "deleteSet": "Delete set",
+  "confirmDeleteSet": "Delete this set?"
 }

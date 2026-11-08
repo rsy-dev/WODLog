@@ -179,4 +179,13 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'সেট সম্পাদনা করুন';
+
+  @override
+  String get deleteSet => 'সেট মুছুন';
+
+  @override
+  String get confirmDeleteSet => 'এই সেটটি মুছবেন?';
 }

@@ -179,4 +179,13 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'Sửa hiệp';
+
+  @override
+  String get deleteSet => 'Xóa hiệp';
+
+  @override
+  String get confirmDeleteSet => 'Xóa hiệp này?';
 }

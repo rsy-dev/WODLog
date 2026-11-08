@@ -176,4 +176,13 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get resultOther => '기타';
+
+  @override
+  String get editSet => '세트 수정';
+
+  @override
+  String get deleteSet => '세트 삭제';
+
+  @override
+  String get confirmDeleteSet => '이 세트를 삭제할까요?';
 }

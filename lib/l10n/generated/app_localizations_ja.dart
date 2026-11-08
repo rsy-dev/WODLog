@@ -176,4 +176,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get resultOther => 'その他';
+
+  @override
+  String get editSet => 'セットを編集';
+
+  @override
+  String get deleteSet => 'セットを削除';
+
+  @override
+  String get confirmDeleteSet => 'このセットを削除しますか？';
 }

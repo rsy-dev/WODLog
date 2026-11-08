@@ -187,4 +187,44 @@ class WorkoutRepository {
           ),
         );
   }
+
+  Future<void> updateSet({
+    required String setId,
+    required double weightKg,
+    required int reps,
+  }) async {
+    _validateSet(weightKg, reps);
+    await (_database.update(
+      _database.performedSets,
+    )..where((set) => set.id.equals(setId))).write(
+      PerformedSetsCompanion(
+        weightKg: Value(weightKg),
+        reps: Value(reps),
+        updatedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+      ),
+    );
+  }
+
+  Future<void> deleteSet(String setId) async {
+    await (_database.delete(
+      _database.performedSets,
+    )..where((set) => set.id.equals(setId))).go();
+  }
+
+  void _validateSet(double weightKg, int reps) {
+    if (weightKg < 0 || !weightKg.isFinite) {
+      throw ArgumentError.value(
+        weightKg,
+        'weightKg',
+        'Weight must be zero or more.',
+      );
+    }
+    if (reps <= 0) {
+      throw ArgumentError.value(
+        reps,
+        'reps',
+        'Reps must be greater than zero.',
+      );
+    }
+  }
 }

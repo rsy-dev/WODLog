@@ -181,4 +181,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'सेट संपादित करें';
+
+  @override
+  String get deleteSet => 'सेट हटाएँ';
+
+  @override
+  String get confirmDeleteSet => 'क्या यह सेट हटाएँ?';
 }

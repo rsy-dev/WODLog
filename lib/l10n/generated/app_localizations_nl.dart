@@ -182,4 +182,13 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'Set bewerken';
+
+  @override
+  String get deleteSet => 'Set verwijderen';
+
+  @override
+  String get confirmDeleteSet => 'Deze set verwijderen?';
 }

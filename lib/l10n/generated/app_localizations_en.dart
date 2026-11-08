@@ -179,4 +179,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'Edit set';
+
+  @override
+  String get deleteSet => 'Delete set';
+
+  @override
+  String get confirmDeleteSet => 'Delete this set?';
 }

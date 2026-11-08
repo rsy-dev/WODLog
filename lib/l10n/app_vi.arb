@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Rounds + reps",
   "resultLoad": "Load",
-  "resultOther": "Other"
+  "resultOther": "Other",
+  "editSet": "Sửa hiệp",
+  "deleteSet": "Xóa hiệp",
+  "confirmDeleteSet": "Xóa hiệp này?"
 }

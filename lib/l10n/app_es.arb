@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Rondas + repeticiones",
   "resultLoad": "Carga",
-  "resultOther": "Otro"
+  "resultOther": "Otro",
+  "editSet": "Editar serie",
+  "deleteSet": "Eliminar serie",
+  "confirmDeleteSet": "¿Eliminar esta serie?"
 }

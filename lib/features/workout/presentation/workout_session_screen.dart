@@ -307,7 +307,7 @@ class _ExerciseCard extends ConsumerWidget {
                         runSpacing: 8,
                         children: [
                           for (final set in items)
-                            Chip(
+                            InputChip(
                               label: Text(
                                 l10n.setSummary(
                                   l10n.setLabel(set.setNumber),
@@ -315,6 +315,8 @@ class _ExerciseCard extends ConsumerWidget {
                                   set.reps ?? 0,
                                 ),
                               ),
+                              onPressed: () => _editSet(context, ref, set),
+                              onDeleted: () => _deleteSet(context, ref, set),
                             ),
                         ],
                       ),
@@ -342,6 +344,51 @@ class _ExerciseCard extends ConsumerWidget {
           weightKg: values.$1,
           reps: values.$2,
         );
+  }
+
+  Future<void> _editSet(
+    BuildContext context,
+    WidgetRef ref,
+    PerformedSet set,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final values = await _showSetDialog(
+      context,
+      title: l10n.editSet,
+      initialWeightKg: set.weightKg,
+      initialReps: set.reps,
+    );
+    if (values == null || !context.mounted) return;
+    await ref
+        .read(workoutRepositoryProvider)
+        .updateSet(setId: set.id, weightKg: values.$1, reps: values.$2);
+  }
+
+  Future<void> _deleteSet(
+    BuildContext context,
+    WidgetRef ref,
+    PerformedSet set,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.deleteSet),
+        content: Text(l10n.confirmDeleteSet),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.deleteSet),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    await ref.read(workoutRepositoryProvider).deleteSet(set.id);
   }
 }
 
@@ -381,17 +428,27 @@ Future<String?> _showTextDialog(
   return value;
 }
 
-Future<(double, int)?> _showSetDialog(BuildContext context) async {
+Future<(double, int)?> _showSetDialog(
+  BuildContext context, {
+  String? title,
+  double? initialWeightKg,
+  int? initialReps,
+}) async {
   final l10n = AppLocalizations.of(context)!;
   final locale = Localizations.localeOf(context).toString();
-  final weightController = TextEditingController();
-  final repsController = TextEditingController();
+  final numberFormat = NumberFormat.decimalPattern(locale);
+  final weightController = TextEditingController(
+    text: initialWeightKg == null ? '' : numberFormat.format(initialWeightKg),
+  );
+  final repsController = TextEditingController(
+    text: initialReps?.toString() ?? '',
+  );
   String? validationError;
   final values = await showDialog<(double, int)>(
     context: context,
     builder: (dialogContext) => StatefulBuilder(
       builder: (dialogContext, setDialogState) => AlertDialog(
-        title: Text(l10n.addSet),
+        title: Text(title ?? l10n.addSet),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

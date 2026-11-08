@@ -181,4 +181,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'Seti düzenle';
+
+  @override
+  String get deleteSet => 'Seti sil';
+
+  @override
+  String get confirmDeleteSet => 'Bu set silinsin mi?';
 }

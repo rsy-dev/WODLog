@@ -182,4 +182,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get resultOther => 'Sonstiges';
+
+  @override
+  String get editSet => 'Satz bearbeiten';
+
+  @override
+  String get deleteSet => 'Satz löschen';
+
+  @override
+  String get confirmDeleteSet => 'Diesen Satz löschen?';
 }

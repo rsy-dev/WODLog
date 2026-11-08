@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Runden + Wiederholungen",
   "resultLoad": "Last",
-  "resultOther": "Sonstiges"
+  "resultOther": "Sonstiges",
+  "editSet": "Satz bearbeiten",
+  "deleteSet": "Satz löschen",
+  "confirmDeleteSet": "Diesen Satz löschen?"
 }

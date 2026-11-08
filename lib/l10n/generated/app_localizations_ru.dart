@@ -180,4 +180,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'Изменить подход';
+
+  @override
+  String get deleteSet => 'Удалить подход';
+
+  @override
+  String get confirmDeleteSet => 'Удалить этот подход?';
 }

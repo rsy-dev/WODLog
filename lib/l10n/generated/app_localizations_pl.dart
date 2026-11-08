@@ -179,4 +179,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'Edytuj serię';
+
+  @override
+  String get deleteSet => 'Usuń serię';
+
+  @override
+  String get confirmDeleteSet => 'Usunąć tę serię?';
 }

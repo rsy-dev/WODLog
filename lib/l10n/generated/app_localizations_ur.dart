@@ -179,4 +179,13 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'سیٹ میں ترمیم کریں';
+
+  @override
+  String get deleteSet => 'سیٹ حذف کریں';
+
+  @override
+  String get confirmDeleteSet => 'کیا یہ سیٹ حذف کریں؟';
 }

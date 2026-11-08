@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "라운드 + 반복",
   "resultLoad": "중량",
-  "resultOther": "기타"
+  "resultOther": "기타",
+  "editSet": "세트 수정",
+  "deleteSet": "세트 삭제",
+  "confirmDeleteSet": "이 세트를 삭제할까요?"
 }

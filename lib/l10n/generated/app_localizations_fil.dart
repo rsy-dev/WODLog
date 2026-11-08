@@ -181,4 +181,13 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get resultOther => 'Other';
+
+  @override
+  String get editSet => 'I-edit ang set';
+
+  @override
+  String get deleteSet => 'Tanggalin ang set';
+
+  @override
+  String get confirmDeleteSet => 'Tanggalin ang set na ito?';
 }

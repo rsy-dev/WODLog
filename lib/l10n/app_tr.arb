@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Rounds + reps",
   "resultLoad": "Load",
-  "resultOther": "Other"
+  "resultOther": "Other",
+  "editSet": "Seti düzenle",
+  "deleteSet": "Seti sil",
+  "confirmDeleteSet": "Bu set silinsin mi?"
 }

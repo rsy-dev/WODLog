@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Rounds + reps",
   "resultLoad": "Load",
-  "resultOther": "Other"
+  "resultOther": "Other",
+  "editSet": "แก้ไขเซต",
+  "deleteSet": "ลบเซต",
+  "confirmDeleteSet": "ลบเซตนี้หรือไม่?"
 }

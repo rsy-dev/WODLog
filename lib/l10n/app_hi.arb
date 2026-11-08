@@ -80,5 +80,8 @@
   "resultEmom": "EMOM",
   "resultRoundsReps": "Rounds + reps",
   "resultLoad": "Load",
-  "resultOther": "Other"
+  "resultOther": "Other",
+  "editSet": "सेट संपादित करें",
+  "deleteSet": "सेट हटाएँ",
+  "confirmDeleteSet": "क्या यह सेट हटाएँ?"
 }
