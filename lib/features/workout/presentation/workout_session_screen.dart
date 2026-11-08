@@ -291,8 +291,7 @@ class _ExerciseCard extends ConsumerWidget {
                   ),
                   IconButton(
                     tooltip: l10n.addSet,
-                    onPressed: () =>
-                        _addSet(context, ref, sets.value?.length ?? 0),
+                    onPressed: () => _addSet(context, ref),
                     icon: const Icon(Icons.add_circle_outline),
                   ),
                 ],
@@ -328,11 +327,7 @@ class _ExerciseCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _addSet(
-    BuildContext context,
-    WidgetRef ref,
-    int previousSetCount,
-  ) async {
+  Future<void> _addSet(BuildContext context, WidgetRef ref) async {
     final values = await _showSetDialog(context);
     if (values == null || !context.mounted) return;
 
@@ -340,7 +335,6 @@ class _ExerciseCard extends ConsumerWidget {
         .read(workoutRepositoryProvider)
         .addSet(
           workoutExerciseId: exercise.id,
-          setNumber: previousSetCount + 1,
           weightKg: values.$1,
           reps: values.$2,
         );

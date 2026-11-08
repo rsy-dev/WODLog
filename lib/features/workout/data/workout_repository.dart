@@ -153,39 +153,39 @@ class WorkoutRepository {
 
   Future<void> addSet({
     required String workoutExerciseId,
-    required int setNumber,
     required double weightKg,
     required int reps,
   }) async {
-    if (weightKg < 0 || !weightKg.isFinite) {
-      throw ArgumentError.value(
-        weightKg,
-        'weightKg',
-        'Weight must be zero or more.',
-      );
-    }
-    if (reps <= 0) {
-      throw ArgumentError.value(
-        reps,
-        'reps',
-        'Reps must be greater than zero.',
-      );
-    }
+    _validateSet(weightKg, reps);
 
     final now = DateTime.now().toUtc().millisecondsSinceEpoch;
-    await _database
-        .into(_database.performedSets)
-        .insert(
-          PerformedSetsCompanion.insert(
-            id: _uuid.v4(),
-            workoutExerciseId: workoutExerciseId,
-            setNumber: setNumber,
-            weightKg: Value(weightKg),
-            reps: Value(reps),
-            createdAt: now,
-            updatedAt: now,
-          ),
-        );
+    await _database.transaction(() async {
+      final maxSetNumber = _database.performedSets.setNumber.max();
+      final currentMax =
+          await (_database.selectOnly(_database.performedSets)
+                ..addColumns([maxSetNumber])
+                ..where(
+                  _database.performedSets.workoutExerciseId.equals(
+                    workoutExerciseId,
+                  ),
+                ))
+              .getSingle();
+      final nextSetNumber = (currentMax.read(maxSetNumber) ?? 0) + 1;
+
+      await _database
+          .into(_database.performedSets)
+          .insert(
+            PerformedSetsCompanion.insert(
+              id: _uuid.v4(),
+              workoutExerciseId: workoutExerciseId,
+              setNumber: nextSetNumber,
+              weightKg: Value(weightKg),
+              reps: Value(reps),
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+    });
   }
 
   Future<void> updateSet({
