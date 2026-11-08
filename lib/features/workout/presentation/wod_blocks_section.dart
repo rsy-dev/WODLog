@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
 import '../data/crossfit_catalog.dart';
+import '../data/named_wod_catalog.dart';
+import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
 
 class WodBlocksSection extends ConsumerWidget {
@@ -68,6 +70,7 @@ class WodBlocksSection extends ConsumerWidget {
               _WodBlockTile(
                 blockId: block.id,
                 title: block.title ?? l10n.wodSectionTitle,
+                notes: block.notes,
                 labelFor: (type) => _typeLabel(l10n, type),
                 onEdit: () => _editResult(context, ref, block.id),
               ),
@@ -111,12 +114,7 @@ class WodBlocksSection extends ConsumerWidget {
                     ))
                       ActionChip(
                         label: Text(wod.name),
-                        onPressed: () {
-                          controller.text = wod.name;
-                          controller.selection = TextSelection.collapsed(
-                            offset: controller.text.length,
-                          );
-                        },
+                        onPressed: () => Navigator.pop(context, wod.name),
                       ),
                   ],
                 ),
@@ -139,11 +137,22 @@ class WodBlocksSection extends ConsumerWidget {
     controller.dispose();
     if (!context.mounted || title == null) return;
     final count =
-        ref.read(wodBlocksForSessionProvider(sessionId)).asData?.value.length ??
-        0;
-    await ref
-        .read(wodRepositoryProvider)
-        .createWodBlock(sessionId: sessionId, title: title, sortOrder: count);
+        ref.read(blocksForSessionProvider(sessionId)).asData?.value.length ?? 0;
+    final repository = ref.read(wodRepositoryProvider);
+    final template = NamedWodCatalog.find(title);
+    if (template != null) {
+      await repository.createNamedWod(
+        sessionId: sessionId,
+        template: template,
+        sortOrder: count,
+      );
+    } else {
+      await repository.createWodBlock(
+        sessionId: sessionId,
+        title: title,
+        sortOrder: count,
+      );
+    }
   }
 
   Future<void> _editResult(
@@ -234,12 +243,14 @@ class _WodBlockTile extends ConsumerWidget {
   const _WodBlockTile({
     required this.blockId,
     required this.title,
+    required this.notes,
     required this.labelFor,
     required this.onEdit,
   });
 
   final String blockId;
   final String title;
+  final String? notes;
   final String Function(String) labelFor;
   final VoidCallback onEdit;
 
@@ -252,11 +263,15 @@ class _WodBlockTile extends ConsumerWidget {
       title: Text(title),
       subtitle: result.when(
         loading: () => null,
-        error: (error, stack) => Text(l10n.loadBlocksError),
+        error: (error, stack) => Text(notes ?? l10n.loadBlocksError),
         data: (value) => value == null
-            ? Text(l10n.emptyWodResult)
+            ? Text([notes, l10n.emptyWodResult].whereType<String>().join('\n'))
             : Text(
-                '${labelFor(value.resultType)} · ${value.resultText ?? ''}${value.notes?.isNotEmpty == true ? '\n${value.notes}' : ''}',
+                [
+                  notes,
+                  '${labelFor(value.resultType)} · ${value.resultText ?? ''}',
+                  if (value.notes?.isNotEmpty == true) value.notes!,
+                ].whereType<String>().where((line) => line.isNotEmpty).join('\n'),
               ),
       ),
       trailing: IconButton(

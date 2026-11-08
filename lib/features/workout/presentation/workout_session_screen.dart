@@ -523,6 +523,17 @@ class _ExerciseCard extends ConsumerWidget {
                   ),
                 ],
               ),
+              if (exercise.notes?.isNotEmpty == true)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8, left: 2),
+                  child: Text(
+                    exercise.notes!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               sets.when(
                 loading: () => const LinearProgressIndicator(),
                 error: (error, stackTrace) => Text(l10n.loadSetsError),
