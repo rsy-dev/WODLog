@@ -1,0 +1,51 @@
+{
+  "@@locale": "en",
+  "appTitle": "WODLog",
+  "todayWorkout": "Today's workout",
+  "workoutDate": "{date}",
+  "@workoutDate": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "noRecords": "No workout recorded today",
+  "emptyTodayHelp": "Start a session to log today's workout.",
+  "startWorkout": "Start workout",
+  "workoutLog": "Workout log",
+  "loadWorkoutError": "Couldn't load workout records.",
+  "loadBlocksError": "Couldn't load workout blocks.",
+  "addStrengthBlock": "Add strength block",
+  "addBlockTitle": "Add workout block",
+  "blockName": "Block name",
+  "strength": "Strength",
+  "add": "Add",
+  "cancel": "Cancel",
+  "addExercise": "Exercise",
+  "exerciseName": "Exercise name",
+  "exerciseHint": "Back Squat",
+  "emptyBlockHelp": "Add an exercise to this block.",
+  "loadExercisesError": "Couldn't load exercises.",
+  "addSet": "Add set",
+  "emptyExerciseHelp": "Add a set to record your work.",
+  "loadSetsError": "Couldn't load sets.",
+  "weightKg": "Weight (kg)",
+  "reps": "Reps",
+  "save": "Save",
+  "setLabel": "Set {number}",
+  "@setLabel": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "setSummary": "{setLabel}  {weight} kg × {reps} reps",
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {"type": "String"},
+      "weight": {"type": "String"},
+      "reps": {"type": "int"}
+    }
+  },
+  "invalidSet": "Enter a valid weight and a whole number of reps greater than zero.",
+  "bodyweight": "Bodyweight",
+  "emptyBlocks": "No workout blocks yet.\nAdd a Strength block to start logging."
+}

@@ -13,3 +13,20 @@ final sessionsForDateProvider = StreamProvider.family((
 ) {
   return ref.watch(workoutRepositoryProvider).watchSessionsForDate(workoutDate);
 });
+
+final blocksForSessionProvider = StreamProvider.family((ref, String sessionId) {
+  return ref.watch(workoutRepositoryProvider).watchBlocksForSession(sessionId);
+});
+
+final exercisesForBlockProvider = StreamProvider.family((ref, String blockId) {
+  return ref.watch(workoutRepositoryProvider).watchExercisesForBlock(blockId);
+});
+
+final setsForExerciseProvider = StreamProvider.family((
+  ref,
+  String workoutExerciseId,
+) {
+  return ref
+      .watch(workoutRepositoryProvider)
+      .watchSetsForExercise(workoutExerciseId);
+});

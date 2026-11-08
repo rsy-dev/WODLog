@@ -21,5 +21,8 @@ flutter run
 
 - 오늘 운동 세션 생성 및 실시간 조회
 - Drift/SQLite 데이터베이스 기반과 핵심 운동 기록 테이블
+- 기기 언어/지역을 따르는 12개 UI 로캘과 지역별 날짜·숫자 표시
+
+Android 우선 출시 및 광고 준비 항목은 [`docs/android-first-release.md`](docs/android-first-release.md)에 정리합니다.
 
 세부 범위와 단계별 완료 조건은 Notion의 [개발 로드맵](https://app.notion.com/p/407ef63c537b81b78a0bd93019c3560e?pvs=204)을 참고합니다.

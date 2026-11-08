@@ -1,0 +1,51 @@
+{
+  "@@locale": "ko",
+  "appTitle": "WODLog",
+  "todayWorkout": "오늘 운동",
+  "workoutDate": "{date}",
+  "@workoutDate": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "noRecords": "오늘 기록이 아직 없어요",
+  "emptyTodayHelp": "세션을 추가해 오늘 운동을 기록해보세요.",
+  "startWorkout": "운동 기록 시작하기",
+  "workoutLog": "운동 기록",
+  "loadWorkoutError": "운동 기록을 불러오지 못했어요.",
+  "loadBlocksError": "운동 블록을 불러오지 못했어요.",
+  "addStrengthBlock": "Strength 블록 추가",
+  "addBlockTitle": "운동 블록 추가",
+  "blockName": "블록 이름",
+  "strength": "Strength",
+  "add": "추가",
+  "cancel": "취소",
+  "addExercise": "종목",
+  "exerciseName": "종목 이름",
+  "exerciseHint": "Back Squat",
+  "emptyBlockHelp": "이 블록에 종목을 추가하세요.",
+  "loadExercisesError": "종목을 불러오지 못했어요.",
+  "addSet": "세트 추가",
+  "emptyExerciseHelp": "세트를 추가해 운동을 기록하세요.",
+  "loadSetsError": "세트를 불러오지 못했어요.",
+  "weightKg": "중량 (kg)",
+  "reps": "반복 수",
+  "save": "저장",
+  "setLabel": "{number}세트",
+  "@setLabel": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "setSummary": "{setLabel}  {weight} kg × {reps}회",
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {"type": "String"},
+      "weight": {"type": "String"},
+      "reps": {"type": "int"}
+    }
+  },
+  "invalidSet": "올바른 중량과 0보다 큰 정수 반복 수를 입력하세요.",
+  "bodyweight": "맨몸",
+  "emptyBlocks": "아직 운동 블록이 없어요.\nStrength 블록을 추가해 운동을 기록하세요."
+}

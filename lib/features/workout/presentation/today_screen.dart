@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
+import '../../../l10n/generated/app_localizations.dart';
 import '../providers/workout_providers.dart';
 
 class TodayScreen extends ConsumerWidget {
@@ -8,6 +11,7 @@ class TodayScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final today = DateTime.now();
     final workoutDate = _formatDate(today);
     final sessions = ref.watch(sessionsForDateProvider(workoutDate));
@@ -21,12 +25,12 @@ class TodayScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '오늘 운동',
+                l10n.todayWorkout,
                 style: Theme.of(context).textTheme.headlineMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              Text(_formatDisplayDate(today)),
+              Text(l10n.workoutDate(_formatDisplayDate(today, context))),
               const SizedBox(height: 24),
               Expanded(
                 child: sessions.when(
@@ -34,7 +38,7 @@ class TodayScreen extends ConsumerWidget {
                       const Center(child: CircularProgressIndicator()),
                   error: (error, stackTrace) => Center(
                     child: Text(
-                      '기록을 불러오지 못했어요.\n$error',
+                      l10n.loadWorkoutError,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -53,8 +57,10 @@ class TodayScreen extends ConsumerWidget {
                                 ).toLocal();
                             return Card(
                               child: ListTile(
+                                onTap: () =>
+                                    context.push('/sessions/${session.id}'),
                                 leading: const Icon(Icons.fitness_center),
-                                title: Text(session.title ?? '운동 세션'),
+                                title: Text(session.title ?? l10n.workoutLog),
                                 subtitle: Text(
                                   TimeOfDay.fromDateTime(localCreatedAt)
                                       .format(context),
@@ -74,7 +80,7 @@ class TodayScreen extends ConsumerWidget {
                         .createSession(workoutDate: workoutDate);
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('운동 기록 시작하기'),
+                  label: Text(l10n.startWorkout),
                 ),
               ),
             ],
@@ -91,8 +97,10 @@ class TodayScreen extends ConsumerWidget {
     return '$year-$month-$day';
   }
 
-  static String _formatDisplayDate(DateTime date) =>
-      '${date.year}년 ${date.month}월 ${date.day}일';
+  static String _formatDisplayDate(DateTime date, BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+    return DateFormat.yMMMMEEEEd(locale).format(date);
+  }
 }
 
 class _EmptyWorkoutState extends StatelessWidget {
@@ -100,6 +108,7 @@ class _EmptyWorkoutState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -110,9 +119,9 @@ class _EmptyWorkoutState extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(height: 12),
-          Text('오늘 기록이 아직 없어요', style: Theme.of(context).textTheme.titleMedium),
+          Text(l10n.noRecords, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 4),
-          const Text('운동을 마친 뒤 세션을 추가해보세요.'),
+          Text(l10n.emptyTodayHelp),
         ],
       ),
     );
