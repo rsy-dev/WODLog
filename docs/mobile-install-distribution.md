@@ -23,10 +23,11 @@
 
 ## Current machine readiness
 
-- Xcode is present but its first-launch components are incomplete.
-- CocoaPods is not installed; check whether the current Flutter iOS Swift Package Manager setup can resolve every plugin before adding CocoaPods.
+- `flutter build ios --no-codesign` succeeds and produces a device build at `build/ios/iphoneos/Runner.app`.
+- The current Xcode project resolves dependencies using Swift Package Manager; CocoaPods is not installed, but it did not block this build.
 - No signing identities or provisioning profiles are available, and no iPhone is connected to the Mac.
-- Next local preparation: finish Xcode first launch, install/resolve iOS dependencies, sign in to Xcode with the Apple Account, connect and trust the iPhone, then install a development build. For a reusable tap-to-install link, enroll in Apple Developer Program and set up TestFlight.
+- The Apple Developer Program enrollment is complete; TestFlight and App Store Connect app setup, signing, and upload remain.
+- Next preparation: create the App Store Connect app record for bundle ID `dev.rsy.wodlog`, configure secure signing/upload credentials, then upload a beta build and create the tester invitation link. Do not send signing keys or passwords in chat.
 
 ## Release artifacts
 
