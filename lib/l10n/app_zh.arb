@@ -83,5 +83,11 @@
   "resultOther": "其他",
   "editSet": "编辑组",
   "deleteSet": "删除组",
-  "confirmDeleteSet": "删除这个训练组吗？"
+  "confirmDeleteSet": "删除这个训练组吗？",
+  "editBlock": "编辑训练组",
+  "deleteBlock": "删除训练组",
+  "confirmDeleteBlock": "删除此训练组及其中所有动作和组数？此操作无法撤销。",
+  "editExercise": "编辑动作",
+  "deleteExercise": "删除动作",
+  "confirmDeleteExercise": "删除此动作及其所有组数？此操作无法撤销。"
 }

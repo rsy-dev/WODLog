@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "Modifica serie",
   "deleteSet": "Elimina serie",
-  "confirmDeleteSet": "Eliminare questa serie?"
+  "confirmDeleteSet": "Eliminare questa serie?",
+  "editBlock": "Modifica blocco",
+  "deleteBlock": "Elimina blocco",
+  "confirmDeleteBlock": "Eliminare questo blocco e tutti i suoi esercizi e set? L’operazione non può essere annullata.",
+  "editExercise": "Modifica esercizio",
+  "deleteExercise": "Elimina esercizio",
+  "confirmDeleteExercise": "Eliminare questo esercizio e tutti i suoi set? L’operazione non può essere annullata."
 }

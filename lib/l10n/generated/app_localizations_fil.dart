@@ -190,4 +190,24 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Tanggalin ang set na ito?';
+
+  @override
+  String get editBlock => 'I-edit ang block';
+
+  @override
+  String get deleteBlock => 'Burahin ang block';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Burahin ang block na ito pati lahat ng ehersisyo at set nito? Hindi ito maibabalik.';
+
+  @override
+  String get editExercise => 'I-edit ang ehersisyo';
+
+  @override
+  String get deleteExercise => 'Burahin ang ehersisyo';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Burahin ang ehersisyong ito pati lahat ng set nito? Hindi ito maibabalik.';
 }

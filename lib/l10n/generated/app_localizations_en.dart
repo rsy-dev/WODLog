@@ -188,4 +188,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Delete this set?';
+
+  @override
+  String get editBlock => 'Edit block';
+
+  @override
+  String get deleteBlock => 'Delete block';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Delete this block and all its exercises and sets? This cannot be undone.';
+
+  @override
+  String get editExercise => 'Edit exercise';
+
+  @override
+  String get deleteExercise => 'Delete exercise';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Delete this exercise and all its sets? This cannot be undone.';
 }

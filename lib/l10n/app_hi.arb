@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "सेट संपादित करें",
   "deleteSet": "सेट हटाएँ",
-  "confirmDeleteSet": "क्या यह सेट हटाएँ?"
+  "confirmDeleteSet": "क्या यह सेट हटाएँ?",
+  "editBlock": "ब्लॉक संपादित करें",
+  "deleteBlock": "ब्लॉक हटाएँ",
+  "confirmDeleteBlock": "क्या यह ब्लॉक और इसके सभी व्यायाम व सेट हटाने हैं? इसे वापस नहीं किया जा सकता।",
+  "editExercise": "व्यायाम संपादित करें",
+  "deleteExercise": "व्यायाम हटाएँ",
+  "confirmDeleteExercise": "क्या यह व्यायाम और इसके सभी सेट हटाने हैं? इसे वापस नहीं किया जा सकता।"
 }

@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "Seti düzenle",
   "deleteSet": "Seti sil",
-  "confirmDeleteSet": "Bu set silinsin mi?"
+  "confirmDeleteSet": "Bu set silinsin mi?",
+  "editBlock": "Bloğu düzenle",
+  "deleteBlock": "Bloğu sil",
+  "confirmDeleteBlock": "Bu bloğu ve tüm hareketlerini ve setlerini silmek istiyor musunuz? Bu işlem geri alınamaz.",
+  "editExercise": "Hareketi düzenle",
+  "deleteExercise": "Hareketi sil",
+  "confirmDeleteExercise": "Bu hareketi ve tüm setlerini silmek istiyor musunuz? Bu işlem geri alınamaz."
 }

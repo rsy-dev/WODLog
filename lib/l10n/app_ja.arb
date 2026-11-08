@@ -83,5 +83,11 @@
   "resultOther": "その他",
   "editSet": "セットを編集",
   "deleteSet": "セットを削除",
-  "confirmDeleteSet": "このセットを削除しますか？"
+  "confirmDeleteSet": "このセットを削除しますか？",
+  "editBlock": "ブロックを編集",
+  "deleteBlock": "ブロックを削除",
+  "confirmDeleteBlock": "このブロックとすべての種目・セットを削除しますか？この操作は取り消せません。",
+  "editExercise": "種目を編集",
+  "deleteExercise": "種目を削除",
+  "confirmDeleteExercise": "この種目とすべてのセットを削除しますか？この操作は取り消せません。"
 }

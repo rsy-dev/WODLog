@@ -188,4 +188,24 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'کیا یہ سیٹ حذف کریں؟';
+
+  @override
+  String get editBlock => 'بلاک میں ترمیم کریں';
+
+  @override
+  String get deleteBlock => 'بلاک حذف کریں';
+
+  @override
+  String get confirmDeleteBlock =>
+      'کیا یہ بلاک اور اس کی تمام ورزشیں اور سیٹس حذف کریں؟ اسے واپس نہیں کیا جا سکتا۔';
+
+  @override
+  String get editExercise => 'ورزش میں ترمیم کریں';
+
+  @override
+  String get deleteExercise => 'ورزش حذف کریں';
+
+  @override
+  String get confirmDeleteExercise =>
+      'کیا یہ ورزش اور اس کے تمام سیٹس حذف کریں؟ اسے واپس نہیں کیا جا سکتا۔';
 }

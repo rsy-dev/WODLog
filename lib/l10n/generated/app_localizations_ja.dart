@@ -185,4 +185,22 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'このセットを削除しますか？';
+
+  @override
+  String get editBlock => 'ブロックを編集';
+
+  @override
+  String get deleteBlock => 'ブロックを削除';
+
+  @override
+  String get confirmDeleteBlock => 'このブロックとすべての種目・セットを削除しますか？この操作は取り消せません。';
+
+  @override
+  String get editExercise => '種目を編集';
+
+  @override
+  String get deleteExercise => '種目を削除';
+
+  @override
+  String get confirmDeleteExercise => 'この種目とすべてのセットを削除しますか？この操作は取り消せません。';
 }

@@ -217,6 +217,23 @@ class _WorkoutBlockCard extends ConsumerWidget {
                   icon: const Icon(Icons.add),
                   label: Text(l10n.addExercise),
                 ),
+                PopupMenuButton<String>(
+                  tooltip: l10n.editBlock,
+                  onSelected: (action) {
+                    if (action == 'edit') {
+                      _editBlock(context, ref);
+                    } else if (action == 'delete') {
+                      _deleteBlock(context, ref);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(value: 'edit', child: Text(l10n.editBlock)),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text(l10n.deleteBlock),
+                    ),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -256,6 +273,33 @@ class _WorkoutBlockCard extends ConsumerWidget {
         .read(workoutRepositoryProvider)
         .addExercise(blockId: block.id, name: name, sortOrder: sortOrder);
   }
+
+  Future<void> _editBlock(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final title = await _showTextDialog(
+      context,
+      title: l10n.editBlock,
+      label: l10n.blockName,
+      initialValue: block.title ?? '',
+      submitLabel: l10n.save,
+    );
+    if (title == null || title.trim().isEmpty || !context.mounted) return;
+    await ref
+        .read(workoutRepositoryProvider)
+        .updateStrengthBlock(blockId: block.id, title: title);
+  }
+
+  Future<void> _deleteBlock(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await _confirmDeleteDialog(
+      context,
+      title: l10n.deleteBlock,
+      message: l10n.confirmDeleteBlock,
+      confirmLabel: l10n.deleteBlock,
+    );
+    if (!confirmed || !context.mounted) return;
+    await ref.read(workoutRepositoryProvider).deleteStrengthBlock(block.id);
+  }
 }
 
 class _ExerciseCard extends ConsumerWidget {
@@ -288,6 +332,26 @@ class _ExerciseCard extends ConsumerWidget {
                       exercise.displayName,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
+                  ),
+                  PopupMenuButton<String>(
+                    tooltip: l10n.editExercise,
+                    onSelected: (action) {
+                      if (action == 'edit') {
+                        _editExercise(context, ref);
+                      } else if (action == 'delete') {
+                        _deleteExercise(context, ref);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Text(l10n.editExercise),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(l10n.deleteExercise),
+                      ),
+                    ],
                   ),
                   IconButton(
                     tooltip: l10n.addSet,
@@ -384,6 +448,40 @@ class _ExerciseCard extends ConsumerWidget {
     if (confirmed != true || !context.mounted) return;
     await ref.read(workoutRepositoryProvider).deleteSet(set.id);
   }
+
+  Future<void> _editExercise(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final displayName = await _showTextDialog(
+      context,
+      title: l10n.editExercise,
+      label: l10n.exerciseName,
+      initialValue: exercise.displayName,
+      submitLabel: l10n.save,
+    );
+    if (displayName == null || displayName.trim().isEmpty || !context.mounted) {
+      return;
+    }
+    await ref
+        .read(workoutRepositoryProvider)
+        .updateWorkoutExercise(
+          workoutExerciseId: exercise.id,
+          displayName: displayName,
+        );
+  }
+
+  Future<void> _deleteExercise(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await _confirmDeleteDialog(
+      context,
+      title: l10n.deleteExercise,
+      message: l10n.confirmDeleteExercise,
+      confirmLabel: l10n.deleteExercise,
+    );
+    if (!confirmed || !context.mounted) return;
+    await ref
+        .read(workoutRepositoryProvider)
+        .deleteWorkoutExercise(exercise.id);
+  }
 }
 
 Future<String?> _showTextDialog(
@@ -392,6 +490,7 @@ Future<String?> _showTextDialog(
   required String label,
   String? hint,
   String? initialValue,
+  String? submitLabel,
 }) async {
   final l10n = AppLocalizations.of(context)!;
   final controller = TextEditingController(text: initialValue);
@@ -413,13 +512,40 @@ Future<String?> _showTextDialog(
         ),
         FilledButton(
           onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-          child: Text(l10n.add),
+          child: Text(submitLabel ?? l10n.add),
         ),
       ],
     ),
   );
   controller.dispose();
   return value;
+}
+
+Future<bool> _confirmDeleteDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String confirmLabel,
+}) async {
+  final l10n = AppLocalizations.of(context)!;
+  return await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(confirmLabel),
+            ),
+          ],
+        ),
+      ) ??
+      false;
 }
 
 Future<(double, int)?> _showSetDialog(

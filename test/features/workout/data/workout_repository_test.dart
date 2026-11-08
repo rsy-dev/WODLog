@@ -80,4 +80,60 @@ void main() {
     )..orderBy([(set) => OrderingTerm.asc(set.setNumber)])).get();
     expect(sets.map((set) => set.setNumber), [1, 3, 4]);
   });
+
+  test('updates a strength block title after trimming whitespace', () async {
+    await repository.updateStrengthBlock(
+      blockId: 'block-1',
+      title: '  Olympic lifts  ',
+    );
+
+    final block = await database.select(database.workoutBlocks).getSingle();
+    expect(block.title, 'Olympic lifts');
+  });
+
+  test(
+    'deleting a strength block cascades through exercises and sets',
+    () async {
+      await repository.addSet(
+        workoutExerciseId: 'workout-exercise-1',
+        weightKg: 60,
+        reps: 5,
+      );
+
+      await repository.deleteStrengthBlock('block-1');
+
+      expect(await database.select(database.workoutExercises).get(), isEmpty);
+      expect(await database.select(database.performedSets).get(), isEmpty);
+      expect(await database.select(database.exercises).get(), isEmpty);
+    },
+  );
+
+  test('updates a workout exercise display and catalog name', () async {
+    await repository.updateWorkoutExercise(
+      workoutExerciseId: 'workout-exercise-1',
+      displayName: '  Front Squat  ',
+    );
+
+    final workoutExercise = await database
+        .select(database.workoutExercises)
+        .getSingle();
+    final exercise = await database.select(database.exercises).getSingle();
+    expect(workoutExercise.displayName, 'Front Squat');
+    expect(exercise.name, 'Front Squat');
+    expect(exercise.normalizedName, 'front squat');
+  });
+
+  test('deleting a workout exercise cascades through its sets', () async {
+    await repository.addSet(
+      workoutExerciseId: 'workout-exercise-1',
+      weightKg: 60,
+      reps: 5,
+    );
+
+    await repository.deleteWorkoutExercise('workout-exercise-1');
+
+    expect(await database.select(database.workoutExercises).get(), isEmpty);
+    expect(await database.select(database.performedSets).get(), isEmpty);
+    expect(await database.select(database.exercises).get(), isEmpty);
+  });
 }

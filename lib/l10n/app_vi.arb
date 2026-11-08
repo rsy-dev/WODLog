@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "Sửa hiệp",
   "deleteSet": "Xóa hiệp",
-  "confirmDeleteSet": "Xóa hiệp này?"
+  "confirmDeleteSet": "Xóa hiệp này?",
+  "editBlock": "Sửa khối",
+  "deleteBlock": "Xóa khối",
+  "confirmDeleteBlock": "Xóa khối này cùng tất cả bài tập và hiệp? Bạn không thể hoàn tác.",
+  "editExercise": "Sửa bài tập",
+  "deleteExercise": "Xóa bài tập",
+  "confirmDeleteExercise": "Xóa bài tập này cùng tất cả hiệp? Bạn không thể hoàn tác."
 }

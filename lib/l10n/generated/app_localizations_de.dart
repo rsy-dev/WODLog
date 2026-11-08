@@ -191,4 +191,24 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Diesen Satz löschen?';
+
+  @override
+  String get editBlock => 'Block bearbeiten';
+
+  @override
+  String get deleteBlock => 'Block löschen';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Diesen Block sowie alle Übungen und Sätze löschen? Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get editExercise => 'Übung bearbeiten';
+
+  @override
+  String get deleteExercise => 'Übung löschen';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Diese Übung und alle Sätze löschen? Das kann nicht rückgängig gemacht werden.';
 }

@@ -188,4 +188,24 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Xóa hiệp này?';
+
+  @override
+  String get editBlock => 'Sửa khối';
+
+  @override
+  String get deleteBlock => 'Xóa khối';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Xóa khối này cùng tất cả bài tập và hiệp? Bạn không thể hoàn tác.';
+
+  @override
+  String get editExercise => 'Sửa bài tập';
+
+  @override
+  String get deleteExercise => 'Xóa bài tập';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Xóa bài tập này cùng tất cả hiệp? Bạn không thể hoàn tác.';
 }

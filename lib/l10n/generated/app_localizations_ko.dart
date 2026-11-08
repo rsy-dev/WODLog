@@ -185,4 +185,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => '이 세트를 삭제할까요?';
+
+  @override
+  String get editBlock => '블록 수정';
+
+  @override
+  String get deleteBlock => '블록 삭제';
+
+  @override
+  String get confirmDeleteBlock =>
+      '이 블록과 포함된 운동 및 세트를 모두 삭제할까요? 삭제 후 복구할 수 없습니다.';
+
+  @override
+  String get editExercise => '운동 수정';
+
+  @override
+  String get deleteExercise => '운동 삭제';
+
+  @override
+  String get confirmDeleteExercise =>
+      '이 운동과 기록된 세트를 모두 삭제할까요? 삭제 후 복구할 수 없습니다.';
 }

@@ -189,4 +189,24 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Удалить этот подход?';
+
+  @override
+  String get editBlock => 'Изменить блок';
+
+  @override
+  String get deleteBlock => 'Удалить блок';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Удалить этот блок и все его упражнения и подходы? Это действие нельзя отменить.';
+
+  @override
+  String get editExercise => 'Изменить упражнение';
+
+  @override
+  String get deleteExercise => 'Удалить упражнение';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Удалить это упражнение и все его подходы? Это действие нельзя отменить.';
 }

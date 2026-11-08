@@ -83,5 +83,11 @@
   "resultOther": "Outro",
   "editSet": "Editar série",
   "deleteSet": "Excluir série",
-  "confirmDeleteSet": "Excluir esta série?"
+  "confirmDeleteSet": "Excluir esta série?",
+  "editBlock": "Editar bloco",
+  "deleteBlock": "Excluir bloco",
+  "confirmDeleteBlock": "Excluir este bloco e todos os exercícios e séries? Não é possível desfazer.",
+  "editExercise": "Editar exercício",
+  "deleteExercise": "Excluir exercício",
+  "confirmDeleteExercise": "Excluir este exercício e todas as séries? Não é possível desfazer."
 }

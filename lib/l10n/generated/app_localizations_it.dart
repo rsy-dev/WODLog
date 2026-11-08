@@ -190,4 +190,24 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Eliminare questa serie?';
+
+  @override
+  String get editBlock => 'Modifica blocco';
+
+  @override
+  String get deleteBlock => 'Elimina blocco';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Eliminare questo blocco e tutti i suoi esercizi e set? L’operazione non può essere annullata.';
+
+  @override
+  String get editExercise => 'Modifica esercizio';
+
+  @override
+  String get deleteExercise => 'Elimina esercizio';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Eliminare questo esercizio e tutti i suoi set? L’operazione non può essere annullata.';
 }

@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "Edit set",
   "deleteSet": "Delete set",
-  "confirmDeleteSet": "Delete this set?"
+  "confirmDeleteSet": "Delete this set?",
+  "editBlock": "Edit block",
+  "deleteBlock": "Delete block",
+  "confirmDeleteBlock": "Delete this block and all its exercises and sets? This cannot be undone.",
+  "editExercise": "Edit exercise",
+  "deleteExercise": "Delete exercise",
+  "confirmDeleteExercise": "Delete this exercise and all its sets? This cannot be undone."
 }

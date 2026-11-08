@@ -190,4 +190,24 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'क्या यह सेट हटाएँ?';
+
+  @override
+  String get editBlock => 'ब्लॉक संपादित करें';
+
+  @override
+  String get deleteBlock => 'ब्लॉक हटाएँ';
+
+  @override
+  String get confirmDeleteBlock =>
+      'क्या यह ब्लॉक और इसके सभी व्यायाम व सेट हटाने हैं? इसे वापस नहीं किया जा सकता।';
+
+  @override
+  String get editExercise => 'व्यायाम संपादित करें';
+
+  @override
+  String get deleteExercise => 'व्यायाम हटाएँ';
+
+  @override
+  String get confirmDeleteExercise =>
+      'क्या यह व्यायाम और इसके सभी सेट हटाने हैं? इसे वापस नहीं किया जा सकता।';
 }

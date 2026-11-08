@@ -83,5 +83,11 @@
   "resultOther": "Autre",
   "editSet": "Modifier la série",
   "deleteSet": "Supprimer la série",
-  "confirmDeleteSet": "Supprimer cette série ?"
+  "confirmDeleteSet": "Supprimer cette série ?",
+  "editBlock": "Modifier le bloc",
+  "deleteBlock": "Supprimer le bloc",
+  "confirmDeleteBlock": "Supprimer ce bloc ainsi que tous ses exercices et toutes leurs séries ? Cette action est irréversible.",
+  "editExercise": "Modifier l’exercice",
+  "deleteExercise": "Supprimer l’exercice",
+  "confirmDeleteExercise": "Supprimer cet exercice et toutes ses séries ? Cette action est irréversible."
 }

@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "تعديل المجموعة",
   "deleteSet": "حذف المجموعة",
-  "confirmDeleteSet": "هل تريد حذف هذه المجموعة؟"
+  "confirmDeleteSet": "هل تريد حذف هذه المجموعة؟",
+  "editBlock": "تعديل الكتلة",
+  "deleteBlock": "حذف الكتلة",
+  "confirmDeleteBlock": "هل تريد حذف هذه الكتلة وكل تمارينها ومجموعاتها؟ لا يمكن التراجع عن ذلك.",
+  "editExercise": "تعديل التمرين",
+  "deleteExercise": "حذف التمرين",
+  "confirmDeleteExercise": "هل تريد حذف هذا التمرين وكل مجموعاته؟ لا يمكن التراجع عن ذلك."
 }

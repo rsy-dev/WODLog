@@ -191,4 +191,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => '¿Eliminar esta serie?';
+
+  @override
+  String get editBlock => 'Editar bloque';
+
+  @override
+  String get deleteBlock => 'Eliminar bloque';
+
+  @override
+  String get confirmDeleteBlock =>
+      '¿Eliminar este bloque y todos sus ejercicios y series? No se puede deshacer.';
+
+  @override
+  String get editExercise => 'Editar ejercicio';
+
+  @override
+  String get deleteExercise => 'Eliminar ejercicio';
+
+  @override
+  String get confirmDeleteExercise =>
+      '¿Eliminar este ejercicio y todas sus series? No se puede deshacer.';
 }

@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "Edit set",
   "deleteSet": "Hapus set",
-  "confirmDeleteSet": "Hapus set ini?"
+  "confirmDeleteSet": "Hapus set ini?",
+  "editBlock": "Edit blok",
+  "deleteBlock": "Hapus blok",
+  "confirmDeleteBlock": "Hapus blok ini beserta semua latihan dan set-nya? Tindakan ini tidak dapat dibatalkan.",
+  "editExercise": "Edit latihan",
+  "deleteExercise": "Hapus latihan",
+  "confirmDeleteExercise": "Hapus latihan ini beserta semua set-nya? Tindakan ini tidak dapat dibatalkan."
 }

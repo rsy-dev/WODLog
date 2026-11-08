@@ -188,4 +188,24 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'এই সেটটি মুছবেন?';
+
+  @override
+  String get editBlock => 'ব্লক সম্পাদনা';
+
+  @override
+  String get deleteBlock => 'ব্লক মুছুন';
+
+  @override
+  String get confirmDeleteBlock =>
+      'এই ব্লক, এর সব ব্যায়াম ও সেট মুছে ফেলবেন? এটি ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get editExercise => 'ব্যায়াম সম্পাদনা';
+
+  @override
+  String get deleteExercise => 'ব্যায়াম মুছুন';
+
+  @override
+  String get confirmDeleteExercise =>
+      'এই ব্যায়াম ও এর সব সেট মুছে ফেলবেন? এটি ফিরিয়ে আনা যাবে না।';
 }

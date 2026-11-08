@@ -83,5 +83,11 @@
   "resultOther": "Otro",
   "editSet": "Editar serie",
   "deleteSet": "Eliminar serie",
-  "confirmDeleteSet": "¿Eliminar esta serie?"
+  "confirmDeleteSet": "¿Eliminar esta serie?",
+  "editBlock": "Editar bloque",
+  "deleteBlock": "Eliminar bloque",
+  "confirmDeleteBlock": "¿Eliminar este bloque y todos sus ejercicios y series? No se puede deshacer.",
+  "editExercise": "Editar ejercicio",
+  "deleteExercise": "Eliminar ejercicio",
+  "confirmDeleteExercise": "¿Eliminar este ejercicio y todas sus series? No se puede deshacer."
 }

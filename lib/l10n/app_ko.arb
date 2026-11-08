@@ -83,5 +83,11 @@
   "resultOther": "기타",
   "editSet": "세트 수정",
   "deleteSet": "세트 삭제",
-  "confirmDeleteSet": "이 세트를 삭제할까요?"
+  "confirmDeleteSet": "이 세트를 삭제할까요?",
+  "editBlock": "블록 수정",
+  "deleteBlock": "블록 삭제",
+  "confirmDeleteBlock": "이 블록과 포함된 운동 및 세트를 모두 삭제할까요? 삭제 후 복구할 수 없습니다.",
+  "editExercise": "운동 수정",
+  "deleteExercise": "운동 삭제",
+  "confirmDeleteExercise": "이 운동과 기록된 세트를 모두 삭제할까요? 삭제 후 복구할 수 없습니다."
 }

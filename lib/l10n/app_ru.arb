@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "Изменить подход",
   "deleteSet": "Удалить подход",
-  "confirmDeleteSet": "Удалить этот подход?"
+  "confirmDeleteSet": "Удалить этот подход?",
+  "editBlock": "Изменить блок",
+  "deleteBlock": "Удалить блок",
+  "confirmDeleteBlock": "Удалить этот блок и все его упражнения и подходы? Это действие нельзя отменить.",
+  "editExercise": "Изменить упражнение",
+  "deleteExercise": "Удалить упражнение",
+  "confirmDeleteExercise": "Удалить это упражнение и все его подходы? Это действие нельзя отменить."
 }

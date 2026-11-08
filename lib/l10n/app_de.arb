@@ -83,5 +83,11 @@
   "resultOther": "Sonstiges",
   "editSet": "Satz bearbeiten",
   "deleteSet": "Satz löschen",
-  "confirmDeleteSet": "Diesen Satz löschen?"
+  "confirmDeleteSet": "Diesen Satz löschen?",
+  "editBlock": "Block bearbeiten",
+  "deleteBlock": "Block löschen",
+  "confirmDeleteBlock": "Diesen Block sowie alle Übungen und Sätze löschen? Das kann nicht rückgängig gemacht werden.",
+  "editExercise": "Übung bearbeiten",
+  "deleteExercise": "Übung löschen",
+  "confirmDeleteExercise": "Diese Übung und alle Sätze löschen? Das kann nicht rückgängig gemacht werden."
 }

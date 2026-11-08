@@ -111,6 +111,43 @@ class WorkoutRepository {
         );
   }
 
+  Future<void> updateStrengthBlock({
+    required String blockId,
+    required String title,
+  }) async {
+    final normalizedTitle = title.trim();
+    if (normalizedTitle.isEmpty) {
+      throw ArgumentError.value(title, 'title', 'Block title cannot be empty.');
+    }
+    await (_database.update(_database.workoutBlocks)
+          ..where((block) => block.id.equals(blockId)))
+        .write(WorkoutBlocksCompanion(title: Value(normalizedTitle)));
+  }
+
+  Future<void> deleteStrengthBlock(String blockId) async {
+    await _database.transaction(() async {
+      final exercises = await (_database.select(
+        _database.workoutExercises,
+      )..where((exercise) => exercise.blockId.equals(blockId))).get();
+      await (_database.delete(
+        _database.workoutBlocks,
+      )..where((block) => block.id.equals(blockId))).go();
+
+      for (final exercise in exercises) {
+        final exerciseId = exercise.exerciseId;
+        if (exerciseId == null) continue;
+        final references = await (_database.select(
+          _database.workoutExercises,
+        )..where((candidate) => candidate.exerciseId.equals(exerciseId))).get();
+        if (references.isEmpty) {
+          await (_database.delete(
+            _database.exercises,
+          )..where((candidate) => candidate.id.equals(exerciseId))).go();
+        }
+      }
+    });
+  }
+
   Future<void> addExercise({
     required String blockId,
     required String name,
@@ -148,6 +185,72 @@ class WorkoutRepository {
               sortOrder: Value(sortOrder),
             ),
           );
+    });
+  }
+
+  Future<void> updateWorkoutExercise({
+    required String workoutExerciseId,
+    required String displayName,
+  }) async {
+    final normalizedName = displayName.trim();
+    if (normalizedName.isEmpty) {
+      throw ArgumentError.value(
+        displayName,
+        'displayName',
+        'Exercise name cannot be empty.',
+      );
+    }
+    await _database.transaction(() async {
+      final workoutExercise =
+          await (_database.select(_database.workoutExercises)
+                ..where((exercise) => exercise.id.equals(workoutExerciseId)))
+              .getSingleOrNull();
+      if (workoutExercise == null) return;
+
+      await (_database.update(_database.workoutExercises)
+            ..where((exercise) => exercise.id.equals(workoutExerciseId)))
+          .write(WorkoutExercisesCompanion(displayName: Value(normalizedName)));
+
+      final exerciseId = workoutExercise.exerciseId;
+      if (exerciseId == null) return;
+      final references = await (_database.select(
+        _database.workoutExercises,
+      )..where((exercise) => exercise.exerciseId.equals(exerciseId))).get();
+      if (references.length == 1) {
+        await (_database.update(
+          _database.exercises,
+        )..where((exercise) => exercise.id.equals(exerciseId))).write(
+          ExercisesCompanion(
+            name: Value(normalizedName),
+            normalizedName: Value(_normalizeExerciseName(normalizedName)),
+          ),
+        );
+      }
+    });
+  }
+
+  Future<void> deleteWorkoutExercise(String workoutExerciseId) async {
+    await _database.transaction(() async {
+      final workoutExercise =
+          await (_database.select(_database.workoutExercises)
+                ..where((exercise) => exercise.id.equals(workoutExerciseId)))
+              .getSingleOrNull();
+      if (workoutExercise == null) return;
+
+      await (_database.delete(
+        _database.workoutExercises,
+      )..where((exercise) => exercise.id.equals(workoutExerciseId))).go();
+
+      final exerciseId = workoutExercise.exerciseId;
+      if (exerciseId == null) return;
+      final remainingReferences = await (_database.select(
+        _database.workoutExercises,
+      )..where((exercise) => exercise.exerciseId.equals(exerciseId))).get();
+      if (remainingReferences.isEmpty) {
+        await (_database.delete(
+          _database.exercises,
+        )..where((exercise) => exercise.id.equals(exerciseId))).go();
+      }
     });
   }
 
@@ -227,4 +330,7 @@ class WorkoutRepository {
       );
     }
   }
+
+  String _normalizeExerciseName(String name) =>
+      name.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 }

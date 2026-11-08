@@ -19,9 +19,18 @@ flutter run
 
 ## 현재 구현
 
-- 오늘 운동 세션 생성 및 실시간 조회
-- Drift/SQLite 데이터베이스 기반과 핵심 운동 기록 테이블
-- 기기 언어/지역을 따르는 12개 UI 로캘과 지역별 날짜·숫자 표시
+- 기기 안의 Drift/SQLite에 운동 기록 저장 (계정 및 앱 서버 없음)
+- 오늘 세션 생성, 수정, 삭제 및 운동 내역 조회
+- 근력 블록, 종목, 세트 기록과 WOD 결과 기록
+- 24개 UI 로캘과 지역별 날짜·숫자 표시
+- 기록 흐름을 간결하게 유지하는 미니멀 UI
+
+## 진행 중
+
+- WOD 사진의 온디바이스 OCR과 확인 가능한 기록 초안
+- JSON 백업/복원 및 kg/lb 단위 설정
+- iPhone TestFlight 베타와 Galaxy APK 다운로드 경로
+- 실기기 설치 및 핵심 기록 흐름 검증
 
 Android 우선 출시 및 광고 준비 항목은 [`docs/android-first-release.md`](docs/android-first-release.md)에 정리합니다.
 

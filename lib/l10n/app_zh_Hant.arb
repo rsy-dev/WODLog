@@ -83,5 +83,11 @@
   "resultOther": "其他",
   "editSet": "編輯組",
   "deleteSet": "刪除組",
-  "confirmDeleteSet": "要刪除這個訓練組嗎？"
+  "confirmDeleteSet": "要刪除這個訓練組嗎？",
+  "editBlock": "編輯訓練組",
+  "deleteBlock": "刪除訓練組",
+  "confirmDeleteBlock": "刪除此訓練組及其中所有動作和組數？此操作無法復原。",
+  "editExercise": "編輯動作",
+  "deleteExercise": "刪除動作",
+  "confirmDeleteExercise": "刪除此動作及其所有組數？此操作無法復原。"
 }

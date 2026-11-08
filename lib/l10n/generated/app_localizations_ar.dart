@@ -188,4 +188,24 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'هل تريد حذف هذه المجموعة؟';
+
+  @override
+  String get editBlock => 'تعديل الكتلة';
+
+  @override
+  String get deleteBlock => 'حذف الكتلة';
+
+  @override
+  String get confirmDeleteBlock =>
+      'هل تريد حذف هذه الكتلة وكل تمارينها ومجموعاتها؟ لا يمكن التراجع عن ذلك.';
+
+  @override
+  String get editExercise => 'تعديل التمرين';
+
+  @override
+  String get deleteExercise => 'حذف التمرين';
+
+  @override
+  String get confirmDeleteExercise =>
+      'هل تريد حذف هذا التمرين وكل مجموعاته؟ لا يمكن التراجع عن ذلك.';
 }

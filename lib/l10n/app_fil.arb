@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "I-edit ang set",
   "deleteSet": "Tanggalin ang set",
-  "confirmDeleteSet": "Tanggalin ang set na ito?"
+  "confirmDeleteSet": "Tanggalin ang set na ito?",
+  "editBlock": "I-edit ang block",
+  "deleteBlock": "Burahin ang block",
+  "confirmDeleteBlock": "Burahin ang block na ito pati lahat ng ehersisyo at set nito? Hindi ito maibabalik.",
+  "editExercise": "I-edit ang ehersisyo",
+  "deleteExercise": "Burahin ang ehersisyo",
+  "confirmDeleteExercise": "Burahin ang ehersisyong ito pati lahat ng set nito? Hindi ito maibabalik."
 }

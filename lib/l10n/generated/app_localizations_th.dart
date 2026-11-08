@@ -188,4 +188,24 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'ลบเซตนี้หรือไม่?';
+
+  @override
+  String get editBlock => 'แก้ไขบล็อก';
+
+  @override
+  String get deleteBlock => 'ลบบล็อก';
+
+  @override
+  String get confirmDeleteBlock =>
+      'ลบบล็อกนี้ รวมถึงท่าและเซ็ตทั้งหมดหรือไม่ การลบนี้ย้อนกลับไม่ได้';
+
+  @override
+  String get editExercise => 'แก้ไขท่าออกกำลังกาย';
+
+  @override
+  String get deleteExercise => 'ลบท่าออกกำลังกาย';
+
+  @override
+  String get confirmDeleteExercise =>
+      'ลบท่านี้และเซ็ตทั้งหมดหรือไม่ การลบนี้ย้อนกลับไม่ได้';
 }

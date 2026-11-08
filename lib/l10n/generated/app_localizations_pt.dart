@@ -190,6 +190,26 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Excluir esta série?';
+
+  @override
+  String get editBlock => 'Editar bloco';
+
+  @override
+  String get deleteBlock => 'Excluir bloco';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Excluir este bloco e todos os exercícios e séries? Não é possível desfazer.';
+
+  @override
+  String get editExercise => 'Editar exercício';
+
+  @override
+  String get deleteExercise => 'Excluir exercício';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Excluir este exercício e todas as séries? Não é possível desfazer.';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -377,4 +397,24 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
 
   @override
   String get confirmDeleteSet => 'Excluir esta série?';
+
+  @override
+  String get editBlock => 'Editar bloco';
+
+  @override
+  String get deleteBlock => 'Excluir bloco';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Excluir este bloco e todos os exercícios e séries? Não é possível desfazer.';
+
+  @override
+  String get editExercise => 'Editar exercício';
+
+  @override
+  String get deleteExercise => 'Excluir exercício';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Excluir este exercício e todas as séries? Não é possível desfazer.';
 }

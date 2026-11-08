@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "سیٹ میں ترمیم کریں",
   "deleteSet": "سیٹ حذف کریں",
-  "confirmDeleteSet": "کیا یہ سیٹ حذف کریں؟"
+  "confirmDeleteSet": "کیا یہ سیٹ حذف کریں؟",
+  "editBlock": "بلاک میں ترمیم کریں",
+  "deleteBlock": "بلاک حذف کریں",
+  "confirmDeleteBlock": "کیا یہ بلاک اور اس کی تمام ورزشیں اور سیٹس حذف کریں؟ اسے واپس نہیں کیا جا سکتا۔",
+  "editExercise": "ورزش میں ترمیم کریں",
+  "deleteExercise": "ورزش حذف کریں",
+  "confirmDeleteExercise": "کیا یہ ورزش اور اس کے تمام سیٹس حذف کریں؟ اسے واپس نہیں کیا جا سکتا۔"
 }

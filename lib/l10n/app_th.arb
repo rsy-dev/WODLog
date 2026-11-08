@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "แก้ไขเซต",
   "deleteSet": "ลบเซต",
-  "confirmDeleteSet": "ลบเซตนี้หรือไม่?"
+  "confirmDeleteSet": "ลบเซตนี้หรือไม่?",
+  "editBlock": "แก้ไขบล็อก",
+  "deleteBlock": "ลบบล็อก",
+  "confirmDeleteBlock": "ลบบล็อกนี้ รวมถึงท่าและเซ็ตทั้งหมดหรือไม่ การลบนี้ย้อนกลับไม่ได้",
+  "editExercise": "แก้ไขท่าออกกำลังกาย",
+  "deleteExercise": "ลบท่าออกกำลังกาย",
+  "confirmDeleteExercise": "ลบท่านี้และเซ็ตทั้งหมดหรือไม่ การลบนี้ย้อนกลับไม่ได้"
 }

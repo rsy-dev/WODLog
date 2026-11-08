@@ -185,6 +185,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => '删除这个训练组吗？';
+
+  @override
+  String get editBlock => '编辑训练组';
+
+  @override
+  String get deleteBlock => '删除训练组';
+
+  @override
+  String get confirmDeleteBlock => '删除此训练组及其中所有动作和组数？此操作无法撤销。';
+
+  @override
+  String get editExercise => '编辑动作';
+
+  @override
+  String get deleteExercise => '删除动作';
+
+  @override
+  String get confirmDeleteExercise => '删除此动作及其所有组数？此操作无法撤销。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -367,6 +385,24 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get confirmDeleteSet => '删除这个训练组吗？';
+
+  @override
+  String get editBlock => '编辑训练组';
+
+  @override
+  String get deleteBlock => '删除训练组';
+
+  @override
+  String get confirmDeleteBlock => '删除此训练组及其中所有动作和组数？此操作无法撤销。';
+
+  @override
+  String get editExercise => '编辑动作';
+
+  @override
+  String get deleteExercise => '删除动作';
+
+  @override
+  String get confirmDeleteExercise => '删除此动作及其所有组数？此操作无法撤销。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -549,4 +585,22 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get confirmDeleteSet => '要刪除這個訓練組嗎？';
+
+  @override
+  String get editBlock => '編輯訓練組';
+
+  @override
+  String get deleteBlock => '刪除訓練組';
+
+  @override
+  String get confirmDeleteBlock => '刪除此訓練組及其中所有動作和組數？此操作無法復原。';
+
+  @override
+  String get editExercise => '編輯動作';
+
+  @override
+  String get deleteExercise => '刪除動作';
+
+  @override
+  String get confirmDeleteExercise => '刪除此動作及其所有組數？此操作無法復原。';
 }

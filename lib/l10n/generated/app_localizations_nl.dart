@@ -191,4 +191,24 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Deze set verwijderen?';
+
+  @override
+  String get editBlock => 'Blok bewerken';
+
+  @override
+  String get deleteBlock => 'Blok verwijderen';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Dit blok en alle oefeningen en sets verwijderen? Dit kan niet ongedaan worden gemaakt.';
+
+  @override
+  String get editExercise => 'Oefening bewerken';
+
+  @override
+  String get deleteExercise => 'Oefening verwijderen';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Deze oefening en alle sets verwijderen? Dit kan niet ongedaan worden gemaakt.';
 }

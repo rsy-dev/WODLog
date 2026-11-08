@@ -190,4 +190,24 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Bu set silinsin mi?';
+
+  @override
+  String get editBlock => 'Bloğu düzenle';
+
+  @override
+  String get deleteBlock => 'Bloğu sil';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Bu bloğu ve tüm hareketlerini ve setlerini silmek istiyor musunuz? Bu işlem geri alınamaz.';
+
+  @override
+  String get editExercise => 'Hareketi düzenle';
+
+  @override
+  String get deleteExercise => 'Hareketi sil';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Bu hareketi ve tüm setlerini silmek istiyor musunuz? Bu işlem geri alınamaz.';
 }

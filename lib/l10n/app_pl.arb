@@ -83,5 +83,11 @@
   "resultOther": "Other",
   "editSet": "Edytuj serię",
   "deleteSet": "Usuń serię",
-  "confirmDeleteSet": "Usunąć tę serię?"
+  "confirmDeleteSet": "Usunąć tę serię?",
+  "editBlock": "Edytuj blok",
+  "deleteBlock": "Usuń blok",
+  "confirmDeleteBlock": "Usunąć ten blok oraz wszystkie ćwiczenia i serie? Tej czynności nie można cofnąć.",
+  "editExercise": "Edytuj ćwiczenie",
+  "deleteExercise": "Usuń ćwiczenie",
+  "confirmDeleteExercise": "Usunąć to ćwiczenie i wszystkie jego serie? Tej czynności nie można cofnąć."
 }

@@ -188,4 +188,24 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Hapus set ini?';
+
+  @override
+  String get editBlock => 'Edit blok';
+
+  @override
+  String get deleteBlock => 'Hapus blok';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Hapus blok ini beserta semua latihan dan set-nya? Tindakan ini tidak dapat dibatalkan.';
+
+  @override
+  String get editExercise => 'Edit latihan';
+
+  @override
+  String get deleteExercise => 'Hapus latihan';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Hapus latihan ini beserta semua set-nya? Tindakan ini tidak dapat dibatalkan.';
 }

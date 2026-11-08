@@ -480,6 +480,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete this set?'**
   String get confirmDeleteSet;
+
+  /// No description provided for @editBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit block'**
+  String get editBlock;
+
+  /// No description provided for @deleteBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete block'**
+  String get deleteBlock;
+
+  /// No description provided for @confirmDeleteBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this block and all its exercises and sets? This cannot be undone.'**
+  String get confirmDeleteBlock;
+
+  /// No description provided for @editExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit exercise'**
+  String get editExercise;
+
+  /// No description provided for @deleteExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete exercise'**
+  String get deleteExercise;
+
+  /// No description provided for @confirmDeleteExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this exercise and all its sets? This cannot be undone.'**
+  String get confirmDeleteExercise;
 }
 
 class _AppLocalizationsDelegate

@@ -188,4 +188,24 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get confirmDeleteSet => 'Usunąć tę serię?';
+
+  @override
+  String get editBlock => 'Edytuj blok';
+
+  @override
+  String get deleteBlock => 'Usuń blok';
+
+  @override
+  String get confirmDeleteBlock =>
+      'Usunąć ten blok oraz wszystkie ćwiczenia i serie? Tej czynności nie można cofnąć.';
+
+  @override
+  String get editExercise => 'Edytuj ćwiczenie';
+
+  @override
+  String get deleteExercise => 'Usuń ćwiczenie';
+
+  @override
+  String get confirmDeleteExercise =>
+      'Usunąć to ćwiczenie i wszystkie jego serie? Tej czynności nie można cofnąć.';
 }
