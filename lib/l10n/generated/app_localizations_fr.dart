@@ -110,4 +110,75 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'Aucun bloc pour le moment.\nAjoutez un bloc de force pour commencer.';
+
+  @override
+  String get history => 'Historique';
+
+  @override
+  String get emptyHistory => 'Aucun entraînement enregistré pour le moment.';
+
+  @override
+  String get editSession => 'Modifier la séance';
+
+  @override
+  String get sessionTitle => 'Titre de la séance';
+
+  @override
+  String get sessionNotes => 'Notes (facultatif)';
+
+  @override
+  String get deleteSession => 'Supprimer la séance';
+
+  @override
+  String get confirmDeleteSession =>
+      'Supprimer cette séance et tous ses enregistrements ? Cette action est irréversible.';
+
+  @override
+  String get wodSectionTitle => 'WOD';
+
+  @override
+  String get addWodBlock => 'Ajouter un WOD';
+
+  @override
+  String get wodName => 'Nom du WOD';
+
+  @override
+  String get addWodResult => 'Ajouter un résultat';
+
+  @override
+  String get editWodResult => 'Modifier le résultat';
+
+  @override
+  String get wodResultType => 'Type de résultat';
+
+  @override
+  String get wodScore => 'Score ou résultat';
+
+  @override
+  String get wodNotes => 'Notes du résultat';
+
+  @override
+  String get emptyWodBlocks =>
+      'Aucun WOD. Ajoutez-en un pour enregistrer un résultat.';
+
+  @override
+  String get emptyWodResult => 'Aucun résultat enregistré.';
+
+  @override
+  String get resultForTime => 'Au temps';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Tours + répétitions';
+
+  @override
+  String get resultLoad => 'Charge';
+
+  @override
+  String get resultOther => 'Autre';
 }

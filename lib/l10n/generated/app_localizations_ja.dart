@@ -107,4 +107,73 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get emptyBlocks => 'ワークアウトブロックはまだありません。\nストレングスブロックを追加して記録を始めましょう。';
+
+  @override
+  String get history => '履歴';
+
+  @override
+  String get emptyHistory => 'ワークアウトの記録はまだありません。';
+
+  @override
+  String get editSession => 'セッションを編集';
+
+  @override
+  String get sessionTitle => 'セッション名';
+
+  @override
+  String get sessionNotes => 'メモ（任意）';
+
+  @override
+  String get deleteSession => 'セッションを削除';
+
+  @override
+  String get confirmDeleteSession => 'このセッションとすべての記録を削除しますか？元に戻せません。';
+
+  @override
+  String get wodSectionTitle => 'WOD';
+
+  @override
+  String get addWodBlock => 'WODを追加';
+
+  @override
+  String get wodName => 'WOD名';
+
+  @override
+  String get addWodResult => '結果を追加';
+
+  @override
+  String get editWodResult => '結果を編集';
+
+  @override
+  String get wodResultType => '結果タイプ';
+
+  @override
+  String get wodScore => 'スコアまたは結果';
+
+  @override
+  String get wodNotes => '結果メモ';
+
+  @override
+  String get emptyWodBlocks => 'WODはまだありません。追加して結果を記録しましょう。';
+
+  @override
+  String get emptyWodResult => '結果はまだありません。';
+
+  @override
+  String get resultForTime => 'タイム計測';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'ラウンド＋回数';
+
+  @override
+  String get resultLoad => '重量';
+
+  @override
+  String get resultOther => 'その他';
 }

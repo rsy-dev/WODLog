@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "Тренировка сегодня",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "Сегодня тренировок пока нет",
   "emptyTodayHelp": "Создайте занятие, чтобы записать сегодняшнюю тренировку.",
   "startWorkout": "Начать тренировку",
@@ -28,10 +34,51 @@
   "reps": "Повторения",
   "save": "Сохранить",
   "setLabel": "Подход {number}",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} кг × {reps} повт.",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "Введите корректный вес и целое число повторений больше нуля.",
   "bodyweight": "Собственный вес",
-  "emptyBlocks": "Блоков тренировок пока нет.\nДобавьте силовой блок, чтобы начать запись."
+  "emptyBlocks": "Блоков тренировок пока нет.\nДобавьте силовой блок, чтобы начать запись.",
+  "history": "История",
+  "emptyHistory": "Записей тренировок пока нет.",
+  "editSession": "Изменить занятие",
+  "sessionTitle": "Название занятия",
+  "sessionNotes": "Заметки (необязательно)",
+  "deleteSession": "Удалить занятие",
+  "confirmDeleteSession": "Удалить это занятие и все записи тренировок? Это действие нельзя отменить.",
+  "wodSectionTitle": "WODs",
+  "addWodBlock": "Add WOD",
+  "wodName": "WOD name",
+  "addWodResult": "Add result",
+  "editWodResult": "Edit result",
+  "wodResultType": "Result type",
+  "wodScore": "Score or result",
+  "wodNotes": "Result notes",
+  "emptyWodBlocks": "No WODs yet. Add one to log a result.",
+  "emptyWodResult": "No result recorded.",
+  "resultForTime": "For time",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Rounds + reps",
+  "resultLoad": "Load",
+  "resultOther": "Other"
 }

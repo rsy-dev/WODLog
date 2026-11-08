@@ -109,4 +109,74 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'Chưa có phần tập luyện.\nThêm phần sức mạnh để bắt đầu ghi lại.';
+
+  @override
+  String get history => 'Lịch sử';
+
+  @override
+  String get emptyHistory => 'Chưa có bài tập nào được ghi lại.';
+
+  @override
+  String get editSession => 'Chỉnh sửa buổi tập';
+
+  @override
+  String get sessionTitle => 'Tên buổi tập';
+
+  @override
+  String get sessionNotes => 'Ghi chú (không bắt buộc)';
+
+  @override
+  String get deleteSession => 'Xóa buổi tập';
+
+  @override
+  String get confirmDeleteSession =>
+      'Xóa buổi tập này và toàn bộ nhật ký? Không thể hoàn tác thao tác này.';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Add WOD';
+
+  @override
+  String get wodName => 'WOD name';
+
+  @override
+  String get addWodResult => 'Add result';
+
+  @override
+  String get editWodResult => 'Edit result';
+
+  @override
+  String get wodResultType => 'Result type';
+
+  @override
+  String get wodScore => 'Score or result';
+
+  @override
+  String get wodNotes => 'Result notes';
+
+  @override
+  String get emptyWodBlocks => 'No WODs yet. Add one to log a result.';
+
+  @override
+  String get emptyWodResult => 'No result recorded.';
+
+  @override
+  String get resultForTime => 'For time';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + reps';
+
+  @override
+  String get resultLoad => 'Load';
+
+  @override
+  String get resultOther => 'Other';
 }

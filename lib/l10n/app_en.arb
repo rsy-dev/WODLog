@@ -5,7 +5,9 @@
   "workoutDate": "{date}",
   "@workoutDate": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "noRecords": "No workout recorded today",
@@ -34,18 +36,49 @@
   "setLabel": "Set {number}",
   "@setLabel": {
     "placeholders": {
-      "number": {"type": "int"}
+      "number": {
+        "type": "int"
+      }
     }
   },
   "setSummary": "{setLabel}  {weight} kg × {reps} reps",
   "@setSummary": {
     "placeholders": {
-      "setLabel": {"type": "String"},
-      "weight": {"type": "String"},
-      "reps": {"type": "int"}
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
     }
   },
   "invalidSet": "Enter a valid weight and a whole number of reps greater than zero.",
   "bodyweight": "Bodyweight",
-  "emptyBlocks": "No workout blocks yet.\nAdd a Strength block to start logging."
+  "emptyBlocks": "No workout blocks yet.\nAdd a Strength block to start logging.",
+  "history": "History",
+  "emptyHistory": "No workouts recorded yet.",
+  "editSession": "Edit session",
+  "sessionTitle": "Session title",
+  "sessionNotes": "Notes (optional)",
+  "deleteSession": "Delete session",
+  "confirmDeleteSession": "Delete this session and all of its workout records? This cannot be undone.",
+  "wodSectionTitle": "WODs",
+  "addWodBlock": "Add WOD",
+  "wodName": "WOD name",
+  "addWodResult": "Add result",
+  "editWodResult": "Edit result",
+  "wodResultType": "Result type",
+  "wodScore": "Score or result",
+  "wodNotes": "Result notes",
+  "emptyWodBlocks": "No WODs yet. Add one to log a result.",
+  "emptyWodResult": "No result recorded.",
+  "resultForTime": "For time",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Rounds + reps",
+  "resultLoad": "Load",
+  "resultOther": "Other"
 }

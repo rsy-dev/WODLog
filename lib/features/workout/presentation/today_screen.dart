@@ -17,7 +17,16 @@ class TodayScreen extends ConsumerWidget {
     final sessions = ref.watch(sessionsForDateProvider(workoutDate));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('WODLog')),
+      appBar: AppBar(
+        title: const Text('WODLog'),
+        actions: [
+          IconButton(
+            tooltip: l10n.history,
+            onPressed: () => context.push('/history'),
+            icon: const Icon(Icons.history),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -75,9 +84,12 @@ class TodayScreen extends ConsumerWidget {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () async {
-                    await ref
+                    final sessionId = await ref
                         .read(workoutRepositoryProvider)
                         .createSession(workoutDate: workoutDate);
+                    if (context.mounted) {
+                      context.push('/sessions/$sessionId');
+                    }
                   },
                   icon: const Icon(Icons.add),
                   label: Text(l10n.startWorkout),

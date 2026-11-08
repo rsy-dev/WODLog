@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import 'wod_blocks_section.dart';
 import '../providers/workout_providers.dart';
 
 class WorkoutSessionScreen extends ConsumerWidget {
@@ -15,20 +17,52 @@ class WorkoutSessionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final blocks = ref.watch(blocksForSessionProvider(sessionId));
+    final session = ref.watch(workoutSessionProvider(sessionId));
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.workoutLog)),
-      body: blocks.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text(l10n.loadBlocksError)),
-        data: (items) => items.isEmpty
-            ? const _EmptyBlocksState()
-            : ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                itemCount: items.length,
-                itemBuilder: (context, index) =>
-                    _WorkoutBlockCard(block: items[index]),
+      appBar: AppBar(
+        title: Text(session.value?.title ?? l10n.workoutLog),
+        actions: [
+          if (session.value != null) ...[
+            IconButton(
+              tooltip: l10n.editSession,
+              onPressed: () => _editSession(context, ref, session.value!),
+              icon: const Icon(Icons.edit_outlined),
+            ),
+            IconButton(
+              tooltip: l10n.deleteSession,
+              onPressed: () => _deleteSession(context, ref),
+              icon: const Icon(Icons.delete_outline),
+            ),
+          ],
+        ],
+      ),
+      body: Column(
+        children: [
+          if (session.value?.notes case final notes?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(notes),
               ),
+            ),
+          Expanded(
+            child: blocks.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) =>
+                  Center(child: Text(l10n.loadBlocksError)),
+              data: (items) => ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                children: [
+                  WodBlocksSection(sessionId: sessionId),
+                  if (items.isEmpty) const _EmptyBlocksState(),
+                  for (final item in items) _WorkoutBlockCard(block: item),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addBlock(context, ref, blocks.value?.length ?? 0),
@@ -60,6 +94,94 @@ class WorkoutSessionScreen extends ConsumerWidget {
           sortOrder: sortOrder,
         );
   }
+
+  Future<void> _editSession(
+    BuildContext context,
+    WidgetRef ref,
+    WorkoutSession session,
+  ) async {
+    final values = await _showSessionEditDialog(context, session);
+    if (values == null || !context.mounted) return;
+    await ref
+        .read(workoutRepositoryProvider)
+        .updateSession(
+          sessionId: sessionId,
+          title: values.$1,
+          notes: values.$2,
+        );
+  }
+
+  Future<void> _deleteSession(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.deleteSession),
+        content: Text(l10n.confirmDeleteSession),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.deleteSession),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    await ref.read(workoutRepositoryProvider).deleteSession(sessionId);
+    if (context.mounted) context.go('/');
+  }
+}
+
+Future<(String, String)?> _showSessionEditDialog(
+  BuildContext context,
+  WorkoutSession session,
+) async {
+  final l10n = AppLocalizations.of(context)!;
+  final titleController = TextEditingController(text: session.title ?? '');
+  final notesController = TextEditingController(text: session.notes ?? '');
+  final values = await showDialog<(String, String)>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.editSession),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: titleController,
+            decoration: InputDecoration(labelText: l10n.sessionTitle),
+            textCapitalization: TextCapitalization.sentences,
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: notesController,
+            decoration: InputDecoration(labelText: l10n.sessionNotes),
+            minLines: 2,
+            maxLines: 4,
+            textCapitalization: TextCapitalization.sentences,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () =>
+              Navigator.of(dialogContext)
+                  .pop((titleController.text, notesController.text)),
+          child: Text(l10n.save),
+        ),
+      ],
+    ),
+  );
+  titleController.dispose();
+  notesController.dispose();
+  return values;
 }
 
 class _WorkoutBlockCard extends ConsumerWidget {

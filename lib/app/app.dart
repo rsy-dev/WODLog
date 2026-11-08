@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/workout/presentation/today_screen.dart';
+import '../features/workout/presentation/workout_history_screen.dart';
 import '../features/workout/presentation/workout_session_screen.dart';
 import '../l10n/generated/app_localizations.dart';
 
@@ -11,6 +12,10 @@ class WodLogApp extends StatelessWidget {
   static final _router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => const TodayScreen()),
+      GoRoute(
+        path: '/history',
+        builder: (context, state) => const WorkoutHistoryScreen(),
+      ),
       GoRoute(
         path: '/sessions/:sessionId',
         builder: (context, state) =>

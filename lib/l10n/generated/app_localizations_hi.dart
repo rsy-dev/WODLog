@@ -111,4 +111,74 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'अभी कोई वर्कआउट ब्लॉक नहीं है।\nशुरू करने के लिए स्ट्रेंथ ब्लॉक जोड़ें।';
+
+  @override
+  String get history => 'इतिहास';
+
+  @override
+  String get emptyHistory => 'अभी तक कोई वर्कआउट दर्ज नहीं है।';
+
+  @override
+  String get editSession => 'सत्र संपादित करें';
+
+  @override
+  String get sessionTitle => 'सत्र का शीर्षक';
+
+  @override
+  String get sessionNotes => 'नोट (वैकल्पिक)';
+
+  @override
+  String get deleteSession => 'सत्र हटाएँ';
+
+  @override
+  String get confirmDeleteSession =>
+      'क्या यह सत्र और इसके सभी वर्कआउट रिकॉर्ड हटाने हैं? इसे वापस नहीं किया जा सकता।';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Add WOD';
+
+  @override
+  String get wodName => 'WOD name';
+
+  @override
+  String get addWodResult => 'Add result';
+
+  @override
+  String get editWodResult => 'Edit result';
+
+  @override
+  String get wodResultType => 'Result type';
+
+  @override
+  String get wodScore => 'Score or result';
+
+  @override
+  String get wodNotes => 'Result notes';
+
+  @override
+  String get emptyWodBlocks => 'No WODs yet. Add one to log a result.';
+
+  @override
+  String get emptyWodResult => 'No result recorded.';
+
+  @override
+  String get resultForTime => 'For time';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + reps';
+
+  @override
+  String get resultLoad => 'Load';
+
+  @override
+  String get resultOther => 'Other';
 }

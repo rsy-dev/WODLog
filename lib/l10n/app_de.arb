@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "Heutiges Training",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "Für heute ist kein Training erfasst",
   "emptyTodayHelp": "Erstelle eine Einheit, um dein Training zu erfassen.",
   "startWorkout": "Training starten",
@@ -28,10 +34,51 @@
   "reps": "Wiederholungen",
   "save": "Speichern",
   "setLabel": "Satz {number}",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} kg × {reps} Wiederholungen",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "Gib ein gültiges Gewicht und eine ganze Wiederholungszahl größer als null ein.",
   "bodyweight": "Körpergewicht",
-  "emptyBlocks": "Noch keine Trainingsblöcke.\nFüge einen Kraftblock hinzu, um zu beginnen."
+  "emptyBlocks": "Noch keine Trainingsblöcke.\nFüge einen Kraftblock hinzu, um zu beginnen.",
+  "history": "Verlauf",
+  "emptyHistory": "Noch keine Trainings erfasst.",
+  "editSession": "Einheit bearbeiten",
+  "sessionTitle": "Titel der Einheit",
+  "sessionNotes": "Notizen (optional)",
+  "deleteSession": "Einheit löschen",
+  "confirmDeleteSession": "Diese Einheit und alle Trainingsdaten löschen? Das kann nicht rückgängig gemacht werden.",
+  "wodSectionTitle": "WODs",
+  "addWodBlock": "WOD hinzufügen",
+  "wodName": "WOD-Name",
+  "addWodResult": "Ergebnis hinzufügen",
+  "editWodResult": "Ergebnis bearbeiten",
+  "wodResultType": "Ergebnistyp",
+  "wodScore": "Punktzahl oder Ergebnis",
+  "wodNotes": "Ergebnisnotizen",
+  "emptyWodBlocks": "Noch keine WODs. Füge eines hinzu, um ein Ergebnis einzutragen.",
+  "emptyWodResult": "Noch kein Ergebnis erfasst.",
+  "resultForTime": "Auf Zeit",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Runden + Wiederholungen",
+  "resultLoad": "Last",
+  "resultOther": "Sonstiges"
 }

@@ -14,6 +14,14 @@ final sessionsForDateProvider = StreamProvider.family((
   return ref.watch(workoutRepositoryProvider).watchSessionsForDate(workoutDate);
 });
 
+final recentSessionsProvider = StreamProvider((ref) {
+  return ref.watch(workoutRepositoryProvider).watchRecentSessions();
+});
+
+final workoutSessionProvider = StreamProvider.family((ref, String sessionId) {
+  return ref.watch(workoutRepositoryProvider).watchSession(sessionId);
+});
+
 final blocksForSessionProvider = StreamProvider.family((ref, String sessionId) {
   return ref.watch(workoutRepositoryProvider).watchBlocksForSession(sessionId);
 });

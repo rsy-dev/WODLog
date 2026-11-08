@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "今日训练",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "今天还没有训练记录",
   "emptyTodayHelp": "创建训练课程，记录今天的训练。",
   "startWorkout": "开始训练",
@@ -28,10 +34,51 @@
   "reps": "次数",
   "save": "保存",
   "setLabel": "第 {number} 组",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} kg × {reps} 次",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "请输入有效重量和大于零的整数次数。",
   "bodyweight": "自重",
-  "emptyBlocks": "还没有训练区块。\n添加力量训练区块以开始记录。"
+  "emptyBlocks": "还没有训练区块。\n添加力量训练区块以开始记录。",
+  "history": "历史记录",
+  "emptyHistory": "尚无训练记录。",
+  "editSession": "编辑训练",
+  "sessionTitle": "训练名称",
+  "sessionNotes": "备注（选填）",
+  "deleteSession": "删除训练",
+  "confirmDeleteSession": "确定删除此训练及其所有记录吗？此操作无法撤销。",
+  "wodSectionTitle": "WOD",
+  "addWodBlock": "添加 WOD",
+  "wodName": "WOD 名称",
+  "addWodResult": "添加结果",
+  "editWodResult": "编辑结果",
+  "wodResultType": "结果类型",
+  "wodScore": "分数或结果",
+  "wodNotes": "结果备注",
+  "emptyWodBlocks": "暂无 WOD。添加一个以记录结果。",
+  "emptyWodResult": "尚无结果记录。",
+  "resultForTime": "计时完成",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "轮数 + 次数",
+  "resultLoad": "负重",
+  "resultOther": "其他"
 }

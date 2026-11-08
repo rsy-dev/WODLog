@@ -111,4 +111,74 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'Wala pang workout block.\nMagdagdag ng strength block para magsimulang magtala.';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get emptyHistory => 'Wala pang workout na naitatala.';
+
+  @override
+  String get editSession => 'I-edit ang session';
+
+  @override
+  String get sessionTitle => 'Pamagat ng session';
+
+  @override
+  String get sessionNotes => 'Mga tala (opsyonal)';
+
+  @override
+  String get deleteSession => 'Burahin ang session';
+
+  @override
+  String get confirmDeleteSession =>
+      'Burahin ang session na ito at lahat ng workout record nito? Hindi ito maibabalik.';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Add WOD';
+
+  @override
+  String get wodName => 'WOD name';
+
+  @override
+  String get addWodResult => 'Add result';
+
+  @override
+  String get editWodResult => 'Edit result';
+
+  @override
+  String get wodResultType => 'Result type';
+
+  @override
+  String get wodScore => 'Score or result';
+
+  @override
+  String get wodNotes => 'Result notes';
+
+  @override
+  String get emptyWodBlocks => 'No WODs yet. Add one to log a result.';
+
+  @override
+  String get emptyWodResult => 'No result recorded.';
+
+  @override
+  String get resultForTime => 'For time';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + reps';
+
+  @override
+  String get resultLoad => 'Load';
+
+  @override
+  String get resultOther => 'Other';
 }

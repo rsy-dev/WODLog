@@ -324,6 +324,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No workout blocks yet.\nAdd a Strength block to start logging.'**
   String get emptyBlocks;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @emptyHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts recorded yet.'**
+  String get emptyHistory;
+
+  /// No description provided for @editSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit session'**
+  String get editSession;
+
+  /// No description provided for @sessionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session title'**
+  String get sessionTitle;
+
+  /// No description provided for @sessionNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get sessionNotes;
+
+  /// No description provided for @deleteSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete session'**
+  String get deleteSession;
+
+  /// No description provided for @confirmDeleteSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this session and all of its workout records? This cannot be undone.'**
+  String get confirmDeleteSession;
+
+  /// No description provided for @wodSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WODs'**
+  String get wodSectionTitle;
+
+  /// No description provided for @addWodBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Add WOD'**
+  String get addWodBlock;
+
+  /// No description provided for @wodName.
+  ///
+  /// In en, this message translates to:
+  /// **'WOD name'**
+  String get wodName;
+
+  /// No description provided for @addWodResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Add result'**
+  String get addWodResult;
+
+  /// No description provided for @editWodResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit result'**
+  String get editWodResult;
+
+  /// No description provided for @wodResultType.
+  ///
+  /// In en, this message translates to:
+  /// **'Result type'**
+  String get wodResultType;
+
+  /// No description provided for @wodScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score or result'**
+  String get wodScore;
+
+  /// No description provided for @wodNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Result notes'**
+  String get wodNotes;
+
+  /// No description provided for @emptyWodBlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'No WODs yet. Add one to log a result.'**
+  String get emptyWodBlocks;
+
+  /// No description provided for @emptyWodResult.
+  ///
+  /// In en, this message translates to:
+  /// **'No result recorded.'**
+  String get emptyWodResult;
+
+  /// No description provided for @resultForTime.
+  ///
+  /// In en, this message translates to:
+  /// **'For time'**
+  String get resultForTime;
+
+  /// No description provided for @resultAmrap.
+  ///
+  /// In en, this message translates to:
+  /// **'AMRAP'**
+  String get resultAmrap;
+
+  /// No description provided for @resultEmom.
+  ///
+  /// In en, this message translates to:
+  /// **'EMOM'**
+  String get resultEmom;
+
+  /// No description provided for @resultRoundsReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds + reps'**
+  String get resultRoundsReps;
+
+  /// No description provided for @resultLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load'**
+  String get resultLoad;
+
+  /// No description provided for @resultOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get resultOther;
 }
 
 class _AppLocalizationsDelegate

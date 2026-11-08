@@ -5,7 +5,9 @@
   "workoutDate": "{date}",
   "@workoutDate": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "noRecords": "오늘 기록이 아직 없어요",
@@ -34,18 +36,49 @@
   "setLabel": "{number}세트",
   "@setLabel": {
     "placeholders": {
-      "number": {"type": "int"}
+      "number": {
+        "type": "int"
+      }
     }
   },
   "setSummary": "{setLabel}  {weight} kg × {reps}회",
   "@setSummary": {
     "placeholders": {
-      "setLabel": {"type": "String"},
-      "weight": {"type": "String"},
-      "reps": {"type": "int"}
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
     }
   },
   "invalidSet": "올바른 중량과 0보다 큰 정수 반복 수를 입력하세요.",
   "bodyweight": "맨몸",
-  "emptyBlocks": "아직 운동 블록이 없어요.\nStrength 블록을 추가해 운동을 기록하세요."
+  "emptyBlocks": "아직 운동 블록이 없어요.\nStrength 블록을 추가해 운동을 기록하세요.",
+  "history": "운동 이력",
+  "emptyHistory": "아직 기록된 운동이 없어요.",
+  "editSession": "세션 수정",
+  "sessionTitle": "세션 제목",
+  "sessionNotes": "메모 (선택)",
+  "deleteSession": "세션 삭제",
+  "confirmDeleteSession": "이 세션과 모든 운동 기록을 삭제할까요? 되돌릴 수 없습니다.",
+  "wodSectionTitle": "WOD",
+  "addWodBlock": "WOD 추가",
+  "wodName": "WOD 이름",
+  "addWodResult": "결과 추가",
+  "editWodResult": "결과 수정",
+  "wodResultType": "결과 유형",
+  "wodScore": "점수 또는 결과",
+  "wodNotes": "결과 메모",
+  "emptyWodBlocks": "아직 WOD가 없습니다. 추가하여 결과를 기록하세요.",
+  "emptyWodResult": "기록된 결과가 없습니다.",
+  "resultForTime": "시간 기록",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "라운드 + 반복",
+  "resultLoad": "중량",
+  "resultOther": "기타"
 }

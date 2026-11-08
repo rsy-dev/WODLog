@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "今日のワークアウト",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "今日の記録はまだありません",
   "emptyTodayHelp": "セッションを追加して今日のワークアウトを記録しましょう。",
   "startWorkout": "記録を開始",
@@ -28,10 +34,51 @@
   "reps": "回数",
   "save": "保存",
   "setLabel": "{number}セット",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} kg × {reps}回",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "有効な重量と、0より大きい整数の回数を入力してください。",
   "bodyweight": "自重",
-  "emptyBlocks": "ワークアウトブロックはまだありません。\nストレングスブロックを追加して記録を始めましょう。"
+  "emptyBlocks": "ワークアウトブロックはまだありません。\nストレングスブロックを追加して記録を始めましょう。",
+  "history": "履歴",
+  "emptyHistory": "ワークアウトの記録はまだありません。",
+  "editSession": "セッションを編集",
+  "sessionTitle": "セッション名",
+  "sessionNotes": "メモ（任意）",
+  "deleteSession": "セッションを削除",
+  "confirmDeleteSession": "このセッションとすべての記録を削除しますか？元に戻せません。",
+  "wodSectionTitle": "WOD",
+  "addWodBlock": "WODを追加",
+  "wodName": "WOD名",
+  "addWodResult": "結果を追加",
+  "editWodResult": "結果を編集",
+  "wodResultType": "結果タイプ",
+  "wodScore": "スコアまたは結果",
+  "wodNotes": "結果メモ",
+  "emptyWodBlocks": "WODはまだありません。追加して結果を記録しましょう。",
+  "emptyWodResult": "結果はまだありません。",
+  "resultForTime": "タイム計測",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "ラウンド＋回数",
+  "resultLoad": "重量",
+  "resultOther": "その他"
 }

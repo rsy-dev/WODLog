@@ -107,6 +107,75 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get emptyBlocks => '还没有训练区块。\n添加力量训练区块以开始记录。';
+
+  @override
+  String get history => '历史记录';
+
+  @override
+  String get emptyHistory => '尚无训练记录。';
+
+  @override
+  String get editSession => '编辑训练';
+
+  @override
+  String get sessionTitle => '训练名称';
+
+  @override
+  String get sessionNotes => '备注（选填）';
+
+  @override
+  String get deleteSession => '删除训练';
+
+  @override
+  String get confirmDeleteSession => '确定删除此训练及其所有记录吗？此操作无法撤销。';
+
+  @override
+  String get wodSectionTitle => 'WOD';
+
+  @override
+  String get addWodBlock => '添加 WOD';
+
+  @override
+  String get wodName => 'WOD 名称';
+
+  @override
+  String get addWodResult => '添加结果';
+
+  @override
+  String get editWodResult => '编辑结果';
+
+  @override
+  String get wodResultType => '结果类型';
+
+  @override
+  String get wodScore => '分数或结果';
+
+  @override
+  String get wodNotes => '结果备注';
+
+  @override
+  String get emptyWodBlocks => '暂无 WOD。添加一个以记录结果。';
+
+  @override
+  String get emptyWodResult => '尚无结果记录。';
+
+  @override
+  String get resultForTime => '计时完成';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => '轮数 + 次数';
+
+  @override
+  String get resultLoad => '负重';
+
+  @override
+  String get resultOther => '其他';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -211,6 +280,75 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get emptyBlocks => '还没有训练区块。\n添加力量训练区块以开始记录。';
+
+  @override
+  String get history => '历史记录';
+
+  @override
+  String get emptyHistory => '尚无训练记录。';
+
+  @override
+  String get editSession => '编辑训练';
+
+  @override
+  String get sessionTitle => '训练名称';
+
+  @override
+  String get sessionNotes => '备注（选填）';
+
+  @override
+  String get deleteSession => '删除训练';
+
+  @override
+  String get confirmDeleteSession => '确定删除此训练及其所有记录吗？此操作无法撤销。';
+
+  @override
+  String get wodSectionTitle => 'WOD';
+
+  @override
+  String get addWodBlock => '添加 WOD';
+
+  @override
+  String get wodName => 'WOD 名称';
+
+  @override
+  String get addWodResult => '添加结果';
+
+  @override
+  String get editWodResult => '编辑结果';
+
+  @override
+  String get wodResultType => '结果类型';
+
+  @override
+  String get wodScore => '分数或结果';
+
+  @override
+  String get wodNotes => '结果备注';
+
+  @override
+  String get emptyWodBlocks => '暂无 WOD。添加一个以记录结果。';
+
+  @override
+  String get emptyWodResult => '尚无结果记录。';
+
+  @override
+  String get resultForTime => '计时完成';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => '轮数 + 次数';
+
+  @override
+  String get resultLoad => '负重';
+
+  @override
+  String get resultOther => '其他';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -315,4 +453,73 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get emptyBlocks => '目前沒有訓練區塊。\n新增肌力訓練區塊即可開始記錄。';
+
+  @override
+  String get history => '訓練記錄';
+
+  @override
+  String get emptyHistory => '目前沒有訓練紀錄。';
+
+  @override
+  String get editSession => '編輯訓練';
+
+  @override
+  String get sessionTitle => '訓練名稱';
+
+  @override
+  String get sessionNotes => '備註（選填）';
+
+  @override
+  String get deleteSession => '刪除訓練';
+
+  @override
+  String get confirmDeleteSession => '確定要刪除此訓練及所有紀錄嗎？此操作無法復原。';
+
+  @override
+  String get wodSectionTitle => 'WOD';
+
+  @override
+  String get addWodBlock => '新增 WOD';
+
+  @override
+  String get wodName => 'WOD 名稱';
+
+  @override
+  String get addWodResult => '新增結果';
+
+  @override
+  String get editWodResult => '編輯結果';
+
+  @override
+  String get wodResultType => '結果類型';
+
+  @override
+  String get wodScore => '分數或結果';
+
+  @override
+  String get wodNotes => '結果備註';
+
+  @override
+  String get emptyWodBlocks => '尚無 WOD。新增一個以記錄結果。';
+
+  @override
+  String get emptyWodResult => '尚無結果紀錄。';
+
+  @override
+  String get resultForTime => '計時完成';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => '回合 + 次數';
+
+  @override
+  String get resultLoad => '負重';
+
+  @override
+  String get resultOther => '其他';
 }

@@ -111,4 +111,74 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'Henüz antrenman bloğu yok.\nKayda başlamak için bir kuvvet bloğu ekleyin.';
+
+  @override
+  String get history => 'Geçmiş';
+
+  @override
+  String get emptyHistory => 'Henüz antrenman kaydı yok.';
+
+  @override
+  String get editSession => 'Oturumu düzenle';
+
+  @override
+  String get sessionTitle => 'Oturum başlığı';
+
+  @override
+  String get sessionNotes => 'Notlar (isteğe bağlı)';
+
+  @override
+  String get deleteSession => 'Oturumu sil';
+
+  @override
+  String get confirmDeleteSession =>
+      'Bu oturum ve tüm antrenman kayıtları silinsin mi? Bu işlem geri alınamaz.';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Add WOD';
+
+  @override
+  String get wodName => 'WOD name';
+
+  @override
+  String get addWodResult => 'Add result';
+
+  @override
+  String get editWodResult => 'Edit result';
+
+  @override
+  String get wodResultType => 'Result type';
+
+  @override
+  String get wodScore => 'Score or result';
+
+  @override
+  String get wodNotes => 'Result notes';
+
+  @override
+  String get emptyWodBlocks => 'No WODs yet. Add one to log a result.';
+
+  @override
+  String get emptyWodResult => 'No result recorded.';
+
+  @override
+  String get resultForTime => 'For time';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + reps';
+
+  @override
+  String get resultLoad => 'Load';
+
+  @override
+  String get resultOther => 'Other';
 }

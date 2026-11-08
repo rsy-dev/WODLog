@@ -109,4 +109,74 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'ยังไม่มีบล็อกการออกกำลังกาย\nเพิ่มบล็อก Strength เพื่อเริ่มบันทึก';
+
+  @override
+  String get history => 'ประวัติ';
+
+  @override
+  String get emptyHistory => 'ยังไม่มีบันทึกการออกกำลังกาย';
+
+  @override
+  String get editSession => 'แก้ไขเซสชัน';
+
+  @override
+  String get sessionTitle => 'ชื่อเซสชัน';
+
+  @override
+  String get sessionNotes => 'บันทึก (ไม่บังคับ)';
+
+  @override
+  String get deleteSession => 'ลบเซสชัน';
+
+  @override
+  String get confirmDeleteSession =>
+      'ลบเซสชันนี้และบันทึกการออกกำลังกายทั้งหมดหรือไม่ การดำเนินการนี้ย้อนกลับไม่ได้';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Add WOD';
+
+  @override
+  String get wodName => 'WOD name';
+
+  @override
+  String get addWodResult => 'Add result';
+
+  @override
+  String get editWodResult => 'Edit result';
+
+  @override
+  String get wodResultType => 'Result type';
+
+  @override
+  String get wodScore => 'Score or result';
+
+  @override
+  String get wodNotes => 'Result notes';
+
+  @override
+  String get emptyWodBlocks => 'No WODs yet. Add one to log a result.';
+
+  @override
+  String get emptyWodResult => 'No result recorded.';
+
+  @override
+  String get resultForTime => 'For time';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + reps';
+
+  @override
+  String get resultLoad => 'Load';
+
+  @override
+  String get resultOther => 'Other';
 }

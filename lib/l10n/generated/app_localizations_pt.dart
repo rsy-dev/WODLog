@@ -110,6 +110,77 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'Ainda não há blocos de treino.\nAdicione um bloco de força para começar.';
+
+  @override
+  String get history => 'Histórico';
+
+  @override
+  String get emptyHistory => 'Ainda não há treinos registrados.';
+
+  @override
+  String get editSession => 'Editar sessão';
+
+  @override
+  String get sessionTitle => 'Título da sessão';
+
+  @override
+  String get sessionNotes => 'Notas (opcional)';
+
+  @override
+  String get deleteSession => 'Excluir sessão';
+
+  @override
+  String get confirmDeleteSession =>
+      'Excluir esta sessão e todos os registros de treino? Esta ação não pode ser desfeita.';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Adicionar WOD';
+
+  @override
+  String get wodName => 'Nome do WOD';
+
+  @override
+  String get addWodResult => 'Adicionar resultado';
+
+  @override
+  String get editWodResult => 'Editar resultado';
+
+  @override
+  String get wodResultType => 'Tipo de resultado';
+
+  @override
+  String get wodScore => 'Pontuação ou resultado';
+
+  @override
+  String get wodNotes => 'Notas do resultado';
+
+  @override
+  String get emptyWodBlocks =>
+      'Ainda não há WODs. Adicione um para registrar um resultado.';
+
+  @override
+  String get emptyWodResult => 'Nenhum resultado registrado.';
+
+  @override
+  String get resultForTime => 'Por tempo';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + repetições';
+
+  @override
+  String get resultLoad => 'Carga';
+
+  @override
+  String get resultOther => 'Outro';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).
@@ -217,4 +288,75 @@ class AppLocalizationsPtBr extends AppLocalizationsPt {
   @override
   String get emptyBlocks =>
       'Ainda não há blocos de treino.\nAdicione um bloco de força para começar.';
+
+  @override
+  String get history => 'Histórico';
+
+  @override
+  String get emptyHistory => 'Ainda não há treinos registrados.';
+
+  @override
+  String get editSession => 'Editar sessão';
+
+  @override
+  String get sessionTitle => 'Título da sessão';
+
+  @override
+  String get sessionNotes => 'Notas (opcional)';
+
+  @override
+  String get deleteSession => 'Excluir sessão';
+
+  @override
+  String get confirmDeleteSession =>
+      'Excluir esta sessão e todos os registros de treino? Esta ação não pode ser desfeita.';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Adicionar WOD';
+
+  @override
+  String get wodName => 'Nome do WOD';
+
+  @override
+  String get addWodResult => 'Adicionar resultado';
+
+  @override
+  String get editWodResult => 'Editar resultado';
+
+  @override
+  String get wodResultType => 'Tipo de resultado';
+
+  @override
+  String get wodScore => 'Pontuação ou resultado';
+
+  @override
+  String get wodNotes => 'Notas do resultado';
+
+  @override
+  String get emptyWodBlocks =>
+      'Ainda não há WODs. Adicione um para registrar um resultado.';
+
+  @override
+  String get emptyWodResult => 'Nenhum resultado registrado.';
+
+  @override
+  String get resultForTime => 'Por tempo';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + repetições';
+
+  @override
+  String get resultLoad => 'Carga';
+
+  @override
+  String get resultOther => 'Outro';
 }

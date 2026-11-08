@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "Training van vandaag",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "Vandaag is er nog geen training vastgelegd",
   "emptyTodayHelp": "Maak een sessie aan om je training van vandaag vast te leggen.",
   "startWorkout": "Training starten",
@@ -28,10 +34,51 @@
   "reps": "Herhalingen",
   "save": "Opslaan",
   "setLabel": "Set {number}",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} kg × {reps} herhalingen",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "Vul een geldig gewicht en een geheel aantal herhalingen groter dan nul in.",
   "bodyweight": "Lichaamsgewicht",
-  "emptyBlocks": "Er zijn nog geen trainingsblokken.\nVoeg een krachtblok toe om te beginnen."
+  "emptyBlocks": "Er zijn nog geen trainingsblokken.\nVoeg een krachtblok toe om te beginnen.",
+  "history": "Geschiedenis",
+  "emptyHistory": "Er zijn nog geen trainingen vastgelegd.",
+  "editSession": "Sessie bewerken",
+  "sessionTitle": "Sessietitel",
+  "sessionNotes": "Notities (optioneel)",
+  "deleteSession": "Sessie verwijderen",
+  "confirmDeleteSession": "Deze sessie en alle trainingsgegevens verwijderen? Dit kan niet ongedaan worden gemaakt.",
+  "wodSectionTitle": "WODs",
+  "addWodBlock": "Add WOD",
+  "wodName": "WOD name",
+  "addWodResult": "Add result",
+  "editWodResult": "Edit result",
+  "wodResultType": "Result type",
+  "wodScore": "Score or result",
+  "wodNotes": "Result notes",
+  "emptyWodBlocks": "No WODs yet. Add one to log a result.",
+  "emptyWodResult": "No result recorded.",
+  "resultForTime": "For time",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Rounds + reps",
+  "resultLoad": "Load",
+  "resultOther": "Other"
 }

@@ -107,4 +107,73 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get emptyBlocks => '아직 운동 블록이 없어요.\nStrength 블록을 추가해 운동을 기록하세요.';
+
+  @override
+  String get history => '운동 이력';
+
+  @override
+  String get emptyHistory => '아직 기록된 운동이 없어요.';
+
+  @override
+  String get editSession => '세션 수정';
+
+  @override
+  String get sessionTitle => '세션 제목';
+
+  @override
+  String get sessionNotes => '메모 (선택)';
+
+  @override
+  String get deleteSession => '세션 삭제';
+
+  @override
+  String get confirmDeleteSession => '이 세션과 모든 운동 기록을 삭제할까요? 되돌릴 수 없습니다.';
+
+  @override
+  String get wodSectionTitle => 'WOD';
+
+  @override
+  String get addWodBlock => 'WOD 추가';
+
+  @override
+  String get wodName => 'WOD 이름';
+
+  @override
+  String get addWodResult => '결과 추가';
+
+  @override
+  String get editWodResult => '결과 수정';
+
+  @override
+  String get wodResultType => '결과 유형';
+
+  @override
+  String get wodScore => '점수 또는 결과';
+
+  @override
+  String get wodNotes => '결과 메모';
+
+  @override
+  String get emptyWodBlocks => '아직 WOD가 없습니다. 추가하여 결과를 기록하세요.';
+
+  @override
+  String get emptyWodResult => '기록된 결과가 없습니다.';
+
+  @override
+  String get resultForTime => '시간 기록';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => '라운드 + 반복';
+
+  @override
+  String get resultLoad => '중량';
+
+  @override
+  String get resultOther => '기타';
 }

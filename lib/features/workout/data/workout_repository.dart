@@ -16,18 +16,60 @@ class WorkoutRepository {
         .watch();
   }
 
-  Future<void> createSession({required String workoutDate}) async {
+  Stream<List<WorkoutSession>> watchRecentSessions() {
+    return (_database.select(_database.workoutSessions)
+          ..orderBy([
+            (session) => OrderingTerm.desc(session.workoutDate),
+            (session) => OrderingTerm.desc(session.createdAt),
+          ])
+          ..limit(500))
+        .watch();
+  }
+
+  Stream<WorkoutSession?> watchSession(String sessionId) {
+    return (_database.select(_database.workoutSessions)
+          ..where((session) => session.id.equals(sessionId)))
+        .watchSingleOrNull();
+  }
+
+  Future<String> createSession({required String workoutDate}) async {
     final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    final id = _uuid.v4();
     await _database
         .into(_database.workoutSessions)
         .insert(
           WorkoutSessionsCompanion.insert(
-            id: _uuid.v4(),
+            id: id,
             workoutDate: workoutDate,
             createdAt: now,
             updatedAt: now,
           ),
         );
+    return id;
+  }
+
+  Future<void> updateSession({
+    required String sessionId,
+    required String title,
+    required String notes,
+  }) async {
+    final normalizedTitle = title.trim();
+    final normalizedNotes = notes.trim();
+    await (_database.update(_database.workoutSessions)
+          ..where((session) => session.id.equals(sessionId)))
+        .write(
+          WorkoutSessionsCompanion(
+            title: Value(normalizedTitle.isEmpty ? null : normalizedTitle),
+            notes: Value(normalizedNotes.isEmpty ? null : normalizedNotes),
+            updatedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+          ),
+        );
+  }
+
+  Future<void> deleteSession(String sessionId) async {
+    await (_database.delete(_database.workoutSessions)
+          ..where((session) => session.id.equals(sessionId)))
+        .go();
   }
 
   Stream<List<WorkoutBlock>> watchBlocksForSession(String sessionId) {

@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "Entrenamiento de hoy",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "Hoy no hay entrenamientos registrados",
   "emptyTodayHelp": "Crea una sesión para registrar el entrenamiento de hoy.",
   "startWorkout": "Empezar entrenamiento",
@@ -28,10 +34,51 @@
   "reps": "Repeticiones",
   "save": "Guardar",
   "setLabel": "Serie {number}",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} kg × {reps} repeticiones",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "Introduce un peso válido y un número entero de repeticiones mayor que cero.",
   "bodyweight": "Peso corporal",
-  "emptyBlocks": "Todavía no hay bloques.\nAñade un bloque de fuerza para empezar a registrar."
+  "emptyBlocks": "Todavía no hay bloques.\nAñade un bloque de fuerza para empezar a registrar.",
+  "history": "Historial",
+  "emptyHistory": "Todavía no hay entrenamientos registrados.",
+  "editSession": "Editar sesión",
+  "sessionTitle": "Título de la sesión",
+  "sessionNotes": "Notas (opcional)",
+  "deleteSession": "Eliminar sesión",
+  "confirmDeleteSession": "¿Eliminar esta sesión y todos sus registros? Esta acción no se puede deshacer.",
+  "wodSectionTitle": "WOD",
+  "addWodBlock": "Añadir WOD",
+  "wodName": "Nombre del WOD",
+  "addWodResult": "Añadir resultado",
+  "editWodResult": "Editar resultado",
+  "wodResultType": "Tipo de resultado",
+  "wodScore": "Puntuación o resultado",
+  "wodNotes": "Notas del resultado",
+  "emptyWodBlocks": "Aún no hay WOD. Añade uno para registrar un resultado.",
+  "emptyWodResult": "No hay resultados.",
+  "resultForTime": "Por tiempo",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Rondas + repeticiones",
+  "resultLoad": "Carga",
+  "resultOther": "Otro"
 }

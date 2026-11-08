@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "Latihan hari ini",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "Belum ada latihan yang dicatat hari ini",
   "emptyTodayHelp": "Buat sesi untuk mencatat latihan hari ini.",
   "startWorkout": "Mulai latihan",
@@ -28,10 +34,51 @@
   "reps": "Repetisi",
   "save": "Simpan",
   "setLabel": "Set {number}",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} kg × {reps} repetisi",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "Masukkan beban yang valid dan jumlah repetisi bilangan bulat lebih dari nol.",
   "bodyweight": "Berat badan",
-  "emptyBlocks": "Belum ada blok latihan.\nTambahkan blok strength untuk mulai mencatat."
+  "emptyBlocks": "Belum ada blok latihan.\nTambahkan blok strength untuk mulai mencatat.",
+  "history": "Riwayat",
+  "emptyHistory": "Belum ada latihan yang dicatat.",
+  "editSession": "Edit sesi",
+  "sessionTitle": "Judul sesi",
+  "sessionNotes": "Catatan (opsional)",
+  "deleteSession": "Hapus sesi",
+  "confirmDeleteSession": "Hapus sesi ini dan semua catatan latihannya? Tindakan ini tidak dapat dibatalkan.",
+  "wodSectionTitle": "WODs",
+  "addWodBlock": "Add WOD",
+  "wodName": "WOD name",
+  "addWodResult": "Add result",
+  "editWodResult": "Edit result",
+  "wodResultType": "Result type",
+  "wodScore": "Score or result",
+  "wodNotes": "Result notes",
+  "emptyWodBlocks": "No WODs yet. Add one to log a result.",
+  "emptyWodResult": "No result recorded.",
+  "resultForTime": "For time",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Rounds + reps",
+  "resultLoad": "Load",
+  "resultOther": "Other"
 }

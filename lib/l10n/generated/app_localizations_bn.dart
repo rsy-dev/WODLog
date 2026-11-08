@@ -109,4 +109,74 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get emptyBlocks =>
       'এখনও কোনো ওয়ার্কআউট ব্লক নেই।\nশুরু করতে একটি স্ট্রেংথ ব্লক যোগ করুন।';
+
+  @override
+  String get history => 'ইতিহাস';
+
+  @override
+  String get emptyHistory => 'এখনও কোনো ওয়ার্কআউট রেকর্ড নেই।';
+
+  @override
+  String get editSession => 'সেশন সম্পাদনা';
+
+  @override
+  String get sessionTitle => 'সেশনের শিরোনাম';
+
+  @override
+  String get sessionNotes => 'নোট (ঐচ্ছিক)';
+
+  @override
+  String get deleteSession => 'সেশন মুছুন';
+
+  @override
+  String get confirmDeleteSession =>
+      'এই সেশন এবং এর সব ওয়ার্কআউট রেকর্ড মুছবেন? এটি ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get wodSectionTitle => 'WODs';
+
+  @override
+  String get addWodBlock => 'Add WOD';
+
+  @override
+  String get wodName => 'WOD name';
+
+  @override
+  String get addWodResult => 'Add result';
+
+  @override
+  String get editWodResult => 'Edit result';
+
+  @override
+  String get wodResultType => 'Result type';
+
+  @override
+  String get wodScore => 'Score or result';
+
+  @override
+  String get wodNotes => 'Result notes';
+
+  @override
+  String get emptyWodBlocks => 'No WODs yet. Add one to log a result.';
+
+  @override
+  String get emptyWodResult => 'No result recorded.';
+
+  @override
+  String get resultForTime => 'For time';
+
+  @override
+  String get resultAmrap => 'AMRAP';
+
+  @override
+  String get resultEmom => 'EMOM';
+
+  @override
+  String get resultRoundsReps => 'Rounds + reps';
+
+  @override
+  String get resultLoad => 'Load';
+
+  @override
+  String get resultOther => 'Other';
 }

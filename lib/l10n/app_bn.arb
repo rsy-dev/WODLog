@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "আজকের ওয়ার্কআউট",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "আজকের কোনো ওয়ার্কআউট রেকর্ড নেই",
   "emptyTodayHelp": "আজকের ওয়ার্কআউট লিখতে একটি সেশন তৈরি করুন।",
   "startWorkout": "ওয়ার্কআউট শুরু করুন",
@@ -28,10 +34,51 @@
   "reps": "পুনরাবৃত্তি",
   "save": "সংরক্ষণ",
   "setLabel": "সেট {number}",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} কেজি × {reps} বার",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "সঠিক ওজন এবং শূন্যের বেশি পূর্ণসংখ্যা পুনরাবৃত্তি লিখুন।",
   "bodyweight": "শরীরের ওজন",
-  "emptyBlocks": "এখনও কোনো ওয়ার্কআউট ব্লক নেই।\nশুরু করতে একটি স্ট্রেংথ ব্লক যোগ করুন।"
+  "emptyBlocks": "এখনও কোনো ওয়ার্কআউট ব্লক নেই।\nশুরু করতে একটি স্ট্রেংথ ব্লক যোগ করুন।",
+  "history": "ইতিহাস",
+  "emptyHistory": "এখনও কোনো ওয়ার্কআউট রেকর্ড নেই।",
+  "editSession": "সেশন সম্পাদনা",
+  "sessionTitle": "সেশনের শিরোনাম",
+  "sessionNotes": "নোট (ঐচ্ছিক)",
+  "deleteSession": "সেশন মুছুন",
+  "confirmDeleteSession": "এই সেশন এবং এর সব ওয়ার্কআউট রেকর্ড মুছবেন? এটি ফিরিয়ে আনা যাবে না।",
+  "wodSectionTitle": "WODs",
+  "addWodBlock": "Add WOD",
+  "wodName": "WOD name",
+  "addWodResult": "Add result",
+  "editWodResult": "Edit result",
+  "wodResultType": "Result type",
+  "wodScore": "Score or result",
+  "wodNotes": "Result notes",
+  "emptyWodBlocks": "No WODs yet. Add one to log a result.",
+  "emptyWodResult": "No result recorded.",
+  "resultForTime": "For time",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Rounds + reps",
+  "resultLoad": "Load",
+  "resultOther": "Other"
 }

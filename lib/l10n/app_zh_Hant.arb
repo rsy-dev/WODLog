@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "今日訓練",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "今天還沒有訓練紀錄",
   "emptyTodayHelp": "建立訓練課表，記錄今天的訓練。",
   "startWorkout": "開始訓練",
@@ -28,10 +34,51 @@
   "reps": "次數",
   "save": "儲存",
   "setLabel": "第 {number} 組",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} kg × {reps} 次",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "請輸入有效重量及大於零的整數次數。",
   "bodyweight": "自體重量",
-  "emptyBlocks": "目前沒有訓練區塊。\n新增肌力訓練區塊即可開始記錄。"
+  "emptyBlocks": "目前沒有訓練區塊。\n新增肌力訓練區塊即可開始記錄。",
+  "history": "訓練記錄",
+  "emptyHistory": "目前沒有訓練紀錄。",
+  "editSession": "編輯訓練",
+  "sessionTitle": "訓練名稱",
+  "sessionNotes": "備註（選填）",
+  "deleteSession": "刪除訓練",
+  "confirmDeleteSession": "確定要刪除此訓練及所有紀錄嗎？此操作無法復原。",
+  "wodSectionTitle": "WOD",
+  "addWodBlock": "新增 WOD",
+  "wodName": "WOD 名稱",
+  "addWodResult": "新增結果",
+  "editWodResult": "編輯結果",
+  "wodResultType": "結果類型",
+  "wodScore": "分數或結果",
+  "wodNotes": "結果備註",
+  "emptyWodBlocks": "尚無 WOD。新增一個以記錄結果。",
+  "emptyWodResult": "尚無結果紀錄。",
+  "resultForTime": "計時完成",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "回合 + 次數",
+  "resultLoad": "負重",
+  "resultOther": "其他"
 }

@@ -3,7 +3,13 @@
   "appTitle": "WODLog",
   "todayWorkout": "تمرين اليوم",
   "workoutDate": "{date}",
-  "@workoutDate": {"placeholders": {"date": {"type": "String"}}},
+  "@workoutDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noRecords": "لا يوجد تمرين مسجل اليوم",
   "emptyTodayHelp": "أنشئ جلسة لتسجيل تمرين اليوم.",
   "startWorkout": "ابدأ التمرين",
@@ -28,10 +34,51 @@
   "reps": "التكرارات",
   "save": "حفظ",
   "setLabel": "المجموعة {number}",
-  "@setLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@setLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "setSummary": "{setLabel}  {weight} كجم × {reps} تكرارات",
-  "@setSummary": {"placeholders": {"setLabel": {"type": "String"}, "weight": {"type": "String"}, "reps": {"type": "int"}}},
+  "@setSummary": {
+    "placeholders": {
+      "setLabel": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
   "invalidSet": "أدخل وزنًا صالحًا وعددًا صحيحًا من التكرارات أكبر من صفر.",
   "bodyweight": "وزن الجسم",
-  "emptyBlocks": "لا توجد مجموعات تمرين بعد.\nأضف مجموعة قوة لبدء التسجيل."
+  "emptyBlocks": "لا توجد مجموعات تمرين بعد.\nأضف مجموعة قوة لبدء التسجيل.",
+  "history": "السجل",
+  "emptyHistory": "لا توجد تمارين مسجلة بعد.",
+  "editSession": "تعديل الجلسة",
+  "sessionTitle": "عنوان الجلسة",
+  "sessionNotes": "ملاحظات (اختياري)",
+  "deleteSession": "حذف الجلسة",
+  "confirmDeleteSession": "هل تريد حذف هذه الجلسة وجميع سجلات التمرين؟ لا يمكن التراجع عن ذلك.",
+  "wodSectionTitle": "WODs",
+  "addWodBlock": "Add WOD",
+  "wodName": "WOD name",
+  "addWodResult": "Add result",
+  "editWodResult": "Edit result",
+  "wodResultType": "Result type",
+  "wodScore": "Score or result",
+  "wodNotes": "Result notes",
+  "emptyWodBlocks": "No WODs yet. Add one to log a result.",
+  "emptyWodResult": "No result recorded.",
+  "resultForTime": "For time",
+  "resultAmrap": "AMRAP",
+  "resultEmom": "EMOM",
+  "resultRoundsReps": "Rounds + reps",
+  "resultLoad": "Load",
+  "resultOther": "Other"
 }
