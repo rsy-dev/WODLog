@@ -208,4 +208,104 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'Hapus latihan ini beserta semua set-nya? Tindakan ini tidak dapat dibatalkan.';
+
+  @override
+  String get progress => 'Progres';
+
+  @override
+  String get todaySummary => 'Ringkasan hari ini';
+
+  @override
+  String get trainingOverview => 'Ringkasan latihan';
+
+  @override
+  String get sessionsLabel => 'sesi';
+
+  @override
+  String get setsLabel => 'set';
+
+  @override
+  String movementCount(int count) {
+    return '$count gerakan';
+  }
+
+  @override
+  String get movementsLabel => 'gerakan';
+
+  @override
+  String setCount(int count) {
+    return '$count set';
+  }
+
+  @override
+  String get weightedVolume => 'Volume berbeban';
+
+  @override
+  String get volumeUnit => 'kg·repetisi';
+
+  @override
+  String get bestLoadChange => 'Perubahan beban terbaik';
+
+  @override
+  String get volumeChange => 'Perubahan volume';
+
+  @override
+  String get repChange => 'Perubahan repetisi';
+
+  @override
+  String get noProgressYet => 'Ulangi latihan untuk membandingkan progres.';
+
+  @override
+  String get previousWorkout => 'Sebelumnya';
+
+  @override
+  String get lastWorkout => 'Terbaru';
+
+  @override
+  String get chooseDate => 'Pilih tanggal latihan';
+
+  @override
+  String get allMovements => 'Semua';
+
+  @override
+  String get customExercise => 'Tambah latihan khusus';
+
+  @override
+  String get noMovementsFound => 'Gerakan tidak ditemukan';
+
+  @override
+  String get noChange => 'Tidak ada perubahan';
+
+  @override
+  String get searchMovements => 'Cari gerakan';
+
+  @override
+  String get benchmarkWorkouts => 'WOD tolok ukur';
+
+  @override
+  String get movementTypes => 'Kelompok gerakan';
+
+  @override
+  String get last7Days => '7 hari terakhir';
+
+  @override
+  String get previous7Days => '7 hari sebelumnya';
+
+  @override
+  String get categoryBarbell => 'Barbel';
+
+  @override
+  String get categoryGymnastics => 'Gimnastik';
+
+  @override
+  String get categoryDumbbellKettlebell => 'Dumbel/Kettlebell';
+
+  @override
+  String get categoryCardio => 'Kardio';
+
+  @override
+  String get categoryBodyweight => 'Berat badan';
+
+  @override
+  String get categoryOtherEquipment => 'Peralatan lain';
 }

@@ -209,4 +209,104 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'Удалить это упражнение и все его подходы? Это действие нельзя отменить.';
+
+  @override
+  String get progress => 'Прогресс';
+
+  @override
+  String get todaySummary => 'Сводка за сегодня';
+
+  @override
+  String get trainingOverview => 'Сводка тренировок';
+
+  @override
+  String get sessionsLabel => 'тренировки';
+
+  @override
+  String get setsLabel => 'подходы';
+
+  @override
+  String movementCount(int count) {
+    return '$count движений';
+  }
+
+  @override
+  String get movementsLabel => 'движения';
+
+  @override
+  String setCount(int count) {
+    return '$count подходов';
+  }
+
+  @override
+  String get weightedVolume => 'Объём с отягощением';
+
+  @override
+  String get volumeUnit => 'кг·повторения';
+
+  @override
+  String get bestLoadChange => 'Изменение максимального веса';
+
+  @override
+  String get volumeChange => 'Изменение объёма';
+
+  @override
+  String get repChange => 'Изменение повторений';
+
+  @override
+  String get noProgressYet => 'Повторите упражнение, чтобы сравнить прогресс.';
+
+  @override
+  String get previousWorkout => 'Предыдущая';
+
+  @override
+  String get lastWorkout => 'Последняя';
+
+  @override
+  String get chooseDate => 'Выбрать дату тренировки';
+
+  @override
+  String get allMovements => 'Все';
+
+  @override
+  String get customExercise => 'Добавить своё упражнение';
+
+  @override
+  String get noMovementsFound => 'Движения не найдены';
+
+  @override
+  String get noChange => 'Без изменений';
+
+  @override
+  String get searchMovements => 'Поиск движений';
+
+  @override
+  String get benchmarkWorkouts => 'Эталонные WOD';
+
+  @override
+  String get movementTypes => 'Группы движений';
+
+  @override
+  String get last7Days => 'Последние 7 дней';
+
+  @override
+  String get previous7Days => 'Предыдущие 7 дней';
+
+  @override
+  String get categoryBarbell => 'Штанга';
+
+  @override
+  String get categoryGymnastics => 'Гимнастика';
+
+  @override
+  String get categoryDumbbellKettlebell => 'Гантель/гиря';
+
+  @override
+  String get categoryCardio => 'Кардио';
+
+  @override
+  String get categoryBodyweight => 'Вес тела';
+
+  @override
+  String get categoryOtherEquipment => 'Другое оборудование';
 }

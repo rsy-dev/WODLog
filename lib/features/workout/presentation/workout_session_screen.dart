@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../data/crossfit_catalog.dart';
 import 'wod_blocks_section.dart';
 import '../providers/workout_providers.dart';
 
@@ -261,12 +262,27 @@ class _WorkoutBlockCard extends ConsumerWidget {
     int sortOrder,
   ) async {
     final l10n = AppLocalizations.of(context)!;
-    final name = await _showTextDialog(
-      context,
-      title: l10n.addExercise,
-      label: l10n.exerciseName,
-      hint: l10n.exerciseHint,
+    final selection = await showModalBottomSheet<_ExerciseSelection>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => _MovementPickerSheet(
+        onSelected: (name) =>
+            Navigator.of(sheetContext).pop(_ExerciseSelection(name: name)),
+        onCustom: () =>
+            Navigator.of(sheetContext)
+                .pop(const _ExerciseSelection(custom: true)),
+      ),
     );
+    if (!context.mounted || selection == null) return;
+    final name = selection.custom
+        ? await _showTextDialog(
+            context,
+            title: l10n.addExercise,
+            label: l10n.exerciseName,
+            hint: l10n.exerciseHint,
+          )
+        : selection.name;
     if (name == null || name.trim().isEmpty || !context.mounted) return;
 
     await ref
@@ -299,6 +315,153 @@ class _WorkoutBlockCard extends ConsumerWidget {
     );
     if (!confirmed || !context.mounted) return;
     await ref.read(workoutRepositoryProvider).deleteStrengthBlock(block.id);
+  }
+}
+
+class _ExerciseSelection {
+  const _ExerciseSelection({this.name = '', this.custom = false});
+
+  final String name;
+  final bool custom;
+}
+
+class _MovementPickerSheet extends StatefulWidget {
+  const _MovementPickerSheet({
+    required this.onSelected,
+    required this.onCustom,
+  });
+
+  final ValueChanged<String> onSelected;
+  final VoidCallback onCustom;
+
+  @override
+  State<_MovementPickerSheet> createState() => _MovementPickerSheetState();
+}
+
+class _MovementPickerSheetState extends State<_MovementPickerSheet> {
+  final _searchController = TextEditingController();
+  CrossFitCategory? _category;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final categories = CrossFitCategory.values
+        .where((category) => category != CrossFitCategory.benchmarkWod)
+        .toList();
+    final movements = CrossFitCatalog.search(
+      _searchController.text,
+      category: _category,
+    ).where((entry) => entry.category != CrossFitCategory.benchmarkWod);
+
+    final mediaQuery = MediaQuery.of(context);
+    final sheetHeight =
+        (mediaQuery.size.height * 0.82 - mediaQuery.viewInsets.bottom).clamp(
+          300.0,
+          mediaQuery.size.height * 0.82,
+        );
+
+    return SafeArea(
+      child: SizedBox(
+        height: sheetHeight,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.addExercise,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: l10n.searchMovements,
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    tooltip: l10n.cancel,
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.close),
+                  ),
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 42,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 8),
+                      child: ChoiceChip(
+                        label: Text(l10n.allMovements),
+                        selected: _category == null,
+                        onSelected: (_) => setState(() => _category = null),
+                      ),
+                    ),
+                    for (final category in categories)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 8),
+                        child: ChoiceChip(
+                          label: Text(_categoryName(category)),
+                          selected: _category == category,
+                          onSelected: (_) =>
+                              setState(() => _category = category),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const Divider(height: 16),
+              Expanded(
+                child: movements.isEmpty
+                    ? Center(child: Text(l10n.noMovementsFound))
+                    : ListView.builder(
+                        itemCount: movements.length,
+                        itemBuilder: (context, index) {
+                          final movement = movements.elementAt(index);
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(movement.name),
+                            subtitle: Text(_categoryName(movement.category)),
+                            trailing: const Icon(Icons.add),
+                            onTap: () => widget.onSelected(movement.name),
+                          );
+                        },
+                      ),
+              ),
+              const Divider(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: widget.onCustom,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: Text(l10n.customExercise),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _categoryName(CrossFitCategory category) {
+    return category.name.replaceAllMapped(
+      RegExp(r'([a-z])([A-Z])'),
+      (match) => '${match[1]} ${match[2]}',
+    );
   }
 }
 
@@ -372,11 +535,14 @@ class _ExerciseCard extends ConsumerWidget {
                           for (final set in items)
                             InputChip(
                               label: Text(
-                                l10n.setSummary(
-                                  l10n.setLabel(set.setNumber),
-                                  _formatWeight(set.weightKg, l10n, locale),
-                                  set.reps ?? 0,
-                                ),
+                                set.weightKg == null
+                                    ? '${l10n.setLabel(set.setNumber)}  ${l10n.bodyweight} × ${set.reps ?? 0} ${l10n.reps}'
+                                    : l10n.setSummary(
+                                        l10n.setLabel(set.setNumber),
+                                        NumberFormat.decimalPattern(locale)
+                                            .format(set.weightKg),
+                                        set.reps ?? 0,
+                                      ),
                               ),
                               onPressed: () => _editSet(context, ref, set),
                               onDeleted: () => _deleteSet(context, ref, set),
@@ -548,7 +714,7 @@ Future<bool> _confirmDeleteDialog(
       false;
 }
 
-Future<(double, int)?> _showSetDialog(
+Future<(double?, int)?> _showSetDialog(
   BuildContext context, {
   String? title,
   double? initialWeightKg,
@@ -564,7 +730,7 @@ Future<(double, int)?> _showSetDialog(
     text: initialReps?.toString() ?? '',
   );
   String? validationError;
-  final values = await showDialog<(double, int)>(
+  final values = await showDialog<(double?, int)>(
     context: context,
     builder: (dialogContext) => StatefulBuilder(
       builder: (dialogContext, setDialogState) => AlertDialog(
@@ -578,7 +744,10 @@ Future<(double, int)?> _showSetDialog(
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: InputDecoration(labelText: l10n.weightKg),
+              decoration: InputDecoration(
+                labelText: l10n.weightKg,
+                helperText: l10n.bodyweight,
+              ),
             ),
             TextField(
               controller: repsController,
@@ -614,9 +783,9 @@ Future<(double, int)?> _showSetDialog(
                   repsValue != null && repsValue == repsValue.roundToDouble()
                   ? repsValue.toInt()
                   : null;
-              if (weight == null ||
-                  !weight.isFinite ||
-                  weight < 0 ||
+              final hasWeight = weightController.text.trim().isNotEmpty;
+              if ((hasWeight &&
+                      (weight == null || !weight.isFinite || weight < 0)) ||
                   reps == null ||
                   reps <= 0) {
                 setDialogState(() => validationError = l10n.invalidSet);
@@ -642,11 +811,6 @@ double? _tryParseLocalizedNumber(String value, NumberFormat format) {
     return null;
   }
 }
-
-String _formatWeight(double? weight, AppLocalizations l10n, String locale) =>
-    weight == null
-    ? l10n.bodyweight
-    : NumberFormat.decimalPattern(locale).format(weight);
 
 class _EmptyBlocksState extends StatelessWidget {
   const _EmptyBlocksState();

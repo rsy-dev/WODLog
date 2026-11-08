@@ -203,6 +203,106 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get confirmDeleteExercise => '删除此动作及其所有组数？此操作无法撤销。';
+
+  @override
+  String get progress => '进度';
+
+  @override
+  String get todaySummary => '今日概览';
+
+  @override
+  String get trainingOverview => '训练概览';
+
+  @override
+  String get sessionsLabel => '训练';
+
+  @override
+  String get setsLabel => '组';
+
+  @override
+  String movementCount(int count) {
+    return '$count 个动作';
+  }
+
+  @override
+  String get movementsLabel => '动作';
+
+  @override
+  String setCount(int count) {
+    return '$count 组';
+  }
+
+  @override
+  String get weightedVolume => '负重训练总量';
+
+  @override
+  String get volumeUnit => '公斤·次';
+
+  @override
+  String get bestLoadChange => '最大重量变化';
+
+  @override
+  String get volumeChange => '训练量变化';
+
+  @override
+  String get repChange => '次数变化';
+
+  @override
+  String get noProgressYet => '再次记录同一动作即可比较进步。';
+
+  @override
+  String get previousWorkout => '上次';
+
+  @override
+  String get lastWorkout => '最近';
+
+  @override
+  String get chooseDate => '选择训练日期';
+
+  @override
+  String get allMovements => '全部';
+
+  @override
+  String get customExercise => '添加自定义动作';
+
+  @override
+  String get noMovementsFound => '未找到动作';
+
+  @override
+  String get noChange => '无变化';
+
+  @override
+  String get searchMovements => '搜索动作';
+
+  @override
+  String get benchmarkWorkouts => '基准 WOD';
+
+  @override
+  String get movementTypes => '动作类别';
+
+  @override
+  String get last7Days => '最近 7 天';
+
+  @override
+  String get previous7Days => '之前 7 天';
+
+  @override
+  String get categoryBarbell => '杠铃';
+
+  @override
+  String get categoryGymnastics => '体操';
+
+  @override
+  String get categoryDumbbellKettlebell => '哑铃/壶铃';
+
+  @override
+  String get categoryCardio => '有氧';
+
+  @override
+  String get categoryBodyweight => '自重';
+
+  @override
+  String get categoryOtherEquipment => '其他器械';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -403,6 +503,106 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get confirmDeleteExercise => '删除此动作及其所有组数？此操作无法撤销。';
+
+  @override
+  String get progress => '进度';
+
+  @override
+  String get todaySummary => '今日概览';
+
+  @override
+  String get trainingOverview => '训练概览';
+
+  @override
+  String get sessionsLabel => '训练';
+
+  @override
+  String get setsLabel => '组';
+
+  @override
+  String movementCount(int count) {
+    return '$count 个动作';
+  }
+
+  @override
+  String get movementsLabel => '动作';
+
+  @override
+  String setCount(int count) {
+    return '$count 组';
+  }
+
+  @override
+  String get weightedVolume => '负重训练总量';
+
+  @override
+  String get volumeUnit => '公斤·次';
+
+  @override
+  String get bestLoadChange => '最大重量变化';
+
+  @override
+  String get volumeChange => '训练量变化';
+
+  @override
+  String get repChange => '次数变化';
+
+  @override
+  String get noProgressYet => '再次记录同一动作即可比较进步。';
+
+  @override
+  String get previousWorkout => '上次';
+
+  @override
+  String get lastWorkout => '最近';
+
+  @override
+  String get chooseDate => '选择训练日期';
+
+  @override
+  String get allMovements => '全部';
+
+  @override
+  String get customExercise => '添加自定义动作';
+
+  @override
+  String get noMovementsFound => '未找到动作';
+
+  @override
+  String get noChange => '无变化';
+
+  @override
+  String get searchMovements => '搜索动作';
+
+  @override
+  String get benchmarkWorkouts => '基准 WOD';
+
+  @override
+  String get movementTypes => '动作类别';
+
+  @override
+  String get last7Days => '最近 7 天';
+
+  @override
+  String get previous7Days => '之前 7 天';
+
+  @override
+  String get categoryBarbell => '杠铃';
+
+  @override
+  String get categoryGymnastics => '体操';
+
+  @override
+  String get categoryDumbbellKettlebell => '哑铃/壶铃';
+
+  @override
+  String get categoryCardio => '有氧';
+
+  @override
+  String get categoryBodyweight => '自重';
+
+  @override
+  String get categoryOtherEquipment => '其他器械';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -603,4 +803,104 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get confirmDeleteExercise => '刪除此動作及其所有組數？此操作無法復原。';
+
+  @override
+  String get progress => '進度';
+
+  @override
+  String get todaySummary => '今日概覽';
+
+  @override
+  String get trainingOverview => '訓練概覽';
+
+  @override
+  String get sessionsLabel => '訓練';
+
+  @override
+  String get setsLabel => '組';
+
+  @override
+  String movementCount(int count) {
+    return '$count 個動作';
+  }
+
+  @override
+  String get movementsLabel => '動作';
+
+  @override
+  String setCount(int count) {
+    return '$count 組';
+  }
+
+  @override
+  String get weightedVolume => '負重訓練總量';
+
+  @override
+  String get volumeUnit => '公斤·次';
+
+  @override
+  String get bestLoadChange => '最大重量變化';
+
+  @override
+  String get volumeChange => '訓練量變化';
+
+  @override
+  String get repChange => '次數變化';
+
+  @override
+  String get noProgressYet => '再次記錄同一動作即可比較進步。';
+
+  @override
+  String get previousWorkout => '上次';
+
+  @override
+  String get lastWorkout => '最近';
+
+  @override
+  String get chooseDate => '選擇訓練日期';
+
+  @override
+  String get allMovements => '全部';
+
+  @override
+  String get customExercise => '新增自訂動作';
+
+  @override
+  String get noMovementsFound => '找不到動作';
+
+  @override
+  String get noChange => '沒有變化';
+
+  @override
+  String get searchMovements => '搜尋動作';
+
+  @override
+  String get benchmarkWorkouts => '基準 WOD';
+
+  @override
+  String get movementTypes => '動作類別';
+
+  @override
+  String get last7Days => '最近 7 天';
+
+  @override
+  String get previous7Days => '之前 7 天';
+
+  @override
+  String get categoryBarbell => '槓鈴';
+
+  @override
+  String get categoryGymnastics => '體操';
+
+  @override
+  String get categoryDumbbellKettlebell => '啞鈴/壺鈴';
+
+  @override
+  String get categoryCardio => '有氧';
+
+  @override
+  String get categoryBodyweight => '自重';
+
+  @override
+  String get categoryOtherEquipment => '其他器材';
 }

@@ -516,6 +516,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete this exercise and all its sets? This cannot be undone.'**
   String get confirmDeleteExercise;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
+
+  /// No description provided for @todaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Today at a glance'**
+  String get todaySummary;
+
+  /// No description provided for @trainingOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Training overview'**
+  String get trainingOverview;
+
+  /// No description provided for @sessionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'sessions'**
+  String get sessionsLabel;
+
+  /// No description provided for @setsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'sets'**
+  String get setsLabel;
+
+  /// No description provided for @movementCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} movements'**
+  String movementCount(int count);
+
+  /// No description provided for @movementsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'movements'**
+  String get movementsLabel;
+
+  /// No description provided for @setCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sets'**
+  String setCount(int count);
+
+  /// No description provided for @weightedVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighted volume'**
+  String get weightedVolume;
+
+  /// No description provided for @volumeUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'kg·reps'**
+  String get volumeUnit;
+
+  /// No description provided for @bestLoadChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Best load change'**
+  String get bestLoadChange;
+
+  /// No description provided for @volumeChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume change'**
+  String get volumeChange;
+
+  /// No description provided for @repChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Rep change'**
+  String get repChange;
+
+  /// No description provided for @noProgressYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat an exercise to see how your record changes.'**
+  String get noProgressYet;
+
+  /// No description provided for @previousWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previousWorkout;
+
+  /// No description provided for @lastWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get lastWorkout;
+
+  /// No description provided for @chooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose workout date'**
+  String get chooseDate;
+
+  /// No description provided for @allMovements.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allMovements;
+
+  /// No description provided for @customExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a custom exercise'**
+  String get customExercise;
+
+  /// No description provided for @noMovementsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No movements found'**
+  String get noMovementsFound;
+
+  /// No description provided for @noChange.
+  ///
+  /// In en, this message translates to:
+  /// **'No change'**
+  String get noChange;
+
+  /// No description provided for @searchMovements.
+  ///
+  /// In en, this message translates to:
+  /// **'Search movements'**
+  String get searchMovements;
+
+  /// No description provided for @benchmarkWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Benchmark WODs'**
+  String get benchmarkWorkouts;
+
+  /// No description provided for @movementTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Similar movement types'**
+  String get movementTypes;
+
+  /// No description provided for @last7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get last7Days;
+
+  /// No description provided for @previous7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous 7 days'**
+  String get previous7Days;
+
+  /// No description provided for @categoryBarbell.
+  ///
+  /// In en, this message translates to:
+  /// **'Barbell'**
+  String get categoryBarbell;
+
+  /// No description provided for @categoryGymnastics.
+  ///
+  /// In en, this message translates to:
+  /// **'Gymnastics'**
+  String get categoryGymnastics;
+
+  /// No description provided for @categoryDumbbellKettlebell.
+  ///
+  /// In en, this message translates to:
+  /// **'Dumbbell & kettlebell'**
+  String get categoryDumbbellKettlebell;
+
+  /// No description provided for @categoryCardio.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardio'**
+  String get categoryCardio;
+
+  /// No description provided for @categoryBodyweight.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight'**
+  String get categoryBodyweight;
+
+  /// No description provided for @categoryOtherEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Other equipment'**
+  String get categoryOtherEquipment;
 }
 
 class _AppLocalizationsDelegate

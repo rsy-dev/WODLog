@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
+import '../data/crossfit_catalog.dart';
 import '../providers/wod_providers.dart';
 
 class WodBlocksSection extends ConsumerWidget {
@@ -82,11 +83,46 @@ class WodBlocksSection extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.addWodBlock),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(labelText: l10n.wodName),
-          textCapitalization: TextCapitalization.sentences,
+        content: SizedBox(
+          width: 360,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  decoration: InputDecoration(labelText: l10n.wodName),
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.benchmarkWorkouts,
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final wod in CrossFitCatalog.inCategory(
+                      CrossFitCategory.benchmarkWod,
+                    ))
+                      ActionChip(
+                        label: Text(wod.name),
+                        onPressed: () {
+                          controller.text = wod.name;
+                          controller.selection = TextSelection.collapsed(
+                            offset: controller.text.length,
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
         actions: [
           TextButton(

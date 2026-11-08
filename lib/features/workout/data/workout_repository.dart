@@ -256,7 +256,7 @@ class WorkoutRepository {
 
   Future<void> addSet({
     required String workoutExerciseId,
-    required double weightKg,
+    required double? weightKg,
     required int reps,
   }) async {
     _validateSet(weightKg, reps);
@@ -293,7 +293,7 @@ class WorkoutRepository {
 
   Future<void> updateSet({
     required String setId,
-    required double weightKg,
+    required double? weightKg,
     required int reps,
   }) async {
     _validateSet(weightKg, reps);
@@ -314,8 +314,8 @@ class WorkoutRepository {
     )..where((set) => set.id.equals(setId))).go();
   }
 
-  void _validateSet(double weightKg, int reps) {
-    if (weightKg < 0 || !weightKg.isFinite) {
+  void _validateSet(double? weightKg, int reps) {
+    if (weightKg != null && (weightKg < 0 || !weightKg.isFinite)) {
       throw ArgumentError.value(
         weightKg,
         'weightKg',

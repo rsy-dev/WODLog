@@ -208,4 +208,104 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'ลบท่านี้และเซ็ตทั้งหมดหรือไม่ การลบนี้ย้อนกลับไม่ได้';
+
+  @override
+  String get progress => 'ความก้าวหน้า';
+
+  @override
+  String get todaySummary => 'สรุปวันนี้';
+
+  @override
+  String get trainingOverview => 'สรุปการฝึก';
+
+  @override
+  String get sessionsLabel => 'เซสชัน';
+
+  @override
+  String get setsLabel => 'เซต';
+
+  @override
+  String movementCount(int count) {
+    return '$count ท่า';
+  }
+
+  @override
+  String get movementsLabel => 'ท่า';
+
+  @override
+  String setCount(int count) {
+    return '$count เซต';
+  }
+
+  @override
+  String get weightedVolume => 'ปริมาณน้ำหนักรวม';
+
+  @override
+  String get volumeUnit => 'กก.·ครั้ง';
+
+  @override
+  String get bestLoadChange => 'การเปลี่ยนน้ำหนักสูงสุด';
+
+  @override
+  String get volumeChange => 'การเปลี่ยนปริมาณการฝึก';
+
+  @override
+  String get repChange => 'การเปลี่ยนจำนวนครั้ง';
+
+  @override
+  String get noProgressYet => 'บันทึกท่าเดิมอีกครั้งเพื่อเปรียบเทียบพัฒนาการ';
+
+  @override
+  String get previousWorkout => 'ก่อนหน้า';
+
+  @override
+  String get lastWorkout => 'ล่าสุด';
+
+  @override
+  String get chooseDate => 'เลือกวันที่ฝึก';
+
+  @override
+  String get allMovements => 'ทั้งหมด';
+
+  @override
+  String get customExercise => 'เพิ่มท่าที่กำหนดเอง';
+
+  @override
+  String get noMovementsFound => 'ไม่พบท่าออกกำลังกาย';
+
+  @override
+  String get noChange => 'ไม่มีการเปลี่ยนแปลง';
+
+  @override
+  String get searchMovements => 'ค้นหาท่าออกกำลังกาย';
+
+  @override
+  String get benchmarkWorkouts => 'WOD มาตรฐาน';
+
+  @override
+  String get movementTypes => 'กลุ่มท่าออกกำลังกาย';
+
+  @override
+  String get last7Days => '7 วันล่าสุด';
+
+  @override
+  String get previous7Days => '7 วันก่อนหน้า';
+
+  @override
+  String get categoryBarbell => 'บาร์เบล';
+
+  @override
+  String get categoryGymnastics => 'ยิมนาสติก';
+
+  @override
+  String get categoryDumbbellKettlebell => 'ดัมเบล/เคตเทิลเบล';
+
+  @override
+  String get categoryCardio => 'คาร์ดิโอ';
+
+  @override
+  String get categoryBodyweight => 'น้ำหนักตัว';
+
+  @override
+  String get categoryOtherEquipment => 'อุปกรณ์อื่น';
 }

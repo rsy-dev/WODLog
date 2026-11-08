@@ -208,4 +208,104 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'Usunąć to ćwiczenie i wszystkie jego serie? Tej czynności nie można cofnąć.';
+
+  @override
+  String get progress => 'Postępy';
+
+  @override
+  String get todaySummary => 'Podsumowanie dnia';
+
+  @override
+  String get trainingOverview => 'Podsumowanie treningów';
+
+  @override
+  String get sessionsLabel => 'sesje';
+
+  @override
+  String get setsLabel => 'serie';
+
+  @override
+  String movementCount(int count) {
+    return '$count ruchów';
+  }
+
+  @override
+  String get movementsLabel => 'ruchy';
+
+  @override
+  String setCount(int count) {
+    return '$count serii';
+  }
+
+  @override
+  String get weightedVolume => 'Objętość z obciążeniem';
+
+  @override
+  String get volumeUnit => 'kg·powtórzenia';
+
+  @override
+  String get bestLoadChange => 'Zmiana najlepszego ciężaru';
+
+  @override
+  String get volumeChange => 'Zmiana objętości';
+
+  @override
+  String get repChange => 'Zmiana liczby powtórzeń';
+
+  @override
+  String get noProgressYet => 'Powtórz ćwiczenie, aby porównać postępy.';
+
+  @override
+  String get previousWorkout => 'Poprzedni';
+
+  @override
+  String get lastWorkout => 'Ostatni';
+
+  @override
+  String get chooseDate => 'Wybierz datę treningu';
+
+  @override
+  String get allMovements => 'Wszystkie';
+
+  @override
+  String get customExercise => 'Dodaj własne ćwiczenie';
+
+  @override
+  String get noMovementsFound => 'Nie znaleziono ruchów';
+
+  @override
+  String get noChange => 'Bez zmian';
+
+  @override
+  String get searchMovements => 'Szukaj ruchów';
+
+  @override
+  String get benchmarkWorkouts => 'WOD-y wzorcowe';
+
+  @override
+  String get movementTypes => 'Grupy ruchów';
+
+  @override
+  String get last7Days => 'Ostatnie 7 dni';
+
+  @override
+  String get previous7Days => 'Poprzednie 7 dni';
+
+  @override
+  String get categoryBarbell => 'Sztanga';
+
+  @override
+  String get categoryGymnastics => 'Gimnastyka';
+
+  @override
+  String get categoryDumbbellKettlebell => 'Hantla/kettlebell';
+
+  @override
+  String get categoryCardio => 'Cardio';
+
+  @override
+  String get categoryBodyweight => 'Masa ciała';
+
+  @override
+  String get categoryOtherEquipment => 'Inny sprzęt';
 }

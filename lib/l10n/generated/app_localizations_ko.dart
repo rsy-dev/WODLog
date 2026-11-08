@@ -205,4 +205,104 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       '이 운동과 기록된 세트를 모두 삭제할까요? 삭제 후 복구할 수 없습니다.';
+
+  @override
+  String get progress => '운동 향상';
+
+  @override
+  String get todaySummary => '오늘 운동 요약';
+
+  @override
+  String get trainingOverview => '전체 운동 요약';
+
+  @override
+  String get sessionsLabel => '세션';
+
+  @override
+  String get setsLabel => '세트';
+
+  @override
+  String movementCount(int count) {
+    return '운동 $count개';
+  }
+
+  @override
+  String get movementsLabel => '운동';
+
+  @override
+  String setCount(int count) {
+    return '세트 $count개';
+  }
+
+  @override
+  String get weightedVolume => '중량 볼륨';
+
+  @override
+  String get volumeUnit => 'kg·회';
+
+  @override
+  String get bestLoadChange => '최고 중량 변화';
+
+  @override
+  String get volumeChange => '볼륨 변화';
+
+  @override
+  String get repChange => '반복 수 변화';
+
+  @override
+  String get noProgressYet => '같은 운동을 다시 기록하면 이전 기록과 비교할 수 있어요.';
+
+  @override
+  String get previousWorkout => '이전';
+
+  @override
+  String get lastWorkout => '최근';
+
+  @override
+  String get chooseDate => '운동 날짜 선택';
+
+  @override
+  String get allMovements => '전체';
+
+  @override
+  String get customExercise => '새 운동 직접 입력';
+
+  @override
+  String get noMovementsFound => '운동을 찾지 못했어요';
+
+  @override
+  String get noChange => '변화 없음';
+
+  @override
+  String get searchMovements => '운동 검색';
+
+  @override
+  String get benchmarkWorkouts => '벤치마크 WOD';
+
+  @override
+  String get movementTypes => '유사한 움직임 그룹';
+
+  @override
+  String get last7Days => '최근 7일';
+
+  @override
+  String get previous7Days => '이전 7일';
+
+  @override
+  String get categoryBarbell => '바벨';
+
+  @override
+  String get categoryGymnastics => '체조 동작';
+
+  @override
+  String get categoryDumbbellKettlebell => '덤벨·케틀벨';
+
+  @override
+  String get categoryCardio => '유산소';
+
+  @override
+  String get categoryBodyweight => '맨몸';
+
+  @override
+  String get categoryOtherEquipment => '기타 장비';
 }

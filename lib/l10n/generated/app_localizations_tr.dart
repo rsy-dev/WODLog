@@ -210,4 +210,105 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'Bu hareketi ve tüm setlerini silmek istiyor musunuz? Bu işlem geri alınamaz.';
+
+  @override
+  String get progress => 'İlerleme';
+
+  @override
+  String get todaySummary => 'Bugünün özeti';
+
+  @override
+  String get trainingOverview => 'Antrenman özeti';
+
+  @override
+  String get sessionsLabel => 'antrenman';
+
+  @override
+  String get setsLabel => 'set';
+
+  @override
+  String movementCount(int count) {
+    return '$count hareket';
+  }
+
+  @override
+  String get movementsLabel => 'hareket';
+
+  @override
+  String setCount(int count) {
+    return '$count set';
+  }
+
+  @override
+  String get weightedVolume => 'Ağırlıklı hacim';
+
+  @override
+  String get volumeUnit => 'kg·tekrar';
+
+  @override
+  String get bestLoadChange => 'En yüksek yük değişimi';
+
+  @override
+  String get volumeChange => 'Hacim değişimi';
+
+  @override
+  String get repChange => 'Tekrar değişimi';
+
+  @override
+  String get noProgressYet =>
+      'İlerlemeni karşılaştırmak için aynı hareketi tekrar kaydet.';
+
+  @override
+  String get previousWorkout => 'Önceki';
+
+  @override
+  String get lastWorkout => 'Son';
+
+  @override
+  String get chooseDate => 'Antrenman tarihini seç';
+
+  @override
+  String get allMovements => 'Tümü';
+
+  @override
+  String get customExercise => 'Özel hareket ekle';
+
+  @override
+  String get noMovementsFound => 'Hareket bulunamadı';
+
+  @override
+  String get noChange => 'Değişiklik yok';
+
+  @override
+  String get searchMovements => 'Hareket ara';
+
+  @override
+  String get benchmarkWorkouts => 'Kıyaslama WOD’ları';
+
+  @override
+  String get movementTypes => 'Hareket grupları';
+
+  @override
+  String get last7Days => 'Son 7 gün';
+
+  @override
+  String get previous7Days => 'Önceki 7 gün';
+
+  @override
+  String get categoryBarbell => 'Barbell';
+
+  @override
+  String get categoryGymnastics => 'Jimnastik';
+
+  @override
+  String get categoryDumbbellKettlebell => 'Dambıl/Kettlebell';
+
+  @override
+  String get categoryCardio => 'Kardiyo';
+
+  @override
+  String get categoryBodyweight => 'Vücut ağırlığı';
+
+  @override
+  String get categoryOtherEquipment => 'Diğer ekipman';
 }

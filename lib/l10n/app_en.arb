@@ -89,5 +89,51 @@
   "confirmDeleteBlock": "Delete this block and all its exercises and sets? This cannot be undone.",
   "editExercise": "Edit exercise",
   "deleteExercise": "Delete exercise",
-  "confirmDeleteExercise": "Delete this exercise and all its sets? This cannot be undone."
+  "confirmDeleteExercise": "Delete this exercise and all its sets? This cannot be undone.",
+  "progress": "Progress",
+  "todaySummary": "Today at a glance",
+  "trainingOverview": "Training overview",
+  "sessionsLabel": "sessions",
+  "setsLabel": "sets",
+  "movementCount": "{count} movements",
+  "movementsLabel": "movements",
+  "@movementCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setCount": "{count} sets",
+  "@setCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "weightedVolume": "Weighted volume",
+  "volumeUnit": "kg·reps",
+  "bestLoadChange": "Best load change",
+  "volumeChange": "Volume change",
+  "repChange": "Rep change",
+  "noProgressYet": "Repeat an exercise to see how your record changes.",
+  "previousWorkout": "Previous",
+  "lastWorkout": "Latest",
+  "chooseDate": "Choose workout date",
+  "allMovements": "All",
+  "customExercise": "Add a custom exercise",
+  "noMovementsFound": "No movements found",
+  "noChange": "No change",
+  "searchMovements": "Search movements",
+  "benchmarkWorkouts": "Benchmark WODs",
+  "movementTypes": "Similar movement types",
+  "last7Days": "Last 7 days",
+  "previous7Days": "Previous 7 days",
+  "categoryBarbell": "Barbell",
+  "categoryGymnastics": "Gymnastics",
+  "categoryDumbbellKettlebell": "Dumbbell & kettlebell",
+  "categoryCardio": "Cardio",
+  "categoryBodyweight": "Bodyweight",
+  "categoryOtherEquipment": "Other equipment"
 }

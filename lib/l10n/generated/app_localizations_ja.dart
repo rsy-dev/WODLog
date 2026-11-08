@@ -203,4 +203,104 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get confirmDeleteExercise => 'この種目とすべてのセットを削除しますか？この操作は取り消せません。';
+
+  @override
+  String get progress => '進捗';
+
+  @override
+  String get todaySummary => '今日の概要';
+
+  @override
+  String get trainingOverview => 'トレーニング概要';
+
+  @override
+  String get sessionsLabel => 'セッション';
+
+  @override
+  String get setsLabel => 'セット';
+
+  @override
+  String movementCount(int count) {
+    return '$count種目';
+  }
+
+  @override
+  String get movementsLabel => '種目';
+
+  @override
+  String setCount(int count) {
+    return '$countセット';
+  }
+
+  @override
+  String get weightedVolume => 'ウェイトボリューム';
+
+  @override
+  String get volumeUnit => 'kg·回';
+
+  @override
+  String get bestLoadChange => '最高重量の変化';
+
+  @override
+  String get volumeChange => 'ボリュームの変化';
+
+  @override
+  String get repChange => '回数の変化';
+
+  @override
+  String get noProgressYet => '同じ種目をもう一度記録すると、前回と比較できます。';
+
+  @override
+  String get previousWorkout => '前回';
+
+  @override
+  String get lastWorkout => '最新';
+
+  @override
+  String get chooseDate => 'トレーニング日を選択';
+
+  @override
+  String get allMovements => 'すべて';
+
+  @override
+  String get customExercise => '種目を追加';
+
+  @override
+  String get noMovementsFound => '種目が見つかりません';
+
+  @override
+  String get noChange => '変化なし';
+
+  @override
+  String get searchMovements => '種目を検索';
+
+  @override
+  String get benchmarkWorkouts => 'ベンチマークWOD';
+
+  @override
+  String get movementTypes => '種目グループ';
+
+  @override
+  String get last7Days => '過去7日間';
+
+  @override
+  String get previous7Days => 'その前の7日間';
+
+  @override
+  String get categoryBarbell => 'バーベル';
+
+  @override
+  String get categoryGymnastics => '体操';
+
+  @override
+  String get categoryDumbbellKettlebell => 'ダンベル／ケトルベル';
+
+  @override
+  String get categoryCardio => '有酸素運動';
+
+  @override
+  String get categoryBodyweight => '自重';
+
+  @override
+  String get categoryOtherEquipment => 'その他の器具';
 }

@@ -208,4 +208,104 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'Xóa bài tập này cùng tất cả hiệp? Bạn không thể hoàn tác.';
+
+  @override
+  String get progress => 'Tiến độ';
+
+  @override
+  String get todaySummary => 'Tóm tắt hôm nay';
+
+  @override
+  String get trainingOverview => 'Tổng quan luyện tập';
+
+  @override
+  String get sessionsLabel => 'buổi';
+
+  @override
+  String get setsLabel => 'hiệp';
+
+  @override
+  String movementCount(int count) {
+    return '$count động tác';
+  }
+
+  @override
+  String get movementsLabel => 'động tác';
+
+  @override
+  String setCount(int count) {
+    return '$count hiệp';
+  }
+
+  @override
+  String get weightedVolume => 'Tổng khối lượng có tạ';
+
+  @override
+  String get volumeUnit => 'kg·lần';
+
+  @override
+  String get bestLoadChange => 'Thay đổi mức tạ cao nhất';
+
+  @override
+  String get volumeChange => 'Thay đổi khối lượng';
+
+  @override
+  String get repChange => 'Thay đổi số lần';
+
+  @override
+  String get noProgressYet => 'Lặp lại bài tập để so sánh tiến độ.';
+
+  @override
+  String get previousWorkout => 'Trước';
+
+  @override
+  String get lastWorkout => 'Gần nhất';
+
+  @override
+  String get chooseDate => 'Chọn ngày tập';
+
+  @override
+  String get allMovements => 'Tất cả';
+
+  @override
+  String get customExercise => 'Thêm bài tập tùy chỉnh';
+
+  @override
+  String get noMovementsFound => 'Không tìm thấy động tác';
+
+  @override
+  String get noChange => 'Không thay đổi';
+
+  @override
+  String get searchMovements => 'Tìm động tác';
+
+  @override
+  String get benchmarkWorkouts => 'WOD chuẩn';
+
+  @override
+  String get movementTypes => 'Nhóm động tác';
+
+  @override
+  String get last7Days => '7 ngày gần nhất';
+
+  @override
+  String get previous7Days => '7 ngày trước đó';
+
+  @override
+  String get categoryBarbell => 'Đòn tạ';
+
+  @override
+  String get categoryGymnastics => 'Thể dục dụng cụ';
+
+  @override
+  String get categoryDumbbellKettlebell => 'Tạ đơn/ấm tạ';
+
+  @override
+  String get categoryCardio => 'Cardio';
+
+  @override
+  String get categoryBodyweight => 'Trọng lượng cơ thể';
+
+  @override
+  String get categoryOtherEquipment => 'Thiết bị khác';
 }

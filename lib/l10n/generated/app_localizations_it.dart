@@ -210,4 +210,105 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'Eliminare questo esercizio e tutti i suoi set? L’operazione non può essere annullata.';
+
+  @override
+  String get progress => 'Progressi';
+
+  @override
+  String get todaySummary => 'Riepilogo di oggi';
+
+  @override
+  String get trainingOverview => 'Riepilogo allenamento';
+
+  @override
+  String get sessionsLabel => 'sessioni';
+
+  @override
+  String get setsLabel => 'serie';
+
+  @override
+  String movementCount(int count) {
+    return '$count movimenti';
+  }
+
+  @override
+  String get movementsLabel => 'movimenti';
+
+  @override
+  String setCount(int count) {
+    return '$count serie';
+  }
+
+  @override
+  String get weightedVolume => 'Volume con carico';
+
+  @override
+  String get volumeUnit => 'kg·ripetizioni';
+
+  @override
+  String get bestLoadChange => 'Variazione del carico massimo';
+
+  @override
+  String get volumeChange => 'Variazione del volume';
+
+  @override
+  String get repChange => 'Variazione delle ripetizioni';
+
+  @override
+  String get noProgressYet =>
+      'Ripeti un esercizio per confrontare i tuoi progressi.';
+
+  @override
+  String get previousWorkout => 'Precedente';
+
+  @override
+  String get lastWorkout => 'Ultimo';
+
+  @override
+  String get chooseDate => 'Scegli la data dell’allenamento';
+
+  @override
+  String get allMovements => 'Tutti';
+
+  @override
+  String get customExercise => 'Aggiungi esercizio personalizzato';
+
+  @override
+  String get noMovementsFound => 'Nessun movimento trovato';
+
+  @override
+  String get noChange => 'Nessuna variazione';
+
+  @override
+  String get searchMovements => 'Cerca movimenti';
+
+  @override
+  String get benchmarkWorkouts => 'WOD benchmark';
+
+  @override
+  String get movementTypes => 'Gruppi di movimenti';
+
+  @override
+  String get last7Days => 'Ultimi 7 giorni';
+
+  @override
+  String get previous7Days => '7 giorni precedenti';
+
+  @override
+  String get categoryBarbell => 'Bilanciere';
+
+  @override
+  String get categoryGymnastics => 'Ginnastica';
+
+  @override
+  String get categoryDumbbellKettlebell => 'Manubrio/kettlebell';
+
+  @override
+  String get categoryCardio => 'Cardio';
+
+  @override
+  String get categoryBodyweight => 'Peso corporeo';
+
+  @override
+  String get categoryOtherEquipment => 'Altre attrezzature';
 }

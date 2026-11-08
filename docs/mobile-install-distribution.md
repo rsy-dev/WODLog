@@ -1,36 +1,33 @@
-# WODLog Mobile Install Plan
+# WODLog Mobile Testing and Distribution
 
-**Updated:** 2026-11-08
+**Updated:** 2026-11-09
 
-## Product direction
+## iPhone testing at work
 
-- Keep workout data on the phone. The app does not need a WODLog account or application server.
-- Ship native Android and iOS builds. The web build is not the install route: the current database opens SQLite through `dart:io` and `NativeDatabase`; web would need a separate Drift WebAssembly database setup.
-- Keep screens focused on starting a workout, entering sets or WOD results, and opening history. Avoid a dashboard, decorative metrics, and nonfunctional navigation.
+The no-cost preview is a static Flutter web app hosted on GitHub Pages. It has no WODLog API or workout-data server. After deployment:
 
-## Android
+1. Open `https://rsy-dev.github.io/WODLog/` in iPhone Safari.
+2. Tap Share → **Add to Home Screen**.
+3. Launch WODLog from the new Home Screen icon.
 
-- Build a release APK for direct installation on Galaxy devices.
-- Host the APK as a GitHub Release asset. This hosts the installer only; workout data remains local.
-- Keep Play Store AAB signing and publishing as a separate store-release step.
+Workout records are stored in the Safari browser database on that iPhone. They are separate from the native iOS/Android app and do not sync. Clearing Safari site data can remove them. The app needs internet to load or update the web files.
 
-## iPhone
+GitHub Actions builds the web app from `main` and deploys static files to Pages. No signing secret or app server is needed.
 
-- A tap-to-install tester link should use TestFlight. Upload a signed build to App Store Connect, then provide the TestFlight invitation link.
-- TestFlight requires Apple Developer Program membership and App Store Connect setup.
-- A free Apple Account can install a development build from Xcode to a connected personal iPhone, but this is a cable-and-computer workflow and its development provisioning expires after seven days. It does not provide a durable web install link.
-- Do not distribute an unsigned IPA; iOS will not install it as an app.
+## Native iPhone testing
 
-## Current machine readiness
+- Xcode installed the Release build on the connected iPhone 15 Pro using the free Personal Team. The installed app can launch from the Home Screen without keeping the Mac connected.
+- Each new native version must be signed and installed again through Xcode. Free Personal Team provisioning expires after seven days.
+- TestFlight remains a later option after Apple Developer Program activation and App Store Connect setup.
 
-- `flutter build ios --no-codesign` succeeds and produces a device build at `build/ios/iphoneos/Runner.app`.
-- The current Xcode project resolves dependencies using Swift Package Manager; CocoaPods is not installed, but it did not block this build.
-- No signing identities or provisioning profiles are available, and no iPhone is connected to the Mac.
-- The Apple Developer Program enrollment is complete; TestFlight and App Store Connect app setup, signing, and upload remain.
-- Next preparation: create the App Store Connect app record for bundle ID `dev.rsy.wodlog`, configure secure signing/upload credentials, then upload a beta build and create the tester invitation link. Do not send signing keys or passwords in chat.
+## Android testing
 
-## Release artifacts
+- Build a signed release APK and attach it to a GitHub Release for direct Galaxy installation.
+- The Android workflow requires a dedicated keystore and GitHub Actions secrets.
+- Keep Play Store AAB signing and publication as a separate store-release step.
 
-- Galaxy: GitHub Release page with a directly downloadable APK.
-- iPhone: TestFlight public or invitation link after signing and upload.
-- No workout database, API, or app backend is required for either route.
+## Data storage
+
+- Native builds use a local SQLite database in the app's private storage.
+- The web preview uses Drift WebAssembly storage in the browser's local site data.
+- Workout records are not sent to an application server. Native and web preview data are separate.

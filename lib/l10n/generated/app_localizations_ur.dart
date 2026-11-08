@@ -208,4 +208,105 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'کیا یہ ورزش اور اس کے تمام سیٹس حذف کریں؟ اسے واپس نہیں کیا جا سکتا۔';
+
+  @override
+  String get progress => 'پیش رفت';
+
+  @override
+  String get todaySummary => 'آج کا خلاصہ';
+
+  @override
+  String get trainingOverview => 'ورزش کا خلاصہ';
+
+  @override
+  String get sessionsLabel => 'سیشن';
+
+  @override
+  String get setsLabel => 'سیٹس';
+
+  @override
+  String movementCount(int count) {
+    return '$count حرکات';
+  }
+
+  @override
+  String get movementsLabel => 'حرکات';
+
+  @override
+  String setCount(int count) {
+    return '$count سیٹس';
+  }
+
+  @override
+  String get weightedVolume => 'وزن کے ساتھ کل حجم';
+
+  @override
+  String get volumeUnit => 'کلوگرام·دہرائیاں';
+
+  @override
+  String get bestLoadChange => 'زیادہ سے زیادہ وزن میں تبدیلی';
+
+  @override
+  String get volumeChange => 'حجم میں تبدیلی';
+
+  @override
+  String get repChange => 'دہرائیوں میں تبدیلی';
+
+  @override
+  String get noProgressYet =>
+      'پیش رفت کا موازنہ کرنے کے لیے یہی ورزش دوبارہ درج کریں۔';
+
+  @override
+  String get previousWorkout => 'پچھلی';
+
+  @override
+  String get lastWorkout => 'تازہ ترین';
+
+  @override
+  String get chooseDate => 'ورزش کی تاریخ منتخب کریں';
+
+  @override
+  String get allMovements => 'سب';
+
+  @override
+  String get customExercise => 'اپنی ورزش شامل کریں';
+
+  @override
+  String get noMovementsFound => 'کوئی حرکت نہیں ملی';
+
+  @override
+  String get noChange => 'کوئی تبدیلی نہیں';
+
+  @override
+  String get searchMovements => 'حرکات تلاش کریں';
+
+  @override
+  String get benchmarkWorkouts => 'معیاری WOD';
+
+  @override
+  String get movementTypes => 'حرکات کے گروپ';
+
+  @override
+  String get last7Days => 'گزشتہ 7 دن';
+
+  @override
+  String get previous7Days => 'اس سے پہلے کے 7 دن';
+
+  @override
+  String get categoryBarbell => 'باربل';
+
+  @override
+  String get categoryGymnastics => 'جمناسٹکس';
+
+  @override
+  String get categoryDumbbellKettlebell => 'ڈمبل/کیٹل بیل';
+
+  @override
+  String get categoryCardio => 'کارڈیو';
+
+  @override
+  String get categoryBodyweight => 'جسمانی وزن';
+
+  @override
+  String get categoryOtherEquipment => 'دیگر سامان';
 }

@@ -1,11 +1,11 @@
 {
-    "name": "wodlog",
-    "short_name": "wodlog",
+    "name": "WODLog Workout Log",
+    "short_name": "WODLog",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#f7f7f2",
+    "theme_color": "#f7f7f2",
+    "description": "A minimal local-first CrossFit workout log.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

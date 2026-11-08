@@ -1,9 +1,4 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
 import 'tables/exercises.dart';
 import 'tables/performed_sets.dart';
@@ -11,6 +6,7 @@ import 'tables/wod_results.dart';
 import 'tables/workout_blocks.dart';
 import 'tables/workout_exercises.dart';
 import 'tables/workout_sessions.dart';
+import 'database_connection.dart';
 
 part 'app_database.g.dart';
 
@@ -25,7 +21,7 @@ part 'app_database.g.dart';
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
   int get schemaVersion => 1;
@@ -59,12 +55,4 @@ class AppDatabase extends _$AppDatabase {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
-}
-
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final directory = await getApplicationSupportDirectory();
-    final file = File(p.join(directory.path, 'wodlog.sqlite'));
-    return NativeDatabase.createInBackground(file);
-  });
 }

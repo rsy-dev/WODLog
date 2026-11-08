@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wodlog/core/database/app_database.dart';
@@ -80,6 +80,21 @@ void main() {
     )..orderBy([(set) => OrderingTerm.asc(set.setNumber)])).get();
     expect(sets.map((set) => set.setNumber), [1, 3, 4]);
   });
+
+  test(
+    'records bodyweight reps without inventing a zero-kilogram load',
+    () async {
+      await repository.addSet(
+        workoutExerciseId: 'workout-exercise-1',
+        weightKg: null,
+        reps: 12,
+      );
+
+      final set = await database.select(database.performedSets).getSingle();
+      expect(set.weightKg, isNull);
+      expect(set.reps, 12);
+    },
+  );
 
   test('updates a strength block title after trimming whitespace', () async {
     await repository.updateStrengthBlock(

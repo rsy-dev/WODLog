@@ -210,4 +210,105 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get confirmDeleteExercise =>
       'Burahin ang ehersisyong ito pati lahat ng set nito? Hindi ito maibabalik.';
+
+  @override
+  String get progress => 'Progreso';
+
+  @override
+  String get todaySummary => 'Buod ngayon';
+
+  @override
+  String get trainingOverview => 'Buod ng training';
+
+  @override
+  String get sessionsLabel => 'mga session';
+
+  @override
+  String get setsLabel => 'mga set';
+
+  @override
+  String movementCount(int count) {
+    return '$count galaw';
+  }
+
+  @override
+  String get movementsLabel => 'mga galaw';
+
+  @override
+  String setCount(int count) {
+    return '$count set';
+  }
+
+  @override
+  String get weightedVolume => 'Kabuuang volume na may bigat';
+
+  @override
+  String get volumeUnit => 'kg·reps';
+
+  @override
+  String get bestLoadChange => 'Pagbabago sa pinakamabigat';
+
+  @override
+  String get volumeChange => 'Pagbabago sa volume';
+
+  @override
+  String get repChange => 'Pagbabago sa reps';
+
+  @override
+  String get noProgressYet =>
+      'Ulitin ang ehersisyo para maikumpara ang progreso.';
+
+  @override
+  String get previousWorkout => 'Nakaraan';
+
+  @override
+  String get lastWorkout => 'Pinakabago';
+
+  @override
+  String get chooseDate => 'Pumili ng petsa ng workout';
+
+  @override
+  String get allMovements => 'Lahat';
+
+  @override
+  String get customExercise => 'Magdagdag ng sariling ehersisyo';
+
+  @override
+  String get noMovementsFound => 'Walang nahanap na galaw';
+
+  @override
+  String get noChange => 'Walang pagbabago';
+
+  @override
+  String get searchMovements => 'Maghanap ng galaw';
+
+  @override
+  String get benchmarkWorkouts => 'Mga benchmark na WOD';
+
+  @override
+  String get movementTypes => 'Mga grupo ng galaw';
+
+  @override
+  String get last7Days => 'Huling 7 araw';
+
+  @override
+  String get previous7Days => 'Naunang 7 araw';
+
+  @override
+  String get categoryBarbell => 'Barbell';
+
+  @override
+  String get categoryGymnastics => 'Gymnastics';
+
+  @override
+  String get categoryDumbbellKettlebell => 'Dumbbell/Kettlebell';
+
+  @override
+  String get categoryCardio => 'Cardio';
+
+  @override
+  String get categoryBodyweight => 'Bigat ng katawan';
+
+  @override
+  String get categoryOtherEquipment => 'Iba pang kagamitan';
 }
