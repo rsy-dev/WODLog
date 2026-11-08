@@ -11,16 +11,18 @@ class WodRepository {
 
   Stream<List<WorkoutBlock>> watchWodBlocks(String sessionId) {
     return (_database.select(_database.workoutBlocks)
-          ..where((block) =>
-              block.sessionId.equals(sessionId) & block.type.equals('wod'))
+          ..where(
+            (block) =>
+                block.sessionId.equals(sessionId) & block.type.equals('wod'),
+          )
           ..orderBy([(block) => OrderingTerm.asc(block.sortOrder)]))
         .watch();
   }
 
   Stream<WodResult?> watchResult(String blockId) {
-    return (_database.select(_database.wodResults)
-          ..where((result) => result.blockId.equals(blockId)))
-        .watchSingleOrNull();
+    return (_database.select(
+      _database.wodResults,
+    )..where((result) => result.blockId.equals(blockId))).watchSingleOrNull();
   }
 
   Future<void> createWodBlock({
@@ -28,7 +30,9 @@ class WodRepository {
     required String title,
     required int sortOrder,
   }) async {
-    await _database.into(_database.workoutBlocks).insert(
+    await _database
+        .into(_database.workoutBlocks)
+        .insert(
           WorkoutBlocksCompanion.insert(
             id: _uuid.v4(),
             sessionId: sessionId,
@@ -46,13 +50,15 @@ class WodRepository {
     required String notes,
   }) async {
     final now = DateTime.now().toUtc().millisecondsSinceEpoch;
-    final current = await (_database.select(_database.wodResults)
-          ..where((result) => result.blockId.equals(blockId)))
-        .getSingleOrNull();
+    final current = await (_database.select(
+      _database.wodResults,
+    )..where((result) => result.blockId.equals(blockId))).getSingleOrNull();
     final text = resultText.trim();
     final normalizedNotes = notes.trim();
     if (current == null) {
-      await _database.into(_database.wodResults).insert(
+      await _database
+          .into(_database.wodResults)
+          .insert(
             WodResultsCompanion.insert(
               id: _uuid.v4(),
               blockId: blockId,
@@ -64,14 +70,16 @@ class WodRepository {
             ),
           );
     } else {
-      await (_database.update(_database.wodResults)
-            ..where((result) => result.blockId.equals(blockId)))
-          .write(WodResultsCompanion(
-            resultType: Value(resultType),
-            resultText: Value(text.isEmpty ? null : text),
-            notes: Value(normalizedNotes.isEmpty ? null : normalizedNotes),
-            updatedAt: Value(now),
-          ));
+      await (_database.update(
+        _database.wodResults,
+      )..where((result) => result.blockId.equals(blockId))).write(
+        WodResultsCompanion(
+          resultType: Value(resultType),
+          resultText: Value(text.isEmpty ? null : text),
+          notes: Value(normalizedNotes.isEmpty ? null : normalizedNotes),
+          updatedAt: Value(now),
+        ),
+      );
     }
   }
 }

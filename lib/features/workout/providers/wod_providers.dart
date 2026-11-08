@@ -7,7 +7,10 @@ final wodRepositoryProvider = Provider<WodRepository>((ref) {
   return WodRepository(ref.watch(appDatabaseProvider));
 });
 
-final wodBlocksForSessionProvider = StreamProvider.family((ref, String sessionId) {
+final wodBlocksForSessionProvider = StreamProvider.family((
+  ref,
+  String sessionId,
+) {
   return ref.watch(wodRepositoryProvider).watchWodBlocks(sessionId);
 });
 

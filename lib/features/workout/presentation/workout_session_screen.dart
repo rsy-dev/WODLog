@@ -23,18 +23,20 @@ class WorkoutSessionScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(session.value?.title ?? l10n.workoutLog),
         actions: [
-          if (session.value != null) ...[
-            IconButton(
-              tooltip: l10n.editSession,
-              onPressed: () => _editSession(context, ref, session.value!),
-              icon: const Icon(Icons.edit_outlined),
+          if (session.value != null)
+            PopupMenuButton<String>(
+              onSelected: (action) {
+                if (action == 'edit') {
+                  _editSession(context, ref, session.value!);
+                } else if (action == 'delete') {
+                  _deleteSession(context, ref);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(value: 'edit', child: Text(l10n.editSession)),
+                PopupMenuItem(value: 'delete', child: Text(l10n.deleteSession)),
+              ],
             ),
-            IconButton(
-              tooltip: l10n.deleteSession,
-              onPressed: () => _deleteSession(context, ref),
-              icon: const Icon(Icons.delete_outline),
-            ),
-          ],
         ],
       ),
       body: Column(

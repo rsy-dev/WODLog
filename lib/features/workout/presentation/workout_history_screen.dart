@@ -27,8 +27,7 @@ class WorkoutHistoryScreen extends ConsumerWidget {
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: items.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 8),
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final session = items[index];
                   final localTime = DateTime.fromMillisecondsSinceEpoch(

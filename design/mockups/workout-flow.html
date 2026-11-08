@@ -4,248 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>WODLog · Workout flow mockup</title>
+  <meta name="theme-color" content="#f8faf8">
+  <title>WODLog · 간단한 운동 기록</title>
   <style>
-    :root {
-      --ink: #192822;
-      --muted: #748079;
-      --line: #e7ebe6;
-      --paper: #f4f6f2;
-      --card: #fff;
-      --green: #16745a;
-      --green-dark: #105942;
-      --mint: #e4f2eb;
-      --lime: #d8f277;
-      --amber: #f6ead5;
-      --shadow: 0 26px 60px rgba(21, 44, 33, .12), 0 3px 12px rgba(21, 44, 33, .05);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    }
+    :root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #202923; background: #f4f6f4; }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
-      background:
-        radial-gradient(ellipse at 12% 5%, rgba(216, 242, 119, .3), transparent 28rem),
-        radial-gradient(ellipse at 92% 35%, rgba(210, 231, 220, .65), transparent 27rem),
-        #edf1eb;
-    }
-    .page { width: min(1100px, 100% - 40px); margin: 0 auto; padding: 48px 0 64px; }
-    .intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
-    .eyebrow { margin: 0 0 10px; color: var(--green); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-    h1 { margin: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.055em; line-height: 1; }
-    .intro p:last-child { max-width: 360px; margin: 0; color: #64716a; font-size: 14px; line-height: 1.55; }
-    .screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; align-items: start; }
-    .screen-label { margin: 0 0 12px 8px; color: #526158; font-size: 12px; font-weight: 750; letter-spacing: .03em; }
-    .phone {
-      position: relative;
-      width: min(100%, 410px);
-      min-height: 820px;
-      margin: 0 auto;
-      padding: 13px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,.9);
-      border-radius: 38px;
-      background: #1c2823;
-      box-shadow: var(--shadow);
-    }
-    .display { min-height: 794px; overflow: hidden; border-radius: 28px; background: var(--paper); }
-    .status { display:flex; align-items:center; justify-content:space-between; height:34px; padding: 0 21px; color:#304139; font-size:11px; font-weight:750; }
-    .status-icons { display:flex; align-items:center; gap:6px; }
-    .signal { display:flex; align-items:end; gap:2px; height:10px; }
-    .signal i { display:block; width:3px; border-radius:4px; background:#31443a; }
-    .signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:6px}.signal i:nth-child(3){height:8px}.signal i:nth-child(4){height:10px}
-    .battery { position:relative; width:17px; height:9px; border:1.3px solid #31443a; border-radius:3px; }
-    .battery:before { content:""; position:absolute; inset:1.5px 3px 1.5px 1.5px; border-radius:1px; background:#31443a; }
-    .battery:after { content:""; position:absolute; right:-3px; top:2px; width:2px; height:4px; border-radius:0 2px 2px 0; background:#31443a; }
-    .appbar { display:flex; align-items:center; justify-content:space-between; padding: 11px 21px 8px; }
-    .brand { display:flex; align-items:center; gap:9px; font-size:17px; font-weight:850; letter-spacing:-.045em; }
-    .brand-mark { display:grid; width:28px; height:28px; place-items:center; border-radius:9px; color:#f7fffa; background:var(--green); }
-    .brand-mark svg { width:17px; height:17px; }
-    .icon-button { display:grid; width:38px; height:38px; place-items:center; border:1px solid var(--line); border-radius:13px; color:#526158; background:#fff; }
-    .icon-button svg { width:18px; height:18px; }
-    .content { padding: 12px 20px 98px; }
-    .date-line { color:var(--muted); font-size:12px; font-weight:650; }
-    .headline { margin:7px 0 0; font-size:31px; letter-spacing:-.065em; line-height:1.13; }
-    .headline span { color:var(--green); }
-    .subline { margin:8px 0 21px; color:var(--muted); font-size:13px; }
-    .week-card { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; padding:15px 16px; border:1px solid #e7ece6; border-radius:19px; background:#fff; }
-    .week-title { font-size:12px; font-weight:800; }
-    .week-sub { margin-top:4px; color:var(--muted); font-size:11px; }
-    .week-count { color:var(--green); font-size:18px; font-weight:850; letter-spacing:-.04em; }
-    .week-count small { color:#7a877f; font-size:10px; font-weight:650; letter-spacing:0; }
-    .week-days { grid-column:1 / -1; display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-top:4px; }
-    .day { display:grid; justify-items:center; gap:6px; color:#9ba49e; font-size:9px; }
-    .day span { display:grid; width:24px; height:24px; place-items:center; border-radius:50%; color:#728078; font-size:10px; }
-    .day.done span { color:var(--green); background:var(--mint); }
-    .day.today span { color:#fff; background:var(--green); box-shadow:0 3px 8px rgba(22,116,90,.2); }
-    .section-row { display:flex; justify-content:space-between; align-items:center; margin:23px 1px 11px; }
-    .section-row h2 { margin:0; font-size:16px; letter-spacing:-.035em; }
-    .text-action { color:var(--green); font-size:11px; font-weight:750; }
-    .session-card { padding:15px; border:1px solid #e5ebe5; border-radius:19px; background:#fff; }
-    .session-head { display:flex; gap:12px; align-items:center; }
-    .session-icon { display:grid; flex:none; width:43px; height:43px; place-items:center; border-radius:14px; color:var(--green); background:var(--mint); }
-    .session-icon svg { width:21px; height:21px; }
-    .session-title { margin:0; font-size:14px; font-weight:800; letter-spacing:-.025em; }
-    .session-time { margin:4px 0 0; color:var(--muted); font-size:11px; }
-    .chevron { margin-left:auto; color:#a3ada6; font-size:22px; }
-    .session-meta { display:flex; gap:7px; margin-top:14px; padding-top:12px; border-top:1px solid #f0f2ef; }
-    .meta-pill { padding:6px 9px; border-radius:8px; color:#627168; background:#f4f6f3; font-size:10px; font-weight:700; }
-    .empty-hint { margin:13px 2px 0; color:#87928a; font-size:11px; line-height:1.5; }
-    .cta { display:flex; width:100%; min-height:52px; align-items:center; justify-content:center; gap:9px; margin-top:14px; border:0; border-radius:16px; color:#fff; background:var(--green); box-shadow:0 6px 14px rgba(22,116,90,.2); font:inherit; font-size:13px; font-weight:800; letter-spacing:-.01em; }
-    .cta svg { width:17px; height:17px; }
-    .bottom-nav { position:absolute; right:13px; bottom:13px; left:13px; display:grid; grid-template-columns:repeat(3,1fr); height:68px; align-items:center; border-top:1px solid #edf0ec; border-radius:0 0 28px 28px; background:rgba(255,255,255,.96); }
-    .nav-item { display:grid; justify-items:center; gap:4px; color:#9aa49d; font-size:9px; font-weight:700; }
-    .nav-item svg { width:18px; height:18px; }
-    .nav-item.active { color:var(--green); }
-    .nav-item.active svg { stroke-width:2.4; }
-    .back { display:flex; align-items:center; gap:6px; color:#627168; font-size:12px; font-weight:700; }
-    .back svg { width:17px; height:17px; }
-    .session-content { padding-top:8px; }
-    .session-date { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:11px; }
-    .session-date svg { width:14px; height:14px; }
-    .session-h1 { margin:9px 0 0; font-size:25px; font-weight:850; letter-spacing:-.06em; }
-    .session-note { margin:5px 0 13px; color:#78857d; font-size:11px; }
-    .block { margin-top:15px; padding:15px; border:1px solid #e4eae4; border-radius:20px; background:#fff; }
-    .block-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-    .block-name { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:850; letter-spacing:-.025em; }
-    .block-tag { padding:5px 8px; border-radius:7px; color:var(--green); background:var(--mint); font-size:9px; font-weight:850; letter-spacing:.05em; text-transform:uppercase; }
-    .small-add { display:flex; align-items:center; gap:4px; border:0; color:var(--green); background:transparent; font:inherit; font-size:10px; font-weight:800; }
-    .small-add svg { width:14px; height:14px; }
-    .exercise { padding:12px; border-radius:15px; background:#f6f8f5; }
-    .exercise + .exercise { margin-top:9px; }
-    .exercise-top { display:flex; align-items:center; justify-content:space-between; }
-    .exercise-name { margin:0; font-size:12px; font-weight:800; letter-spacing:-.02em; }
-    .exercise-sub { margin:4px 0 0; color:#87928a; font-size:10px; }
-    .add-set { display:grid; width:29px; height:29px; place-items:center; border:1px solid #dfe8e1; border-radius:10px; color:var(--green); background:#fff; }
-    .add-set svg { width:15px; height:15px; }
-    .set-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; }
-    .set-chip { display:flex; align-items:center; gap:6px; padding:7px 9px; border:1px solid #e4eae4; border-radius:9px; color:#536158; background:#fff; font-size:9px; font-weight:700; }
-    .set-chip b { color:var(--green); font-weight:850; }
-    .set-chip.latest { border-color:#c8dfd0; background:#f1f8f3; }
-    .add-block { display:flex; width:100%; align-items:center; justify-content:center; gap:7px; margin-top:13px; padding:13px; border:1px dashed #b8d3c2; border-radius:15px; color:var(--green); background:rgba(255,255,255,.48); font:inherit; font-size:11px; font-weight:800; }
-    .add-block svg { width:16px; height:16px; }
-    .finish-note { display:flex; gap:8px; align-items:start; margin:16px 3px 0; color:#859088; font-size:10px; line-height:1.45; }
-    .finish-note svg { flex:none; width:15px; height:15px; color:#a18b5d; }
-    .session-cta { position:absolute; right:13px; bottom:77px; left:13px; width:auto; margin:0; }
-    .home-indicator { position:absolute; bottom:5px; left:50%; width:98px; height:4px; transform:translateX(-50%); border-radius:9px; background:#1e2924; }
-    @media (max-width: 800px) {
-      .page { width:min(100% - 28px, 440px); padding:28px 0 38px; }
-      .intro { display:block; margin:0 4px 20px; }
-      .intro p:last-child { margin-top:10px; font-size:12px; }
-      .screens { grid-template-columns:1fr; gap:20px; }
-      .phone { min-height:0; }
-    }
-    @media (max-width: 420px) {
-      .page { width:100%; padding:22px 10px 30px; }
-      .phone { padding:9px; border-radius:32px; }
-      .display { min-height:780px; border-radius:25px; }
-      .bottom-nav { right:9px; left:9px; border-radius:0 0 25px 25px; }
-      .session-cta { right:9px; left:9px; }
-    }
+    body { margin: 0; }
+    main { width: min(860px, 100% - 32px); margin: 0 auto; padding: 28px 0 48px; }
+    h1 { margin: 0 0 8px; font-size: 24px; letter-spacing: -.04em; }
+    .intro { margin: 0 0 24px; color: #707971; font-size: 14px; }
+    .screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    article { padding: 18px; border: 1px solid #e3e8e4; border-radius: 18px; background: #fff; }
+    .label { margin: 0 0 16px; color: #778078; font-size: 12px; }
+    .bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .brand { font-size: 16px; font-weight: 700; letter-spacing: -.03em; }
+    .quiet { padding: 8px; border: 0; color: #59635b; background: transparent; font-size: 18px; }
+    .date { margin: 0 0 8px; color: #727b73; font-size: 13px; }
+    h2 { margin: 0 0 20px; font-size: 25px; letter-spacing: -.05em; }
+    .empty { display: grid; min-height: 220px; place-content: center; text-align: center; color: #737d75; font-size: 14px; }
+    .empty strong { margin-bottom: 6px; color: #303a32; font-size: 16px; font-weight: 600; }
+    button.primary { width: 100%; min-height: 48px; border: 0; border-radius: 12px; color: #fff; background: #176b5b; font: inherit; font-size: 15px; font-weight: 600; }
+    .row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #edf0ed; font-size: 15px; }
+    .row small { display: block; margin-top: 4px; color: #7a837c; font-size: 12px; }
+    .section { margin: 24px 0 8px; color: #788078; font-size: 12px; }
+    .add { padding: 10px 0; border: 0; color: #176b5b; background: transparent; font: inherit; font-weight: 600; }
+    .set { padding: 12px 0; border-bottom: 1px solid #edf0ed; font-size: 14px; }
+    .set span { margin-left: 8px; color: #707971; }
+    @media (max-width: 640px) { main { width: min(420px, 100% - 24px); padding-top: 20px; } .screens { grid-template-columns: 1fr; gap: 14px; } article { border-radius: 14px; } }
   </style>
 </head>
 <body>
-  <main class="page">
-    <header class="intro">
-      <div>
-        <p class="eyebrow">WODLog · Product preview</p>
-        <h1>운동 기록을<br>빠르게, 한눈에.</h1>
-      </div>
-      <p>기록할 때는 집중할 수 있도록 단순하게, 운동이 쌓이면 변화가 보이도록 구성한 모바일 화면 시안입니다.</p>
-    </header>
-
-    <section class="screens" aria-label="WODLog mobile screen mockups">
+  <main>
+    <h1>WODLog</h1>
+    <p class="intro">운동 기록에 필요한 화면만 남긴 미니멀 시안</p>
+    <section class="screens" aria-label="앱 화면 시안">
       <article>
-        <h2 class="screen-label">01 · 오늘</h2>
-        <div class="phone">
-          <div class="display">
-            <div class="status"><span>9:41</span><span class="status-icons"><span class="signal"><i></i><i></i><i></i><i></i></span><span>Wi-Fi</span><span class="battery"></span></span></div>
-            <div class="appbar">
-              <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg></span>WODLog</div>
-              <button class="icon-button" aria-label="운동 이력">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>
-              </button>
-            </div>
-            <div class="content">
-              <div class="date-line">2026년 11월 9일 · 월요일</div>
-              <h2 class="headline">오늘의 움직임,<br><span>기록해볼까요?</span></h2>
-              <p class="subline">운동에 집중하고, 나머지는 WODLog에 맡기세요.</p>
-
-              <section class="week-card" aria-label="주간 운동 기록">
-                <div><div class="week-title">이번 주 활동</div><div class="week-sub">꾸준함이 쌓이는 중이에요</div></div>
-                <div class="week-count">3 <small>/ 5회</small></div>
-                <div class="week-days">
-                  <div class="day done">월<span>2</span></div>
-                  <div class="day done">화<span>3</span></div>
-                  <div class="day">수<span>4</span></div>
-                  <div class="day today">목<span>5</span></div>
-                  <div class="day">금<span>6</span></div>
-                  <div class="day">토<span>7</span></div>
-                  <div class="day">일<span>8</span></div>
-                </div>
-              </section>
-
-              <div class="section-row"><h2>오늘 기록</h2><span class="text-action">전체 이력 보기</span></div>
-              <section class="session-card">
-                <div class="session-head">
-                  <div class="session-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg></div>
-                  <div><p class="session-title">Strength · 하체</p><p class="session-time">오전 7:32 · 3개 종목</p></div>
-                  <span class="chevron">›</span>
-                </div>
-                <div class="session-meta"><span class="meta-pill">Back Squat</span><span class="meta-pill">Deadlift</span><span class="meta-pill">+ 1</span></div>
-              </section>
-              <p class="empty-hint">운동을 마친 뒤 세션을 추가해 기록을 이어가세요.</p>
-              <button class="cta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>운동 기록 시작하기</button>
-            </div>
-            <nav class="bottom-nav" aria-label="하단 메뉴">
-              <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>오늘</span></div>
-              <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V5M4 19h17"/><path d="m7 15 4-4 3 2 6-7"/></svg><span>성장</span></div>
-              <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg><span>설정</span></div>
-            </nav>
-            <span class="home-indicator"></span>
-          </div>
-        </div>
+        <p class="label">오늘</p>
+        <div class="bar"><span class="brand">WODLog</span><button class="quiet" aria-label="기록 내역">↗</button></div>
+        <p class="date">2026년 11월 8일 일요일</p>
+        <h2>오늘 운동</h2>
+        <div class="empty"><strong>아직 기록이 없어요</strong><span>운동을 시작해 기록을 남겨보세요.</span></div>
+        <button class="primary">운동 시작</button>
       </article>
-
       <article>
-        <h2 class="screen-label">02 · 운동 기록</h2>
-        <div class="phone">
-          <div class="display">
-            <div class="status"><span>9:41</span><span class="status-icons"><span class="signal"><i></i><i></i><i></i><i></i></span><span>Wi-Fi</span><span class="battery"></span></span></div>
-            <div class="appbar">
-              <div class="back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>오늘</div>
-              <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9v6M7 6v12M17 6v12M20 9v6M7 12h10"/></svg></span>WODLog</div>
-              <button class="icon-button" aria-label="세션 수정"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="m16.5 3.5 4 4L8 20l-5 1 1-5z"/></svg></button>
-            </div>
-            <div class="content session-content">
-              <div class="session-date"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>2026년 11월 9일 · 오전 7:32</div>
-              <h2 class="session-h1">Strength · 하체</h2>
-              <p class="session-note">오늘 컨디션 좋아요. 무리하지 않고 꾸준하게.</p>
-
-              <section class="block">
-                <div class="block-top"><div class="block-name"><span class="block-tag">Strength</span>메인 리프트</div><button class="small-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>종목</button></div>
-                <article class="exercise">
-                  <div class="exercise-top"><div><h3 class="exercise-name">Back Squat</h3><p class="exercise-sub">오늘의 최고 중량  ·  80 kg</p></div><button class="add-set" aria-label="세트 추가"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
-                  <div class="set-list"><span class="set-chip"><b>1세트</b> 60 kg × 8회</span><span class="set-chip"><b>2세트</b> 70 kg × 5회</span><span class="set-chip latest"><b>3세트</b> 80 kg × 3회</span></div>
-                </article>
-                <article class="exercise">
-                  <div class="exercise-top"><div><h3 class="exercise-name">Romanian Deadlift</h3><p class="exercise-sub">세트 2개 기록</p></div><button class="add-set" aria-label="세트 추가"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
-                  <div class="set-list"><span class="set-chip"><b>1세트</b> 50 kg × 10회</span><span class="set-chip"><b>2세트</b> 55 kg × 8회</span></div>
-                </article>
-                <button class="add-block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Strength 블록 추가</button>
-              </section>
-
-              <section class="block">
-                <div class="block-top"><div class="block-name"><span class="block-tag" style="color:#92651c;background:var(--amber)">WOD</span>Metcon</div><button class="small-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>종목</button></div>
-                <div class="exercise-top"><div><h3 class="exercise-name">For Time</h3><p class="exercise-sub">12:48 · 5 rounds</p></div><button class="small-add">결과 입력&nbsp; ↗</button></div>
-              </section>
-              <p class="finish-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>기록은 기기에 안전하게 저장돼요. 완료 후에도 수정할 수 있습니다.</p>
-            </div>
-            <button class="cta session-cta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>운동 마치기</button>
-            <span class="home-indicator"></span>
-          </div>
-        </div>
+        <p class="label">운동 기록</p>
+        <div class="bar"><span class="quiet" aria-label="뒤로">‹</span><span class="brand">오늘 운동</span><button class="quiet" aria-label="더 보기">···</button></div>
+        <p class="date">2026년 11월 8일 일요일</p>
+        <div class="section">와드</div>
+        <button class="add">＋ 와드 추가</button>
+        <div class="section">근력 운동</div>
+        <div class="row"><span>Back Squat</span><span>＋</span></div>
+        <div class="set">세트 1 <span>60 kg × 5</span></div>
+        <div class="set">세트 2 <span>65 kg × 5</span></div>
+        <button class="add">＋ 운동 블록 추가</button>
       </article>
     </section>
   </main>
