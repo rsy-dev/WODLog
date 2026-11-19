@@ -206,6 +206,9 @@ class _RetryWodWriter implements WodRepository {
   final scores = <String>[];
 
   @override
+  Stream<List<WodRecord>> watchCompletedRecords() => Stream.value([]);
+
+  @override
   Future<WodRecord?> getRecord(String attemptId) async => (
     block: _wod,
     prescription: const WodPrescription(title: 'Fran'),

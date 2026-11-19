@@ -148,6 +148,53 @@ class WodRepository {
     });
   }
 
+  Future<void> saveRepeat({
+    required String attemptId,
+    required String workoutDate,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
+  }) => _database.transaction(() async {
+    final sessions = _database.workoutSessions;
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await _database
+        .into(sessions)
+        .insert(
+          WorkoutSessionsCompanion.insert(
+            id: attemptId,
+            workoutDate: workoutDate,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+    await saveConfirmed(
+      attemptId: attemptId,
+      sessionId: attemptId,
+      sortOrder: 0,
+      prescription: prescription,
+      score: score,
+    );
+  });
+
+  Stream<List<WodRecord>> watchCompletedRecords() {
+    final results = _database.wodResults;
+    final sessions = _database.workoutSessions;
+    final query = _recordsQuery()
+      ..join([
+        innerJoin(
+          sessions,
+          sessions.id.equalsExp(_database.workoutBlocks.sessionId),
+        ),
+      ])
+      ..where(results.outcome.isNotNull())
+      ..orderBy([
+        OrderingTerm.asc(sessions.workoutDate),
+        OrderingTerm.asc(results.createdAt),
+        OrderingTerm.asc(results.id),
+      ]);
+    return query.watch().map((rows) => rows.map(_readRecord).toList());
+  }
+
   Future<WodRecord?> getRecord(String attemptId) async {
     final query = _recordsQuery();
     query.where(_database.workoutBlocks.id.equals(attemptId));

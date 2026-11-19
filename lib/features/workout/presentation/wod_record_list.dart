@@ -83,11 +83,18 @@ class _WodRecordTile extends ConsumerWidget {
         : DateFormat.yMMMd(Localizations.localeOf(context).toString())
               .format(date);
     final score = ref.watch(wodResultProvider(block.id)).value;
+    final bests = ref.watch(wodPersonalBestsProvider).value ?? [];
+    final isPr = bests.any(
+      (group) =>
+          group.improvements.any((record) => record.block.id == block.id),
+    );
     return Card(
       child: ListTile(
         leading: const Icon(Icons.fitness_center),
         title: Text(title),
-        subtitle: Text([dateLabel, ?score?.resultText].join(' · ')),
+        subtitle: Text(
+          [dateLabel, ?score?.resultText, if (isPr) 'PR'].join(' · '),
+        ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => _showDetail(context, title, dateLabel),
       ),
@@ -102,10 +109,17 @@ class _WodRecordTile extends ConsumerWidget {
       builder: (_) => Consumer(
         builder: (context, ref, _) {
           final score = ref.watch(wodResultProvider(block.id));
+          final bests = ref.watch(wodPersonalBestsProvider).value ?? [];
+          final isPr = bests.any(
+            (group) =>
+                group.improvements.any((record) => record.block.id == block.id),
+          );
+          final korean = l10n.localeName.startsWith('ko');
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
               Text(date),
+              if (isPr) Text(korean ? '개인 기록 갱신' : 'Personal record'),
               if (block.notes case final notes?)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -133,6 +147,11 @@ class _WodRecordTile extends ConsumerWidget {
               FilledButton(
                 onPressed: () => showWodResultEditor(context, ref, block.id),
                 child: Text(l10n.editWodResult),
+              ),
+              OutlinedButton(
+                onPressed: () =>
+                    showWodResultEditor(context, ref, block.id, repeat: true),
+                child: Text(korean ? '다시 기록' : 'Record again'),
               ),
               OutlinedButton(
                 onPressed: () {

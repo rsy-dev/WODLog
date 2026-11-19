@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/database_provider.dart';
 import '../data/wod_repository.dart';
+import '../data/wod_comparison.dart';
 
 final wodRepositoryProvider = Provider<WodRepository>((ref) {
   return WodRepository(ref.watch(appDatabaseProvider));
@@ -17,3 +18,10 @@ final wodBlocksForSessionProvider = StreamProvider.family((
 final wodResultProvider = StreamProvider.family((ref, String blockId) {
   return ref.watch(wodRepositoryProvider).watchResult(blockId);
 });
+
+final wodPersonalBestsProvider = StreamProvider(
+  (ref) => ref
+      .watch(wodRepositoryProvider)
+      .watchCompletedRecords()
+      .map(wodPersonalBests),
+);

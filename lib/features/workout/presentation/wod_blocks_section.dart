@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:uuid/uuid.dart';
 
 import '../../../app/wodlog_sheet.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -135,6 +136,10 @@ const _types = <String>[
   'emom',
   'rounds_reps',
   'load',
+  'reps',
+  'distance',
+  'calories',
+  'points',
   'other',
 ];
 
@@ -144,14 +149,19 @@ String wodTypeLabel(AppLocalizations l10n, String type) => switch (type) {
   'emom' || 'intervals' => l10n.resultEmom,
   'rounds_reps' || 'roundsAndReps' => l10n.resultRoundsReps,
   'load' || 'weight' => l10n.resultLoad,
+  'reps' => l10n.wodCompletedReps,
+  'distance' => 'm',
+  'calories' => 'cal',
+  'points' => l10n.localeName.startsWith('ko') ? '점수' : 'Points',
   _ => l10n.resultOther,
 };
 
 Future<void> showWodResultEditor(
   BuildContext context,
   WidgetRef ref,
-  String blockId,
-) async {
+  String blockId, {
+  bool repeat = false,
+}) async {
   final repository = ref.read(wodRepositoryProvider);
   final l10n = AppLocalizations.of(context)!;
   final number = NumberFormat.decimalPattern(
@@ -159,20 +169,31 @@ Future<void> showWodResultEditor(
   );
   final unit = ref.read(weightUnitProvider).value ?? WeightUnit.kg;
   final record = await repository.getRecord(blockId);
-  final result = record?.result;
+  if (record == null) return;
+  final result = repeat ? null : record.result;
+  final attemptId = repeat ? const Uuid().v4() : blockId;
+  final workoutDate = DateFormat('yyyy-MM-dd', 'en').format(DateTime.now());
   if (!context.mounted) return;
   var type = _types.contains(result?.resultType)
       ? result!.resultType
-      : switch (record?.prescription.scoreKind) {
+      : switch (record.prescription.scoreKind) {
           WodScoreKind.roundsAndReps => 'amrap',
           WodScoreKind.intervals => 'emom',
           WodScoreKind.weight => 'load',
-          WodScoreKind.unknown || WodScoreKind.time || null => _types.first,
-          _ => 'other',
+          WodScoreKind.unknown || WodScoreKind.time => _types.first,
+          WodScoreKind.reps => 'reps',
+          WodScoreKind.distance => 'distance',
+          WodScoreKind.calories => 'calories',
+          WodScoreKind.points => 'points',
         };
-  final title = record?.block.title ?? '';
-  var prescription = record?.prescription ?? WodPrescription(title: title);
-  if (prescription.structure == WodStructure.unknown &&
+  final title = record.block.title ?? '';
+  var prescription = repeat
+      ? NamedWodCatalog.repeatDraft(record.prescription)
+      : record.prescription;
+  final template = NamedWodCatalog.find(title);
+  if (template != null &&
+      record.block.notes == '${template.format} · ${template.prescription}' &&
+      prescription.structure == WodStructure.unknown &&
       prescription.scoreKind == WodScoreKind.unknown) {
     for (final benchmark in NamedWodCatalog.prescriptions()) {
       if (benchmark.draft.title == title) {
@@ -183,6 +204,10 @@ Future<void> showWodResultEditor(
             WodScoreKind.intervals => 'emom',
             WodScoreKind.weight => 'load',
             WodScoreKind.time => 'for_time',
+            WodScoreKind.reps => 'reps',
+            WodScoreKind.distance => 'distance',
+            WodScoreKind.calories => 'calories',
+            WodScoreKind.points => 'points',
             _ => 'other',
           };
         }
@@ -190,6 +215,8 @@ Future<void> showWodResultEditor(
       }
     }
   }
+  final korean = l10n.localeName.startsWith('ko');
+  var version = prescription.version;
   var score = result?.resultText ?? '';
   final hasPreviousScore = score.trim().isNotEmpty;
   var usePreviousScore = hasPreviousScore;
@@ -222,6 +249,9 @@ Future<void> showWodResultEditor(
       }
       return '$minutes:${seconds.toString().padLeft(2, '0')}';
     }
+    if (type == 'distance' || type == 'points') {
+      return parseLocalizedDecimal(score, number)?.toString();
+    }
     if (type == 'load') {
       final value = parseLocalizedDecimal(score, number);
       return value != null && value > 0 ? '$value ${unit.name}' : null;
@@ -229,6 +259,7 @@ Future<void> showWodResultEditor(
     final first = whole(score);
     if (first == null) return null;
     if (type == 'for_time') return 'CAP · $first reps';
+    if (type == 'reps' || type == 'calories') return '$first';
     if (type == 'emom') return '$first intervals';
     final second = whole(secondScore);
     return second == null ? null : '$first + $second';
@@ -241,7 +272,11 @@ Future<void> showWodResultEditor(
   var failed = false;
   await showWodLogSheet<void>(
     context: context,
-    title: result == null ? l10n.addWodResult : l10n.editWodResult,
+    title: repeat
+        ? (korean ? '다시 기록' : 'Record again')
+        : result == null
+        ? l10n.addWodResult
+        : l10n.editWodResult,
     builder: (_) => StatefulBuilder(
       builder: (context, setState) => ListView(
         padding: const EdgeInsets.all(16),
@@ -252,10 +287,11 @@ Future<void> showWodResultEditor(
             decoration: InputDecoration(labelText: l10n.wodResultType),
             items: [
               for (final item in _types)
-                DropdownMenuItem(
-                  value: item,
-                  child: Text(wodTypeLabel(l10n, item)),
-                ),
+                if (!repeat || item != 'other')
+                  DropdownMenuItem(
+                    value: item,
+                    child: Text(wodTypeLabel(l10n, item)),
+                  ),
             ],
             onChanged: saving
                 ? null
@@ -270,6 +306,31 @@ Future<void> showWodResultEditor(
                     }
                   }),
           ),
+          if (prescription.movements.isNotEmpty)
+            DropdownButtonFormField<WodVersion>(
+              initialValue: version,
+              decoration: InputDecoration(
+                labelText: korean ? '수행 기준' : 'Workout standard',
+              ),
+              items: [
+                for (final item in WodVersion.values)
+                  DropdownMenuItem(
+                    value: item,
+                    child: Text(switch (item) {
+                      WodVersion.unknown => korean ? '미확인' : 'Unconfirmed',
+                      WodVersion.rx => 'Rx',
+                      WodVersion.scaled => 'Scaled',
+                      WodVersion.foundations => 'Foundations',
+                      WodVersion.custom => korean ? '직접 설정' : 'Custom',
+                    }),
+                  ),
+              ],
+              onChanged: saving
+                  ? null
+                  : (value) {
+                      if (value != null) setState(() => version = value);
+                    },
+            ),
           const SizedBox(height: 12),
           if (type == 'for_time' && !usePreviousScore)
             DropdownButtonFormField<_WodEnding>(
@@ -309,9 +370,8 @@ Future<void> showWodResultEditor(
                 (_, true, _) ||
                 ('other', _, _) ||
                 ('for_time', _, _WodEnding.finished) => TextInputType.text,
-                ('load', _, _) => const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
+                ('load' || 'distance' || 'points', _, _) =>
+                  const TextInputType.numberWithOptions(decimal: true),
                 _ => TextInputType.number,
               },
               decoration: InputDecoration(
@@ -324,6 +384,10 @@ Future<void> showWodResultEditor(
                         'amrap' || 'rounds_reps' => l10n.wodCompletedRounds,
                         'emom' => l10n.wodCompletedIntervals,
                         'load' => l10n.setWeight(unit.name),
+                        'reps' ||
+                        'distance' ||
+                        'calories' ||
+                        'points' => wodTypeLabel(l10n, type),
                         _ => l10n.wodScore,
                       },
               ),
@@ -366,6 +430,7 @@ Future<void> showWodResultEditor(
                         source,
                         title: title,
                       );
+                      version = prescription.version;
                       notes = [
                         if (notes.trim().isNotEmpty) notes.trim(),
                         source,
@@ -406,14 +471,23 @@ Future<void> showWodResultEditor(
                         'amrap' || 'rounds_reps' => WodScoreKind.roundsAndReps,
                         'emom' => WodScoreKind.intervals,
                         'load' => WodScoreKind.weight,
+                        'reps' => WodScoreKind.reps,
+                        'distance' => WodScoreKind.distance,
+                        'calories' => WodScoreKind.calories,
+                        'points' => WodScoreKind.points,
                         _ => WodScoreKind.unknown,
                       };
+                      final definition = WodPrescription.fromJson({
+                        ...prescription.toJson(),
+                        'scoreKind': kind.name,
+                        'version': version.name,
+                      });
                       if (usePreviousScore &&
                           result?.outcome != null &&
                           prescription.scoreKind == kind) {
                         await repository.saveStructuredResult(
                           blockId: blockId,
-                          prescription: prescription,
+                          prescription: definition,
                           score: WodAttemptScore(
                             outcome: WodOutcome.values.byName(result!.outcome!),
                             elapsedMs: result.durationMs,
@@ -427,51 +501,59 @@ Future<void> showWodResultEditor(
                         );
                       } else if (!usePreviousScore &&
                           kind != WodScoreKind.unknown) {
-                        final definition = WodPrescription.fromJson({
-                          ...prescription.toJson(),
-                          'scoreKind': kind.name,
-                        });
                         final time = confirmedScore.split(':');
-                        await repository.saveStructuredResult(
-                          blockId: blockId,
-                          prescription: definition,
-                          score: WodAttemptScore(
-                            outcome: type == 'for_time'
-                                ? switch (ending) {
-                                    _WodEnding.finished => WodOutcome.completed,
-                                    _WodEnding.capped => WodOutcome.capped,
-                                    _WodEnding.stopped => WodOutcome.stopped,
-                                  }
-                                : WodOutcome.completed,
-                            elapsedMs:
-                                kind == WodScoreKind.time &&
-                                    ending == _WodEnding.finished
-                                ? (int.parse(time.first) * 60 +
-                                          int.parse(time.last)) *
-                                      1000
-                                : null,
-                            rounds: kind == WodScoreKind.roundsAndReps
-                                ? whole(score)
-                                : null,
-                            reps: kind == WodScoreKind.roundsAndReps
-                                ? whole(secondScore)
-                                : kind == WodScoreKind.time &&
-                                      ending == _WodEnding.capped
-                                ? whole(score)
-                                : null,
-                            value: switch (kind) {
-                              WodScoreKind.intervals => whole(
-                                score,
-                              )?.toDouble(),
-                              WodScoreKind.weight => unit.toKg(
-                                parseLocalizedDecimal(score, number)!,
-                              ),
-                              _ => null,
-                            },
-                            text: confirmedScore,
-                            notes: notes.trim(),
-                          ),
+                        final attemptScore = WodAttemptScore(
+                          outcome: type == 'for_time'
+                              ? switch (ending) {
+                                  _WodEnding.finished => WodOutcome.completed,
+                                  _WodEnding.capped => WodOutcome.capped,
+                                  _WodEnding.stopped => WodOutcome.stopped,
+                                }
+                              : WodOutcome.completed,
+                          elapsedMs:
+                              kind == WodScoreKind.time &&
+                                  ending == _WodEnding.finished
+                              ? (int.parse(time.first) * 60 +
+                                        int.parse(time.last)) *
+                                    1000
+                              : null,
+                          rounds: kind == WodScoreKind.roundsAndReps
+                              ? whole(score)
+                              : null,
+                          reps: kind == WodScoreKind.roundsAndReps
+                              ? whole(secondScore)
+                              : kind == WodScoreKind.reps ||
+                                    (kind == WodScoreKind.time &&
+                                        ending == _WodEnding.capped)
+                              ? whole(score)
+                              : null,
+                          value: switch (kind) {
+                            WodScoreKind.intervals ||
+                            WodScoreKind.calories => whole(score)?.toDouble(),
+                            WodScoreKind.weight => unit.toKg(
+                              parseLocalizedDecimal(score, number)!,
+                            ),
+                            WodScoreKind.distance || WodScoreKind.points =>
+                              parseLocalizedDecimal(score, number),
+                            _ => null,
+                          },
+                          text: confirmedScore,
+                          notes: notes.trim(),
                         );
+                        if (repeat) {
+                          await repository.saveRepeat(
+                            attemptId: attemptId,
+                            workoutDate: workoutDate,
+                            prescription: definition,
+                            score: attemptScore,
+                          );
+                        } else {
+                          await repository.saveStructuredResult(
+                            blockId: blockId,
+                            prescription: definition,
+                            score: attemptScore,
+                          );
+                        }
                       } else {
                         await repository.saveResult(
                           blockId: blockId,

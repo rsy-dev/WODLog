@@ -8,6 +8,7 @@ import '../data/crossfit_catalog.dart';
 import 'movement_category_label.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
+import '../providers/wod_providers.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({super.key});
@@ -16,6 +17,8 @@ class ProgressScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final progress = ref.watch(exerciseProgressProvider);
+    final wodBests = ref.watch(wodPersonalBestsProvider).value ?? [];
+    final korean = l10n.localeName.startsWith('ko');
     final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
     final locale = Localizations.localeOf(context).toString();
     final number = NumberFormat.decimalPattern(locale);
@@ -32,7 +35,7 @@ class ProgressScreen extends ConsumerWidget {
           ),
         ),
         data: (items) {
-          if (items.isEmpty) {
+          if (items.isEmpty && wodBests.isEmpty) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -71,6 +74,38 @@ class ProgressScreen extends ConsumerWidget {
               28 + MediaQuery.paddingOf(context).bottom,
             ),
             children: [
+              if (wodBests.isNotEmpty) ...[
+                Text(
+                  korean ? 'WOD 개인 기록' : 'WOD personal records',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                for (final group in wodBests)
+                  Card(
+                    child: ExpansionTile(
+                      title: Text(group.best.prescription.title),
+                      subtitle: Text(
+                        [
+                          group.best.prescription.version.name,
+                          group.best.result!.resultText ?? '',
+                        ].join(' · '),
+                      ),
+                      children: [
+                        for (final attempt in group.improvements.reversed)
+                          ListTile(
+                            title: Text(attempt.result!.resultText ?? ''),
+                            subtitle: Text(
+                              dateFormat.format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                  attempt.result!.createdAt,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 24),
+              ],
               Text(
                 l10n.trainingOverview,
                 style: Theme.of(context).textTheme.headlineSmall,

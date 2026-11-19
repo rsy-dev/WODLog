@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wodlog/core/database/app_database.dart';
 import 'package:wodlog/features/workout/data/wod_repository.dart';
+import 'package:wodlog/features/workout/data/wod_comparison.dart';
 import 'package:wodlog/features/workout/data/wod_prescription.dart';
 
 void main() {
@@ -49,6 +50,82 @@ void main() {
     outcome: WodOutcome.capped,
     reps: 42,
     tieBreakMs: 530000,
+  );
+
+  test(
+    'repeat stores an independent attempt and recalculates comparable PRs',
+    () async {
+      const movements = [
+        WodMovementPrescription(
+          name: 'Thruster',
+          movementId: 'thruster',
+          quantities: [21, 15, 9],
+          weightKg: 30,
+        ),
+      ];
+      WodPrescription draft(WodVersion version) => WodPrescription(
+        title: '21-15-9',
+        structure: WodStructure.forTime,
+        scoreKind: WodScoreKind.time,
+        version: version,
+        movements: movements,
+        timeCapSeconds: 600,
+      );
+      Future<void> repeat(
+        String id,
+        int day,
+        WodAttemptScore result, [
+        WodVersion version = WodVersion.scaled,
+      ]) => repository.saveRepeat(
+        attemptId: id,
+        workoutDate: '2026-11-${day.toString().padLeft(2, '0')}',
+        prescription: draft(version),
+        score: result,
+      );
+      await repeat('baseline', 1, score);
+      await repeat('baseline', 1, score);
+      const finish = WodAttemptScore(
+        outcome: WodOutcome.completed,
+        elapsedMs: 550000,
+      );
+      await repeat('improvement', 2, finish);
+      await repeat('tie', 3, finish);
+      await repeat('rx', 4, finish, WodVersion.rx);
+      await repeat('unknown', 5, finish, WodVersion.unknown);
+      await repeat(
+        'stopped',
+        6,
+        const WodAttemptScore(outcome: WodOutcome.stopped),
+      );
+      final records = await repository.watchCompletedRecords().first;
+      final bests = wodPersonalBests(records);
+      expect(records, hasLength(6));
+      expect(bests.map((group) => group.best.block.id), ['improvement', 'rx']);
+      expect(bests.first.improvements.map((record) => record.block.id), [
+        'improvement',
+      ]);
+      expect(bests.last.improvements, isEmpty);
+
+      await repository.saveStructuredResult(
+        blockId: 'improvement',
+        prescription: draft(WodVersion.scaled),
+        score: const WodAttemptScore(
+          outcome: WodOutcome.completed,
+          elapsedMs: 570000,
+        ),
+      );
+      final updated = wodPersonalBests(
+        await repository.watchCompletedRecords().first,
+      );
+      expect(updated.first.best.block.id, 'tie');
+      await (database.delete(
+        database.workoutSessions,
+      )..where((row) => row.id.equals('tie'))).go();
+      final deleted = wodPersonalBests(
+        await repository.watchCompletedRecords().first,
+      );
+      expect(deleted.first.best.block.id, 'improvement');
+    },
   );
 
   Future<String> save({WodAttemptScore result = score}) =>
