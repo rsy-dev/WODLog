@@ -6,6 +6,8 @@ import '../../../app/wodlog_sheet.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/weight_unit.dart';
 import '../data/named_wod_catalog.dart';
+import '../data/wod_parser.dart';
+import '../data/wod_prescription.dart';
 import 'localized_decimal.dart';
 import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
@@ -137,11 +139,11 @@ const _types = <String>[
 ];
 
 String wodTypeLabel(AppLocalizations l10n, String type) => switch (type) {
-  'for_time' => l10n.resultForTime,
+  'for_time' || 'time' => l10n.resultForTime,
   'amrap' => l10n.resultAmrap,
-  'emom' => l10n.resultEmom,
-  'rounds_reps' => l10n.resultRoundsReps,
-  'load' => l10n.resultLoad,
+  'emom' || 'intervals' => l10n.resultEmom,
+  'rounds_reps' || 'roundsAndReps' => l10n.resultRoundsReps,
+  'load' || 'weight' => l10n.resultLoad,
   _ => l10n.resultOther,
 };
 
@@ -156,11 +158,38 @@ Future<void> showWodResultEditor(
     Localizations.localeOf(context).toString(),
   );
   final unit = ref.read(weightUnitProvider).value ?? WeightUnit.kg;
-  final result = await ref.read(wodResultProvider(blockId).future);
+  final record = await repository.getRecord(blockId);
+  final result = record?.result;
   if (!context.mounted) return;
   var type = _types.contains(result?.resultType)
       ? result!.resultType
-      : _types.first;
+      : switch (record?.prescription.scoreKind) {
+          WodScoreKind.roundsAndReps => 'amrap',
+          WodScoreKind.intervals => 'emom',
+          WodScoreKind.weight => 'load',
+          WodScoreKind.unknown || WodScoreKind.time || null => _types.first,
+          _ => 'other',
+        };
+  final title = record?.block.title ?? '';
+  var prescription = record?.prescription ?? WodPrescription(title: title);
+  if (prescription.structure == WodStructure.unknown &&
+      prescription.scoreKind == WodScoreKind.unknown) {
+    for (final benchmark in NamedWodCatalog.prescriptions()) {
+      if (benchmark.draft.title == title) {
+        prescription = benchmark.draft;
+        if (result == null) {
+          type = switch (prescription.scoreKind) {
+            WodScoreKind.roundsAndReps => 'amrap',
+            WodScoreKind.intervals => 'emom',
+            WodScoreKind.weight => 'load',
+            WodScoreKind.time => 'for_time',
+            _ => 'other',
+          };
+        }
+        break;
+      }
+    }
+  }
   var score = result?.resultText ?? '';
   final hasPreviousScore = score.trim().isNotEmpty;
   var usePreviousScore = hasPreviousScore;
@@ -168,17 +197,17 @@ Future<void> showWodResultEditor(
   var ending = _WodEnding.finished;
   var invalid = false;
 
+  int? whole(String text) {
+    final value = parseLocalizedDecimal(text, number);
+    return value != null && value <= 2147483647 && value == value.truncate()
+        ? value.toInt()
+        : null;
+  }
+
   String? validatedScore() {
     if (usePreviousScore || type == 'other') {
       return score.trim().isEmpty ? null : score.trim();
     }
-    int? whole(String text) {
-      final value = parseLocalizedDecimal(text, number);
-      return value != null && value <= 2147483647 && value == value.truncate()
-          ? value.toInt()
-          : null;
-    }
-
     if (type == 'for_time' && ending == _WodEnding.stopped) return 'DNF';
     if (type == 'for_time' && ending == _WodEnding.finished) {
       final parts = score.trim().split(':');
@@ -333,6 +362,10 @@ Future<void> showWodResultEditor(
                       return;
                     }
                     setState(() {
+                      prescription = const WodTextParser().parsePrescription(
+                        source,
+                        title: title,
+                      );
                       notes = [
                         if (notes.trim().isNotEmpty) notes.trim(),
                         source,
@@ -368,12 +401,85 @@ Future<void> showWodResultEditor(
                       failed = false;
                     });
                     try {
-                      await repository.saveResult(
-                        blockId: blockId,
-                        resultType: type,
-                        resultText: confirmedScore,
-                        notes: notes,
-                      );
+                      final kind = switch (type) {
+                        'for_time' => WodScoreKind.time,
+                        'amrap' || 'rounds_reps' => WodScoreKind.roundsAndReps,
+                        'emom' => WodScoreKind.intervals,
+                        'load' => WodScoreKind.weight,
+                        _ => WodScoreKind.unknown,
+                      };
+                      if (usePreviousScore &&
+                          result?.outcome != null &&
+                          prescription.scoreKind == kind) {
+                        await repository.saveStructuredResult(
+                          blockId: blockId,
+                          prescription: prescription,
+                          score: WodAttemptScore(
+                            outcome: WodOutcome.values.byName(result!.outcome!),
+                            elapsedMs: result.durationMs,
+                            rounds: result.rounds?.toInt(),
+                            reps: result.extraReps,
+                            value: result.scoreValue,
+                            tieBreakMs: result.tieBreakMs,
+                            text: confirmedScore,
+                            notes: notes.trim(),
+                          ),
+                        );
+                      } else if (!usePreviousScore &&
+                          kind != WodScoreKind.unknown) {
+                        final definition = WodPrescription.fromJson({
+                          ...prescription.toJson(),
+                          'scoreKind': kind.name,
+                        });
+                        final time = confirmedScore.split(':');
+                        await repository.saveStructuredResult(
+                          blockId: blockId,
+                          prescription: definition,
+                          score: WodAttemptScore(
+                            outcome: type == 'for_time'
+                                ? switch (ending) {
+                                    _WodEnding.finished => WodOutcome.completed,
+                                    _WodEnding.capped => WodOutcome.capped,
+                                    _WodEnding.stopped => WodOutcome.stopped,
+                                  }
+                                : WodOutcome.completed,
+                            elapsedMs:
+                                kind == WodScoreKind.time &&
+                                    ending == _WodEnding.finished
+                                ? (int.parse(time.first) * 60 +
+                                          int.parse(time.last)) *
+                                      1000
+                                : null,
+                            rounds: kind == WodScoreKind.roundsAndReps
+                                ? whole(score)
+                                : null,
+                            reps: kind == WodScoreKind.roundsAndReps
+                                ? whole(secondScore)
+                                : kind == WodScoreKind.time &&
+                                      ending == _WodEnding.capped
+                                ? whole(score)
+                                : null,
+                            value: switch (kind) {
+                              WodScoreKind.intervals => whole(
+                                score,
+                              )?.toDouble(),
+                              WodScoreKind.weight => unit.toKg(
+                                parseLocalizedDecimal(score, number)!,
+                              ),
+                              _ => null,
+                            },
+                            text: confirmedScore,
+                            notes: notes.trim(),
+                          ),
+                        );
+                      } else {
+                        await repository.saveResult(
+                          blockId: blockId,
+                          resultType: type,
+                          resultText: confirmedScore,
+                          notes: notes,
+                        );
+                      }
                       if (context.mounted) Navigator.pop(context);
                     } catch (_) {
                       if (context.mounted) {

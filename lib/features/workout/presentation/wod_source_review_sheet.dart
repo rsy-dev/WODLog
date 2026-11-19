@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/wodlog_sheet.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../data/wod_parser.dart';
+import '../data/wod_prescription.dart';
 
 Future<String?> showWodSourceReview(BuildContext context) =>
     showWodLogSheet<String>(
@@ -20,7 +21,7 @@ class _WodSourceReview extends StatefulWidget {
 
 class _WodSourceReviewState extends State<_WodSourceReview> {
   String _source = '';
-  WodDraft? _draft;
+  WodPrescription? _draft;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,8 @@ class _WodSourceReviewState extends State<_WodSourceReview> {
           onPressed: _source.trim().isEmpty
               ? null
               : () => setState(
-                  () => _draft = const WodTextParser().parse(_source),
+                  () =>
+                      _draft = const WodTextParser().parsePrescription(_source),
                 ),
           child: Text(l10n.reviewWodText),
         ),
@@ -56,18 +58,20 @@ class _WodSourceReviewState extends State<_WodSourceReview> {
             for (final movement in draft.movements)
               ListTile(
                 title: Text(movement.name),
-                subtitle: Text(movement.rawLine),
+                subtitle: movement.quantities.isEmpty
+                    ? null
+                    : Text(movement.quantities.join(' / ')),
               ),
           ],
-          if (draft.unknownLines.isNotEmpty) ...[
+          if (draft.unparsedLines.isNotEmpty) ...[
             Text(
               l10n.unreadWodLines,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            for (final line in draft.unknownLines) ListTile(title: Text(line)),
+            for (final line in draft.unparsedLines) ListTile(title: Text(line)),
           ],
           FilledButton(
-            onPressed: () => Navigator.pop(context, draft.rawText.trim()),
+            onPressed: () => Navigator.pop(context, _source.trim()),
             child: Text(l10n.applyWodSource),
           ),
         ],

@@ -106,6 +106,48 @@ class WodRepository {
     });
   }
 
+  Future<void> saveStructuredResult({
+    required String blockId,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
+  }) async {
+    score.validate(prescription.scoreKind);
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await _database.transaction(() async {
+      final results = _database.wodResults;
+      final previous = await (_database.select(
+        results,
+      )..where((row) => row.blockId.equals(blockId))).getSingleOrNull();
+      await _database
+          .into(_database.wodPrescriptionSnapshots)
+          .insertOnConflictUpdate(
+            WodPrescriptionSnapshotsCompanion.insert(
+              blockId: blockId,
+              payload: jsonEncode(prescription.toJson()),
+            ),
+          );
+      await _database
+          .into(results)
+          .insertOnConflictUpdate(
+            WodResultsCompanion.insert(
+              id: previous?.id ?? _uuid.v4(),
+              blockId: blockId,
+              resultType: prescription.scoreKind.name,
+              durationMs: Value(score.elapsedMs),
+              rounds: Value(score.rounds?.toDouble()),
+              extraReps: Value(score.reps),
+              scoreValue: Value(score.value),
+              outcome: Value(score.outcome.name),
+              tieBreakMs: Value(score.tieBreakMs),
+              resultText: Value(score.text),
+              notes: Value(score.notes),
+              createdAt: previous?.createdAt ?? now,
+              updatedAt: now,
+            ),
+          );
+    });
+  }
+
   Future<WodRecord?> getRecord(String attemptId) async {
     final query = _recordsQuery();
     query.where(_database.workoutBlocks.id.equals(attemptId));

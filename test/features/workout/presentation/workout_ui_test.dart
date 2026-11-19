@@ -10,6 +10,7 @@ import 'package:wodlog/features/settings/settings_screen.dart';
 import 'package:wodlog/features/settings/weight_unit.dart';
 import 'package:wodlog/features/workout/data/exercise_progress_service.dart';
 import 'package:wodlog/features/workout/data/wod_repository.dart';
+import 'package:wodlog/features/workout/data/wod_prescription.dart';
 import 'package:wodlog/features/workout/presentation/localized_decimal.dart';
 import 'package:wodlog/features/workout/presentation/progress_screen.dart';
 import 'package:wodlog/features/workout/presentation/today_screen.dart';
@@ -205,13 +206,21 @@ class _RetryWodWriter implements WodRepository {
   final scores = <String>[];
 
   @override
-  Future<void> saveResult({
+  Future<WodRecord?> getRecord(String attemptId) async => (
+    block: _wod,
+    prescription: const WodPrescription(title: 'Fran'),
+    result: _result,
+    outcome: WodOutcome.unknown,
+  );
+
+  @override
+  Future<void> saveStructuredResult({
     required String blockId,
-    required String resultType,
-    required String resultText,
-    required String notes,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
   }) async {
-    scores.add(resultText);
+    expect(score.elapsedMs, 762000);
+    scores.add(score.text!);
     if (scores.length == 1) throw StateError('Write failed');
   }
 
