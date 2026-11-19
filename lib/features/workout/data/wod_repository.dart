@@ -1,14 +1,264 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
 import 'named_wod_catalog.dart';
+import 'wod_prescription.dart';
+
+typedef WodRecord = ({
+  WorkoutBlock block,
+  WodPrescription prescription,
+  WodResult? result,
+  WodOutcome outcome,
+});
 
 class WodRepository {
   WodRepository(this._database);
 
   final AppDatabase _database;
   static const _uuid = Uuid();
+
+  /// Reuse the same attempt ID when retrying a confirmed save.
+  Future<String> saveConfirmed({
+    required String attemptId,
+    required String sessionId,
+    required int sortOrder,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
+  }) async {
+    final title = prescription.title.trim();
+    if (attemptId.trim().isEmpty || title.isEmpty) {
+      throw ArgumentError('An attempt ID and a title are required');
+    }
+    score.validate(prescription.scoreKind);
+    final payload = jsonEncode(prescription.toJson());
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    return _database.transaction(() async {
+      final blocks = _database.workoutBlocks;
+      final snapshots = _database.wodPrescriptionSnapshots;
+      final results = _database.wodResults;
+      final existing = await (_database.select(
+        blocks,
+      )..where((block) => block.id.equals(attemptId))).getSingleOrNull();
+      if (existing != null) {
+        final snapshot = await (_database.select(
+          snapshots,
+        )..where((row) => row.blockId.equals(attemptId))).getSingleOrNull();
+        final result = await (_database.select(
+          results,
+        )..where((row) => row.blockId.equals(attemptId))).getSingleOrNull();
+        if (existing.sessionId == sessionId &&
+            snapshot?.payload == payload &&
+            result != null &&
+            result.outcome == score.outcome.name &&
+            result.durationMs == score.elapsedMs &&
+            result.rounds == score.rounds &&
+            result.extraReps == score.reps &&
+            result.scoreValue == score.value &&
+            result.tieBreakMs == score.tieBreakMs &&
+            result.resultText == score.text &&
+            result.notes == score.notes) {
+          return attemptId;
+        }
+        throw StateError('Attempt ID is already in use');
+      }
+      await _database
+          .into(blocks)
+          .insert(
+            WorkoutBlocksCompanion.insert(
+              id: attemptId,
+              sessionId: sessionId,
+              type: 'wod',
+              title: Value(title),
+              sortOrder: Value(sortOrder),
+            ),
+          );
+      await _database
+          .into(snapshots)
+          .insert(
+            WodPrescriptionSnapshotsCompanion.insert(
+              blockId: attemptId,
+              payload: payload,
+            ),
+          );
+      await _database
+          .into(results)
+          .insert(
+            WodResultsCompanion.insert(
+              id: attemptId,
+              blockId: attemptId,
+              resultType: prescription.scoreKind.name,
+              durationMs: Value(score.elapsedMs),
+              rounds: Value(score.rounds?.toDouble()),
+              extraReps: Value(score.reps),
+              scoreValue: Value(score.value),
+              outcome: Value(score.outcome.name),
+              tieBreakMs: Value(score.tieBreakMs),
+              resultText: Value(score.text),
+              notes: Value(score.notes),
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+      return attemptId;
+    });
+  }
+
+  Future<void> saveStructuredResult({
+    required String blockId,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
+  }) async {
+    score.validate(prescription.scoreKind);
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await _database.transaction(() async {
+      final results = _database.wodResults;
+      final previous = await (_database.select(
+        results,
+      )..where((row) => row.blockId.equals(blockId))).getSingleOrNull();
+      await _database
+          .into(_database.wodPrescriptionSnapshots)
+          .insertOnConflictUpdate(
+            WodPrescriptionSnapshotsCompanion.insert(
+              blockId: blockId,
+              payload: jsonEncode(prescription.toJson()),
+            ),
+          );
+      await _database
+          .into(results)
+          .insertOnConflictUpdate(
+            WodResultsCompanion.insert(
+              id: previous?.id ?? _uuid.v4(),
+              blockId: blockId,
+              resultType: prescription.scoreKind.name,
+              durationMs: Value(score.elapsedMs),
+              rounds: Value(score.rounds?.toDouble()),
+              extraReps: Value(score.reps),
+              scoreValue: Value(score.value),
+              outcome: Value(score.outcome.name),
+              tieBreakMs: Value(score.tieBreakMs),
+              resultText: Value(score.text),
+              notes: Value(score.notes),
+              createdAt: previous?.createdAt ?? now,
+              updatedAt: now,
+            ),
+          );
+    });
+  }
+
+  Future<void> saveRepeat({
+    required String attemptId,
+    required String workoutDate,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
+  }) => _database.transaction(() async {
+    final sessions = _database.workoutSessions;
+    final now = DateTime.now().toUtc().millisecondsSinceEpoch;
+    await _database
+        .into(sessions)
+        .insert(
+          WorkoutSessionsCompanion.insert(
+            id: attemptId,
+            workoutDate: workoutDate,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+    await saveConfirmed(
+      attemptId: attemptId,
+      sessionId: attemptId,
+      sortOrder: 0,
+      prescription: prescription,
+      score: score,
+    );
+  });
+
+  Stream<List<WodRecord>> watchCompletedRecords() {
+    final results = _database.wodResults;
+    final sessions = _database.workoutSessions;
+    final query = _recordsQuery()
+      ..join([
+        innerJoin(
+          sessions,
+          sessions.id.equalsExp(_database.workoutBlocks.sessionId),
+        ),
+      ])
+      ..where(results.outcome.isNotNull())
+      ..orderBy([
+        OrderingTerm.asc(sessions.workoutDate),
+        OrderingTerm.asc(results.createdAt),
+        OrderingTerm.asc(results.id),
+      ]);
+    return query.watch().map((rows) => rows.map(_readRecord).toList());
+  }
+
+  Future<WodRecord?> getRecord(String attemptId) async {
+    final query = _recordsQuery();
+    query.where(_database.workoutBlocks.id.equals(attemptId));
+    final row = await query.getSingleOrNull();
+    return row == null ? null : _readRecord(row);
+  }
+
+  Future<List<WodRecord>> searchRecords(
+    String text, {
+    String? sessionId,
+  }) async {
+    final blocks = _database.workoutBlocks;
+    final query = _recordsQuery();
+    if (sessionId != null) query.where(blocks.sessionId.equals(sessionId));
+    query.orderBy([
+      OrderingTerm.asc(blocks.sortOrder),
+      OrderingTerm.asc(blocks.id),
+    ]);
+    final needle = text.trim().toLowerCase();
+    return (await query.get()).map(_readRecord).where((record) {
+      final prescription = record.prescription;
+      return needle.isEmpty ||
+          [
+            record.block.title,
+            record.block.notes,
+            prescription.title,
+            prescription.rawText,
+            prescription.sourceCollection,
+            ...prescription.movements.map((movement) => movement.name),
+            record.result?.resultText,
+            record.result?.notes,
+          ].whereType<String>().any(
+            (value) => value.toLowerCase().contains(needle),
+          );
+    }).toList();
+  }
+
+  JoinedSelectStatement _recordsQuery() {
+    final blocks = _database.workoutBlocks;
+    final snapshots = _database.wodPrescriptionSnapshots;
+    final results = _database.wodResults;
+    return _database.select(blocks).join([
+      leftOuterJoin(snapshots, snapshots.blockId.equalsExp(blocks.id)),
+      leftOuterJoin(results, results.blockId.equalsExp(blocks.id)),
+    ])..where(blocks.type.equals('wod'));
+  }
+
+  WodRecord _readRecord(TypedResult row) {
+    final block = row.readTable(_database.workoutBlocks);
+    final snapshot = row.readTableOrNull(_database.wodPrescriptionSnapshots);
+    final result = row.readTableOrNull(_database.wodResults);
+    return (
+      block: block,
+      prescription: snapshot == null
+          ? WodPrescription(title: block.title ?? '', rawText: block.notes)
+          : WodPrescription.fromJson(
+              jsonDecode(snapshot.payload) as Map<String, dynamic>,
+            ),
+      result: result,
+      outcome: result?.outcome == null
+          ? WodOutcome.unknown
+          : WodOutcome.values.byName(result!.outcome!),
+    );
+  }
 
   Stream<List<WorkoutBlock>> watchWodBlocks(String sessionId) {
     return (_database.select(_database.workoutBlocks)
@@ -143,6 +393,20 @@ class WodRepository {
       )..where((result) => result.blockId.equals(blockId))).write(
         WodResultsCompanion(
           resultType: Value(resultType),
+          outcome: const Value(null),
+          tieBreakMs: const Value(null),
+          durationMs: current.outcome == null
+              ? const Value.absent()
+              : const Value(null),
+          rounds: current.outcome == null
+              ? const Value.absent()
+              : const Value(null),
+          extraReps: current.outcome == null
+              ? const Value.absent()
+              : const Value(null),
+          scoreValue: current.outcome == null
+              ? const Value.absent()
+              : const Value(null),
           resultText: Value(text.isEmpty ? null : text),
           notes: Value(normalizedNotes.isEmpty ? null : normalizedNotes),
           updatedAt: Value(now),
