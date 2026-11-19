@@ -27,7 +27,7 @@ flutter run
 - 카탈로그 동작 그룹별 최근 7일과 직전 7일 운동량 비교
 - 24개 UI 로캘(중국어 문자·포르투갈어 브라질 변형 포함)과 지역별 날짜·숫자 표시
 - 설정에서 kg/lb 전환과 기기별 선택 저장
-- iOS·Android 바벨 런처 아이콘
+- iOS·Android WODLog W 런처 아이콘
 - GitHub Pages iPhone 웹 미리보기와 홈 화면 추가 지원
 
 ## 진행 중
