@@ -32,6 +32,47 @@ void main() {
       },
     );
 
+    test('resolves machines independently while retaining legacy lookup', () {
+      expect(CrossFitCatalog.find('Echo Bike')?.id, 'air_bike');
+      for (final (name, id) in [
+        ('Echo Bike', 'echo_bike'),
+        ('Assault Bike', 'assault_bike'),
+        ('SkiErg', 'ski_erg'),
+        ('로잉', 'row'),
+      ]) {
+        final match = CrossFitCatalog.resolveMovement(name);
+        expect(match.entry?.id, id);
+        expect(match.entry?.movementCategory, MovementCategory.machine);
+      }
+    });
+
+    test('supports custom entry and offers candidates for ambiguous names', () {
+      final match = CrossFitCatalog.resolveMovement('muscle-up');
+      expect(match.allowsCustomEntry, isTrue);
+      expect(
+        match.candidates.map((entry) => entry.id),
+        containsAll(['bar_muscle_up', 'ring_muscle_up']),
+      );
+      expect(
+        CrossFitCatalog.resolveMovement('custom drill').candidates,
+        isEmpty,
+      );
+      expect(CrossFitCatalog.resolveMovement('Fran').entry, isNull);
+      expect(
+        CrossFitCatalog.searchMovements(
+          '박스 점프',
+          category: MovementCategory.otherEquipment,
+        ).single.id,
+        'box_jump',
+      );
+      expect(
+        CrossFitCatalog.byId('box_jump')?.category,
+        CrossFitCategory.gymnastics,
+      );
+      final ids = CrossFitCatalog.entries.map((entry) => entry.id);
+      expect(ids.toSet(), hasLength(ids.length));
+    });
+
     test('search filters category and matches names or aliases', () {
       final allSnatches = CrossFitCatalog.search('snatch');
       expect(allSnatches.map((entry) => entry.id), contains('snatch'));
