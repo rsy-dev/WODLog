@@ -210,7 +210,7 @@ class _DailySummary extends ConsumerWidget {
         }
       }
     }
-    final number = NumberFormat('#,##0.#', locale);
+    final number = NumberFormat.decimalPattern(locale);
 
     return Card(
       child: Padding(

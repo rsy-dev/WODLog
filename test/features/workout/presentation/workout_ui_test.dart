@@ -42,6 +42,8 @@ void main() {
 
       final l10n = lookupAppLocalizations(locale);
       final isRtl = const {'ar', 'ur'}.contains(locale.languageCode);
+      final number = NumberFormat.decimalPattern(locale.toString());
+      final displayedWeight = '\u2066${number.format(100.125)}\u00a0lb\u2069';
 
       Future<void> show(Widget screen) async {
         await tester.pumpWidget(
@@ -99,6 +101,10 @@ void main() {
       final date = DateFormat.yMMMMEEEEd(locale.toString())
           .format(DateTime.now());
       expect(find.text(l10n.workoutDate(date)), findsOneWidget);
+      expect(
+        find.text('\u2066${number.format(500.625)}\u00a0lb\u2069·${l10n.reps}'),
+        findsOneWidget,
+      );
 
       await show(const WorkoutHistoryScreen());
       final chevron = tester.widget<Icon>(find.byIcon(Icons.chevron_right));
@@ -114,6 +120,8 @@ void main() {
 
       await show(const ProgressScreen());
       await tester.scrollUntilVisible(find.text('Back Squat'), 120);
+      await tester.scrollUntilVisible(find.text(displayedWeight), 120);
+      expect(find.text(displayedWeight), findsOneWidget);
       expect(tester.takeException(), isNull);
 
       await show(const SettingsScreen());
@@ -125,7 +133,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         (tester.widget<InputChip>(find.byType(InputChip)).label as Text).data,
-        contains('lb'),
+        contains(displayedWeight),
       );
       await tester.tap(find.byType(InputChip));
       await tester.pumpAndSettle();
@@ -183,7 +191,7 @@ const _set = PerformedSet(
   id: 'set',
   workoutExerciseId: 'exercise',
   setNumber: 1,
-  weightKg: 45.359237,
+  weightKg: 100.125 * 0.45359237,
   reps: 5,
   isSuccessful: true,
   createdAt: 0,
@@ -210,8 +218,8 @@ final _progress = ExerciseProgress(
       createdAt: _session.createdAt,
       setCount: 1,
       repCount: 5,
-      volumeKg: 226.796185,
-      bestWeightKg: 45.359237,
+      volumeKg: _set.weightKg! * _set.reps!,
+      bestWeightKg: _set.weightKg,
     ),
   ],
 );

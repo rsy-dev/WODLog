@@ -18,7 +18,7 @@ class ProgressScreen extends ConsumerWidget {
     final progress = ref.watch(exerciseProgressProvider);
     final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
     final locale = Localizations.localeOf(context).toString();
-    final number = NumberFormat('#,##0.#', locale);
+    final number = NumberFormat.decimalPattern(locale);
     final dateFormat = DateFormat.yMMMd(locale);
 
     return Scaffold(
