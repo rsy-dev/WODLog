@@ -81,7 +81,9 @@ class AppLocalizationsId extends AppLocalizations {
   String get loadSetsError => 'Set tidak dapat dimuat.';
 
   @override
-  String get weightKg => 'Beban (kg)';
+  String setWeight(String unit) {
+    return 'Beban ($unit)';
+  }
 
   @override
   String get reps => 'Repetisi';
@@ -90,13 +92,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get save => 'Simpan';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Set $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps repetisi';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps repetisi';
   }
 
   @override
@@ -233,7 +235,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get movementsLabel => 'gerakan';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count set';
   }
 
@@ -308,4 +310,20 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Peralatan lain';
+
+  @override
+  String get settings => 'Pengaturan';
+
+  @override
+  String get weightUnit => 'Satuan beban';
+
+  @override
+  String get weightUnitError => 'Satuan beban tidak dapat disimpan.';
+
+  @override
+  String get categoryBenchmarkWod => 'WOD tolok ukur';
+
+  @override
+  String get noRecentMovementRecords =>
+      'Tidak ada catatan gerakan dalam 14 hari terakhir.';
 }

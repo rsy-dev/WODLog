@@ -82,7 +82,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loadSetsError => 'Не удалось загрузить подходы.';
 
   @override
-  String get weightKg => 'Вес (кг)';
+  String setWeight(String unit) {
+    return 'Вес ($unit)';
+  }
 
   @override
   String get reps => 'Повторения';
@@ -91,13 +93,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get save => 'Сохранить';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Подход $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight кг × $reps повт.';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps повт.';
   }
 
   @override
@@ -234,7 +236,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get movementsLabel => 'движения';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count подходов';
   }
 
@@ -309,4 +311,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Другое оборудование';
+
+  @override
+  String get settings => 'Настройки';
+
+  @override
+  String get weightUnit => 'Единица веса';
+
+  @override
+  String get weightUnitError => 'Не удалось сохранить единицу веса.';
+
+  @override
+  String get categoryBenchmarkWod => 'Эталонные WOD';
+
+  @override
+  String get noRecentMovementRecords =>
+      'За последние 14 дней нет записей о движениях.';
 }

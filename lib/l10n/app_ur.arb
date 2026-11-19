@@ -30,18 +30,18 @@
   "addSet": "سیٹ شامل کریں",
   "emptyExerciseHelp": "اپنی کارکردگی ریکارڈ کرنے کے لیے سیٹ شامل کریں۔",
   "loadSetsError": "سیٹ لوڈ نہیں ہو سکے۔",
-  "weightKg": "وزن (کلوگرام)",
+  "setWeight": "وزن ({unit})",
   "reps": "تکرار",
   "save": "محفوظ کریں",
   "setLabel": "سیٹ {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} کلوگرام × {reps} تکرار",
+  "setSummary": "{setLabel}  {weight} × {reps} تکرار",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "جسمانی وزن",
   "categoryOtherEquipment": "دیگر سامان",
   "benchmarkWorkouts": "معیاری WOD",
-  "noChange": "کوئی تبدیلی نہیں"
+  "noChange": "کوئی تبدیلی نہیں",
+  "settings": "ترتیبات",
+  "weightUnit": "وزن کی اکائی",
+  "weightUnitError": "وزن کی اکائی محفوظ نہیں ہو سکی۔",
+  "categoryBenchmarkWod": "معیاری WOD",
+  "noRecentMovementRecords": "پچھلے 14 دنوں میں کسی حرکت کا ریکارڈ نہیں ہے۔"
 }

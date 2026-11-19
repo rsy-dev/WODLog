@@ -81,7 +81,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loadSetsError => '세트를 불러오지 못했어요.';
 
   @override
-  String get weightKg => '중량 (kg)';
+  String setWeight(String unit) {
+    return '중량 ($unit)';
+  }
 
   @override
   String get reps => '반복 수';
@@ -90,13 +92,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get save => '저장';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return '$number세트';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps회';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps회';
   }
 
   @override
@@ -230,7 +232,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get movementsLabel => '운동';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '세트 $count개';
   }
 
@@ -305,4 +307,19 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => '기타 장비';
+
+  @override
+  String get settings => '설정';
+
+  @override
+  String get weightUnit => '중량 단위';
+
+  @override
+  String get weightUnitError => '중량 단위를 저장하지 못했어요.';
+
+  @override
+  String get categoryBenchmarkWod => '벤치마크 WOD';
+
+  @override
+  String get noRecentMovementRecords => '최근 14일 동안 기록한 동작이 없어요.';
 }

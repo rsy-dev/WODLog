@@ -81,7 +81,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get loadSetsError => 'セットを読み込めませんでした。';
 
   @override
-  String get weightKg => '重量 (kg)';
+  String setWeight(String unit) {
+    return '重量 ($unit)';
+  }
 
   @override
   String get reps => '回数';
@@ -90,13 +92,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get save => '保存';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return '$numberセット';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps回';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps回';
   }
 
   @override
@@ -228,7 +230,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get movementsLabel => '種目';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$countセット';
   }
 
@@ -303,4 +305,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'その他の器具';
+
+  @override
+  String get settings => '設定';
+
+  @override
+  String get weightUnit => '重量の単位';
+
+  @override
+  String get weightUnitError => '重量の単位を保存できませんでした。';
+
+  @override
+  String get categoryBenchmarkWod => 'ベンチマークWOD';
+
+  @override
+  String get noRecentMovementRecords => '過去14日間に種目の記録がありません。';
 }

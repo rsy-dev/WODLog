@@ -83,7 +83,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get loadSetsError => 'Setler yüklenemedi.';
 
   @override
-  String get weightKg => 'Ağırlık (kg)';
+  String setWeight(String unit) {
+    return 'Ağırlık ($unit)';
+  }
 
   @override
   String get reps => 'Tekrar';
@@ -92,13 +94,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get save => 'Kaydet';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Set $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps tekrar';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps tekrar';
   }
 
   @override
@@ -235,7 +237,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get movementsLabel => 'hareket';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count set';
   }
 
@@ -311,4 +313,19 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Diğer ekipman';
+
+  @override
+  String get settings => 'Ayarlar';
+
+  @override
+  String get weightUnit => 'Ağırlık birimi';
+
+  @override
+  String get weightUnitError => 'Ağırlık birimi kaydedilemedi.';
+
+  @override
+  String get categoryBenchmarkWod => 'Referans WOD’lar';
+
+  @override
+  String get noRecentMovementRecords => 'Son 14 günde hareket kaydı yok.';
 }

@@ -30,18 +30,18 @@
   "addSet": "সেট যোগ করুন",
   "emptyExerciseHelp": "আপনার অনুশীলন লিখতে একটি সেট যোগ করুন।",
   "loadSetsError": "সেট লোড করা যায়নি।",
-  "weightKg": "ওজন (কেজি)",
+  "setWeight": "ওজন ({unit})",
   "reps": "পুনরাবৃত্তি",
   "save": "সংরক্ষণ",
   "setLabel": "সেট {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} কেজি × {reps} বার",
+  "setSummary": "{setLabel}  {weight} × {reps} বার",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "শরীরের ওজন",
   "categoryOtherEquipment": "অন্যান্য সরঞ্জাম",
   "benchmarkWorkouts": "বেঞ্চমার্ক WOD",
-  "noChange": "কোনো পরিবর্তন নেই"
+  "noChange": "কোনো পরিবর্তন নেই",
+  "settings": "সেটিংস",
+  "weightUnit": "ওজনের একক",
+  "weightUnitError": "ওজনের একক সংরক্ষণ করা যায়নি।",
+  "categoryBenchmarkWod": "বেঞ্চমার্ক WOD",
+  "noRecentMovementRecords": "গত ১৪ দিনে কোনো মুভমেন্টের রেকর্ড নেই।"
 }

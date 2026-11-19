@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
+import '../../settings/weight_unit.dart';
 import '../data/crossfit_catalog.dart';
+import 'movement_category_label.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
 
@@ -14,6 +16,7 @@ class ProgressScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final progress = ref.watch(exerciseProgressProvider);
+    final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
     final locale = Localizations.localeOf(context).toString();
     final number = NumberFormat('#,##0.#', locale);
     final dateFormat = DateFormat.yMMMd(locale);
@@ -99,6 +102,7 @@ class ProgressScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               _MovementTypeTrends(
                 progress: items,
+                unit: unit,
                 locale: locale,
                 number: number,
               ),
@@ -106,7 +110,7 @@ class ProgressScreen extends ConsumerWidget {
               for (final movement in items)
                 _MovementProgressCard(
                   progress: movement,
-                  locale: locale,
+                  unit: unit,
                   number: number,
                   dateFormat: dateFormat,
                 ),
@@ -121,11 +125,13 @@ class ProgressScreen extends ConsumerWidget {
 class _MovementTypeTrends extends StatelessWidget {
   const _MovementTypeTrends({
     required this.progress,
+    required this.unit,
     required this.locale,
     required this.number,
   });
 
   final List<ExerciseProgress> progress;
+  final WeightUnit unit;
   final String locale;
   final NumberFormat number;
 
@@ -133,8 +139,8 @@ class _MovementTypeTrends extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final today = DateUtils.dateOnly(DateTime.now());
-    final currentStart = today.subtract(const Duration(days: 6));
-    final previousStart = today.subtract(const Duration(days: 13));
+    final currentStart = DateUtils.addDaysToDate(today, -6);
+    final previousStart = DateUtils.addDaysToDate(today, -13);
     final groups = <CrossFitCategory, _CategoryPeriodStats>{};
 
     for (final movement in progress) {
@@ -148,12 +154,16 @@ class _MovementTypeTrends extends StatelessWidget {
         if (parsed == null) continue;
         final date = DateUtils.dateOnly(parsed);
         if (!date.isBefore(currentStart) && !date.isAfter(today)) {
-          group.currentVolume += workout.volumeKg ?? 0;
+          if (workout.volumeKg case final volume?) {
+            group.currentVolume = (group.currentVolume ?? 0) + volume;
+          }
           group.currentReps += workout.repCount;
           group.currentSets += workout.setCount;
         } else if (!date.isBefore(previousStart) &&
             date.isBefore(currentStart)) {
-          group.previousVolume += workout.volumeKg ?? 0;
+          if (workout.volumeKg case final volume?) {
+            group.previousVolume = (group.previousVolume ?? 0) + volume;
+          }
           group.previousReps += workout.repCount;
           group.previousSets += workout.setCount;
         }
@@ -168,24 +178,15 @@ class _MovementTypeTrends extends StatelessWidget {
             )
             .toList()
           ..sort(
-            (a, b) => b.value.currentVolume.compareTo(a.value.currentVolume),
+            (a, b) => (b.value.currentVolume ?? 0).compareTo(
+              a.value.currentVolume ?? 0,
+            ),
           );
-    if (visibleGroups.isEmpty) return const SizedBox.shrink();
-
-    String categoryLabel(CrossFitCategory category) => switch (category) {
-      CrossFitCategory.barbell => l10n.categoryBarbell,
-      CrossFitCategory.gymnastics => l10n.categoryGymnastics,
-      CrossFitCategory.dumbbellKettlebell => l10n.categoryDumbbellKettlebell,
-      CrossFitCategory.cardio => l10n.categoryCardio,
-      CrossFitCategory.bodyweight => l10n.categoryBodyweight,
-      CrossFitCategory.otherEquipment => l10n.categoryOtherEquipment,
-      CrossFitCategory.benchmarkWod => '',
-    };
 
     final dateFormat = DateFormat.MMMd(locale);
     final currentLabel =
         '${dateFormat.format(currentStart)} – ${dateFormat.format(today)}';
-    final previousEnd = currentStart.subtract(const Duration(days: 1));
+    final previousEnd = DateUtils.addDaysToDate(currentStart, -1);
     final previousLabel =
         '${dateFormat.format(previousStart)} – ${dateFormat.format(previousEnd)}';
 
@@ -200,13 +201,14 @@ class _MovementTypeTrends extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
+            if (visibleGroups.isEmpty) Text(l10n.noRecentMovementRecords),
             for (final entry in visibleGroups)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(categoryLabel(entry.key)),
+                    Text(movementCategoryLabel(l10n, entry.key)),
                     const SizedBox(height: 4),
                     Wrap(
                       spacing: 16,
@@ -234,8 +236,14 @@ class _MovementTypeTrends extends StatelessWidget {
                         entry.value.currentSets > 0)
                       Text(
                         _formatDelta(
-                          entry.value.currentVolume -
-                              entry.value.previousVolume,
+                          switch ((
+                            entry.value.currentVolume,
+                            entry.value.previousVolume,
+                          )) {
+                            (final current?, final previous?) =>
+                              current - previous,
+                            _ => null,
+                          },
                           entry.value.currentReps - entry.value.previousReps,
                           l10n,
                         ),
@@ -250,18 +258,20 @@ class _MovementTypeTrends extends StatelessWidget {
     );
   }
 
-  String _formatPeriod(double volume, int reps, AppLocalizations l10n) {
+  String _formatPeriod(double? volume, int reps, AppLocalizations l10n) {
     final values = <String>[];
-    if (volume > 0) values.add('${number.format(volume)} ${l10n.volumeUnit}');
+    if (volume != null) {
+      values.add('${unit.format(volume, number)}·${l10n.reps}');
+    }
     if (reps > 0) values.add('${number.format(reps)} ${l10n.reps}');
     return values.isEmpty ? '—' : values.join(' · ');
   }
 
-  String _formatDelta(double volume, int reps, AppLocalizations l10n) {
+  String _formatDelta(double? volume, int reps, AppLocalizations l10n) {
     final values = <String>[];
-    if (volume != 0) {
+    if (volume != null && volume != 0) {
       values.add(
-        '${volume > 0 ? '+' : ''}${number.format(volume)} ${l10n.volumeUnit}',
+        '${volume > 0 ? '+' : ''}${unit.format(volume, number)}·${l10n.reps}',
       );
     }
     if (reps != 0) {
@@ -272,8 +282,8 @@ class _MovementTypeTrends extends StatelessWidget {
 }
 
 class _CategoryPeriodStats {
-  double currentVolume = 0;
-  double previousVolume = 0;
+  double? currentVolume;
+  double? previousVolume;
   int currentReps = 0;
   int previousReps = 0;
   int currentSets = 0;
@@ -316,13 +326,13 @@ class _SummaryMetric extends StatelessWidget {
 class _MovementProgressCard extends StatelessWidget {
   const _MovementProgressCard({
     required this.progress,
-    required this.locale,
+    required this.unit,
     required this.number,
     required this.dateFormat,
   });
 
   final ExerciseProgress progress;
-  final String locale;
+  final WeightUnit unit;
   final NumberFormat number;
   final DateFormat dateFormat;
 
@@ -331,10 +341,6 @@ class _MovementProgressCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final latest = progress.latest!;
     final previous = progress.previous;
-    final latestDate = DateTime.tryParse(latest.workoutDate);
-    final previousDate = previous == null
-        ? null
-        : DateTime.tryParse(previous.workoutDate);
     final theme = Theme.of(context);
 
     return Card(
@@ -344,84 +350,29 @@ class _MovementProgressCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    progress.name,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                ),
-                if (progress.volumeChangeKg != null ||
-                    progress.repChange != null)
-                  _ChangePill(
-                    value:
-                        progress.volumeChangeKg ??
-                        progress.repChange!.toDouble(),
-                    number: number,
-                    suffix: progress.volumeChangeKg != null ? 'kg' : l10n.reps,
-                  ),
-              ],
-            ),
+            Text(progress.name, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 16,
-              runSpacing: 4,
-              children: [
-                if (latestDate != null)
-                  Text('${l10n.lastWorkout}: ${dateFormat.format(latestDate)}'),
-                Text(l10n.setCount(latest.setCount)),
-                Text('${number.format(latest.repCount)} ${l10n.reps}'),
-                if (latest.bestWeightKg != null)
-                  Text('${number.format(latest.bestWeightKg)} kg'),
-              ],
-            ),
+            _snapshot(latest, l10n.lastWorkout, l10n),
             if (previous != null) ...[
+              const Divider(height: 24),
+              _snapshot(previous, l10n.previousWorkout, l10n),
               const SizedBox(height: 10),
-              const Divider(height: 1),
-              const SizedBox(height: 10),
-              Row(
+              Wrap(
+                spacing: 16,
+                runSpacing: 4,
                 children: [
-                  Expanded(
-                    child: Text(
-                      '${l10n.previousWorkout}: ${previousDate == null ? previous.workoutDate : dateFormat.format(previousDate)}',
-                      style: theme.textTheme.bodySmall,
+                  if (progress.bestWeightChangeKg case final change?)
+                    Text('${l10n.bestLoadChange}  ${_signedWeight(change)}'),
+                  if (progress.repChange case final change?)
+                    Text(
+                      '${l10n.repChange}  ${_sign(change)}${number.format(change)} ${l10n.reps}',
                     ),
-                  ),
-                  if (progress.volumeChangeKg != null)
-                    _ChangeLabel(
-                      value: progress.volumeChangeKg!,
-                      label: l10n.volumeChange,
-                      suffix: l10n.volumeUnit,
-                      number: number,
-                    )
-                  else if (progress.repChange != null)
-                    _ChangeLabel(
-                      value: progress.repChange!.toDouble(),
-                      label: l10n.repChange,
-                      suffix: l10n.reps,
-                      number: number,
+                  if (progress.volumeChangeKg case final change?)
+                    Text(
+                      '${l10n.volumeChange}  ${_signedWeight(change)}·${l10n.reps}',
                     ),
                 ],
               ),
-              if (progress.bestWeightChangeKg != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: _ChangeLabel(
-                    value: progress.bestWeightChangeKg!,
-                    label: l10n.bestLoadChange,
-                    suffix: 'kg',
-                    number: number,
-                  ),
-                ),
-              if (latest.volumeKg != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    '${l10n.weightedVolume}: ${number.format(latest.volumeKg)} kg·${l10n.reps}',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
             ] else ...[
               const SizedBox(height: 8),
               Text(l10n.noProgressYet, style: theme.textTheme.bodySmall),
@@ -431,66 +382,39 @@ class _MovementProgressCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class _ChangeLabel extends StatelessWidget {
-  const _ChangeLabel({
-    required this.value,
-    required this.label,
-    required this.suffix,
-    required this.number,
-  });
-
-  final double value;
-  final String label;
-  final String suffix;
-  final NumberFormat number;
-
-  @override
-  Widget build(BuildContext context) {
-    final improved = value >= 0;
-    final color = improved
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.error;
-    final prefix = value > 0 ? '+' : '';
-    return Text(
-      '$label: $prefix${number.format(value)} $suffix',
-      style: Theme.of(context).textTheme.labelLarge
-          ?.copyWith(color: color, fontWeight: FontWeight.w700),
-    );
-  }
-}
-
-class _ChangePill extends StatelessWidget {
-  const _ChangePill({
-    required this.value,
-    required this.number,
-    required this.suffix,
-  });
-
-  final double value;
-  final NumberFormat number;
-  final String suffix;
-
-  @override
-  Widget build(BuildContext context) {
-    final positive = value >= 0;
-    final color = positive ? const Color(0xFF15966A) : const Color(0xFFE5484D);
-    final text = '${value > 0 ? '+' : ''}${number.format(value)} $suffix';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: positive ? const Color(0xFFEAF8F2) : const Color(0xFFFFEEEE),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
+  Widget _snapshot(
+    ExerciseWorkoutSnapshot workout,
+    String label,
+    AppLocalizations l10n,
+  ) {
+    final date = DateTime.tryParse(workout.workoutDate);
+    final dateLabel = date == null
+        ? workout.workoutDate
+        : dateFormat.format(date);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label  $dateLabel'),
+        Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          children: [
+            Text(l10n.setCount(number.format(workout.setCount))),
+            Text('${number.format(workout.repCount)} ${l10n.reps}'),
+            if (workout.bestWeightKg case final kg?)
+              Text(unit.format(kg, number)),
+            if (workout.volumeKg case final kg?)
+              Text(
+                '${l10n.weightedVolume}  ${unit.format(kg, number)}·${l10n.reps}',
+              ),
+          ],
         ),
-      ),
+      ],
     );
   }
+
+  String _sign(num value) => value > 0 ? '+' : '';
+
+  String _signedWeight(double kg) => '${_sign(kg)}${unit.format(kg, number)}';
 }

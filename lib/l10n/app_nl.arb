@@ -30,18 +30,18 @@
   "addSet": "Set toevoegen",
   "emptyExerciseHelp": "Voeg een set toe om je training vast te leggen.",
   "loadSetsError": "Sets konden niet worden geladen.",
-  "weightKg": "Gewicht (kg)",
+  "setWeight": "Gewicht ({unit})",
   "reps": "Herhalingen",
   "save": "Opslaan",
   "setLabel": "Set {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} herhalingen",
+  "setSummary": "{setLabel}  {weight} × {reps} herhalingen",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "Lichaamsgewicht",
   "categoryOtherEquipment": "Overige apparatuur",
   "benchmarkWorkouts": "Benchmark-WOD’s",
-  "noChange": "Geen verandering"
+  "noChange": "Geen verandering",
+  "settings": "Instellingen",
+  "weightUnit": "Gewichtseenheid",
+  "weightUnitError": "De gewichtseenheid kon niet worden opgeslagen.",
+  "categoryBenchmarkWod": "Benchmark-WOD’s",
+  "noRecentMovementRecords": "Geen bewegingen geregistreerd in de afgelopen 14 dagen."
 }

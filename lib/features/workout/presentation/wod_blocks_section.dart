@@ -6,6 +6,7 @@ import '../data/crossfit_catalog.dart';
 import '../data/named_wod_catalog.dart';
 import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
+import 'workout_dialog.dart';
 
 class WodBlocksSection extends ConsumerWidget {
   const WodBlocksSection({super.key, required this.sessionId});
@@ -82,7 +83,7 @@ class WodBlocksSection extends ConsumerWidget {
   Future<void> _addBlock(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
-    final title = await showDialog<String>(
+    final title = await showWorkoutDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.addWodBlock),
@@ -173,7 +174,7 @@ class WodBlocksSection extends ConsumerWidget {
       text: result?.resultText ?? '',
     );
     final notesController = TextEditingController(text: result?.notes ?? '');
-    final values = await showDialog<(String, String, String)>(
+    final values = await showWorkoutDialog<(String, String, String)>(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
@@ -183,6 +184,7 @@ class WodBlocksSection extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: selectedType,
                   decoration: InputDecoration(labelText: l10n.wodResultType),
                   items: [

@@ -30,18 +30,18 @@
   "addSet": "Tambah set",
   "emptyExerciseHelp": "Tambahkan set untuk mencatat latihan.",
   "loadSetsError": "Set tidak dapat dimuat.",
-  "weightKg": "Beban (kg)",
+  "setWeight": "Beban ({unit})",
   "reps": "Repetisi",
   "save": "Simpan",
   "setLabel": "Set {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} repetisi",
+  "setSummary": "{setLabel}  {weight} × {reps} repetisi",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "Berat badan",
   "categoryOtherEquipment": "Peralatan lain",
   "benchmarkWorkouts": "WOD tolok ukur",
-  "noChange": "Tidak ada perubahan"
+  "noChange": "Tidak ada perubahan",
+  "settings": "Pengaturan",
+  "weightUnit": "Satuan beban",
+  "weightUnitError": "Satuan beban tidak dapat disimpan.",
+  "categoryBenchmarkWod": "WOD tolok ukur",
+  "noRecentMovementRecords": "Tidak ada catatan gerakan dalam 14 hari terakhir."
 }

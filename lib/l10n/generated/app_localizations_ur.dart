@@ -82,7 +82,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get loadSetsError => 'سیٹ لوڈ نہیں ہو سکے۔';
 
   @override
-  String get weightKg => 'وزن (کلوگرام)';
+  String setWeight(String unit) {
+    return 'وزن ($unit)';
+  }
 
   @override
   String get reps => 'تکرار';
@@ -91,13 +93,13 @@ class AppLocalizationsUr extends AppLocalizations {
   String get save => 'محفوظ کریں';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'سیٹ $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight کلوگرام × $reps تکرار';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps تکرار';
   }
 
   @override
@@ -233,7 +235,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get movementsLabel => 'حرکات';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count سیٹس';
   }
 
@@ -309,4 +311,20 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'دیگر سامان';
+
+  @override
+  String get settings => 'ترتیبات';
+
+  @override
+  String get weightUnit => 'وزن کی اکائی';
+
+  @override
+  String get weightUnitError => 'وزن کی اکائی محفوظ نہیں ہو سکی۔';
+
+  @override
+  String get categoryBenchmarkWod => 'معیاری WOD';
+
+  @override
+  String get noRecentMovementRecords =>
+      'پچھلے 14 دنوں میں کسی حرکت کا ریکارڈ نہیں ہے۔';
 }

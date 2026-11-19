@@ -30,18 +30,18 @@
   "addSet": "Добавить подход",
   "emptyExerciseHelp": "Добавьте подход, чтобы записать результат.",
   "loadSetsError": "Не удалось загрузить подходы.",
-  "weightKg": "Вес (кг)",
+  "setWeight": "Вес ({unit})",
   "reps": "Повторения",
   "save": "Сохранить",
   "setLabel": "Подход {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} кг × {reps} повт.",
+  "setSummary": "{setLabel}  {weight} × {reps} повт.",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "Вес тела",
   "categoryOtherEquipment": "Другое оборудование",
   "benchmarkWorkouts": "Эталонные WOD",
-  "noChange": "Без изменений"
+  "noChange": "Без изменений",
+  "settings": "Настройки",
+  "weightUnit": "Единица веса",
+  "weightUnitError": "Не удалось сохранить единицу веса.",
+  "categoryBenchmarkWod": "Эталонные WOD",
+  "noRecentMovementRecords": "За последние 14 дней нет записей о движениях."
 }

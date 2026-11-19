@@ -277,11 +277,11 @@ abstract class AppLocalizations {
   /// **'Couldn\'t load sets.'**
   String get loadSetsError;
 
-  /// No description provided for @weightKg.
+  /// No description provided for @setWeight.
   ///
   /// In en, this message translates to:
-  /// **'Weight (kg)'**
-  String get weightKg;
+  /// **'Weight ({unit})'**
+  String setWeight(String unit);
 
   /// No description provided for @reps.
   ///
@@ -299,13 +299,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Set {number}'**
-  String setLabel(int number);
+  String setLabel(String number);
 
   /// No description provided for @setSummary.
   ///
   /// In en, this message translates to:
-  /// **'{setLabel}  {weight} kg × {reps} reps'**
-  String setSummary(String setLabel, String weight, int reps);
+  /// **'{setLabel}  {weight} × {reps} reps'**
+  String setSummary(String setLabel, String weight, String reps);
 
   /// No description provided for @invalidSet.
   ///
@@ -563,7 +563,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} sets'**
-  String setCount(int count);
+  String setCount(String count);
 
   /// No description provided for @weightedVolume.
   ///
@@ -708,6 +708,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other equipment'**
   String get categoryOtherEquipment;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @weightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight unit'**
+  String get weightUnit;
+
+  /// No description provided for @weightUnitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the weight unit.'**
+  String get weightUnitError;
+
+  /// No description provided for @categoryBenchmarkWod.
+  ///
+  /// In en, this message translates to:
+  /// **'Benchmark WODs'**
+  String get categoryBenchmarkWod;
+
+  /// No description provided for @noRecentMovementRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No movement records in the last 14 days.'**
+  String get noRecentMovementRecords;
 }
 
 class _AppLocalizationsDelegate

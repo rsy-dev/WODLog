@@ -83,7 +83,9 @@ class AppLocalizationsFil extends AppLocalizations {
   String get loadSetsError => 'Hindi ma-load ang mga set.';
 
   @override
-  String get weightKg => 'Bigat (kg)';
+  String setWeight(String unit) {
+    return 'Bigat ($unit)';
+  }
 
   @override
   String get reps => 'Mga ulit';
@@ -92,13 +94,13 @@ class AppLocalizationsFil extends AppLocalizations {
   String get save => 'I-save';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Set $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps ulit';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps ulit';
   }
 
   @override
@@ -235,7 +237,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get movementsLabel => 'mga galaw';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count set';
   }
 
@@ -311,4 +313,20 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Iba pang kagamitan';
+
+  @override
+  String get settings => 'Mga setting';
+
+  @override
+  String get weightUnit => 'Unit ng bigat';
+
+  @override
+  String get weightUnitError => 'Hindi na-save ang unit ng bigat.';
+
+  @override
+  String get categoryBenchmarkWod => 'Mga benchmark na WOD';
+
+  @override
+  String get noRecentMovementRecords =>
+      'Walang tala ng galaw sa nakaraang 14 na araw.';
 }

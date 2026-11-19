@@ -30,18 +30,18 @@
   "addSet": "Add set",
   "emptyExerciseHelp": "Add a set to record your work.",
   "loadSetsError": "Couldn't load sets.",
-  "weightKg": "Weight (kg)",
+  "setWeight": "Weight ({unit})",
   "reps": "Reps",
   "save": "Save",
   "setLabel": "Set {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} reps",
+  "setSummary": "{setLabel}  {weight} × {reps} reps",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -108,7 +108,7 @@
   "@setCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -135,5 +135,17 @@
   "categoryDumbbellKettlebell": "Dumbbell & kettlebell",
   "categoryCardio": "Cardio",
   "categoryBodyweight": "Bodyweight",
-  "categoryOtherEquipment": "Other equipment"
+  "categoryOtherEquipment": "Other equipment",
+  "settings": "Settings",
+  "weightUnit": "Weight unit",
+  "weightUnitError": "Could not save the weight unit.",
+  "categoryBenchmarkWod": "Benchmark WODs",
+  "@setWeight": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "noRecentMovementRecords": "No movement records in the last 14 days."
 }

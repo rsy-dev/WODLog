@@ -81,7 +81,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get loadSetsError => 'โหลดเซตไม่สำเร็จ';
 
   @override
-  String get weightKg => 'น้ำหนัก (กก.)';
+  String setWeight(String unit) {
+    return 'น้ำหนัก ($unit)';
+  }
 
   @override
   String get reps => 'จำนวนครั้ง';
@@ -90,13 +92,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get save => 'บันทึก';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'เซตที่ $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight กก. × $reps ครั้ง';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps ครั้ง';
   }
 
   @override
@@ -233,7 +235,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get movementsLabel => 'ท่า';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count เซต';
   }
 
@@ -308,4 +310,20 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'อุปกรณ์อื่น';
+
+  @override
+  String get settings => 'การตั้งค่า';
+
+  @override
+  String get weightUnit => 'หน่วยน้ำหนัก';
+
+  @override
+  String get weightUnitError => 'บันทึกหน่วยน้ำหนักไม่ได้';
+
+  @override
+  String get categoryBenchmarkWod => 'WOD มาตรฐาน';
+
+  @override
+  String get noRecentMovementRecords =>
+      'ไม่มีบันทึกการเคลื่อนไหวในช่วง 14 วันที่ผ่านมา';
 }

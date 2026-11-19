@@ -81,7 +81,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get loadSetsError => 'Nie udało się wczytać serii.';
 
   @override
-  String get weightKg => 'Ciężar (kg)';
+  String setWeight(String unit) {
+    return 'Ciężar ($unit)';
+  }
 
   @override
   String get reps => 'Powtórzenia';
@@ -90,13 +92,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get save => 'Zapisz';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Seria $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps powt.';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps powt.';
   }
 
   @override
@@ -233,7 +235,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get movementsLabel => 'ruchy';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count serii';
   }
 
@@ -308,4 +310,20 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Inny sprzęt';
+
+  @override
+  String get settings => 'Ustawienia';
+
+  @override
+  String get weightUnit => 'Jednostka ciężaru';
+
+  @override
+  String get weightUnitError => 'Nie udało się zapisać jednostki ciężaru.';
+
+  @override
+  String get categoryBenchmarkWod => 'WOD referencyjne';
+
+  @override
+  String get noRecentMovementRecords =>
+      'Brak zapisów ruchu z ostatnich 14 dni.';
 }

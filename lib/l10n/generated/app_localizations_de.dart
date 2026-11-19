@@ -83,7 +83,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get loadSetsError => 'Sätze konnten nicht geladen werden.';
 
   @override
-  String get weightKg => 'Gewicht (kg)';
+  String setWeight(String unit) {
+    return 'Gewicht ($unit)';
+  }
 
   @override
   String get reps => 'Wiederholungen';
@@ -92,13 +94,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get save => 'Speichern';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Satz $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps Wiederholungen';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps Wiederholungen';
   }
 
   @override
@@ -236,7 +238,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get movementsLabel => 'Bewegungen';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count Sätze';
   }
 
@@ -312,4 +314,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Sonstige Geräte';
+
+  @override
+  String get settings => 'Einstellungen';
+
+  @override
+  String get weightUnit => 'Gewichtseinheit';
+
+  @override
+  String get weightUnitError =>
+      'Die Gewichtseinheit konnte nicht gespeichert werden.';
+
+  @override
+  String get categoryBenchmarkWod => 'Benchmark-WODs';
+
+  @override
+  String get noRecentMovementRecords =>
+      'Keine Bewegungsdaten für die letzten 14 Tage.';
 }

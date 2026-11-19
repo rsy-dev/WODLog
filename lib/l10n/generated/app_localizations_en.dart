@@ -81,7 +81,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadSetsError => 'Couldn\'t load sets.';
 
   @override
-  String get weightKg => 'Weight (kg)';
+  String setWeight(String unit) {
+    return 'Weight ($unit)';
+  }
 
   @override
   String get reps => 'Reps';
@@ -90,13 +92,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Set $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps reps';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps reps';
   }
 
   @override
@@ -233,7 +235,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get movementsLabel => 'movements';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count sets';
   }
 
@@ -309,4 +311,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Other equipment';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get weightUnit => 'Weight unit';
+
+  @override
+  String get weightUnitError => 'Could not save the weight unit.';
+
+  @override
+  String get categoryBenchmarkWod => 'Benchmark WODs';
+
+  @override
+  String get noRecentMovementRecords =>
+      'No movement records in the last 14 days.';
 }

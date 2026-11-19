@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../settings/weight_unit.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
 
@@ -33,6 +35,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         title: const Text('WODLog'),
         actions: [
           IconButton(
+            tooltip: l10n.settings,
+            onPressed: () => context.push('/settings'),
+            icon: const Icon(Icons.settings_outlined),
+          ),
+          IconButton(
             tooltip: l10n.progress,
             onPressed: () => context.push('/progress'),
             icon: const Icon(Icons.trending_up),
@@ -44,162 +51,79 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+        child: FilledButton.icon(
+          onPressed: () async {
+            final sessionId = await ref
+                .read(workoutRepositoryProvider)
+                .createSession(workoutDate: _formatDate(_selectedDate));
+            if (context.mounted) context.push('/sessions/$sessionId');
+          },
+          icon: const Icon(Icons.add),
+          label: Text(l10n.startWorkout),
+        ),
+      ),
       body: SafeArea(
-        child: Padding(
+        bottom: false,
+        child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.todayWorkout,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isToday ? l10n.todayWorkout : l10n.workoutLog,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.workoutDate(
+                          _formatDisplayDate(_selectedDate, context),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.workoutDate(
-                            _formatDisplayDate(_selectedDate, context),
-                          ),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
                   ),
-                  IconButton.filledTonal(
-                    tooltip: l10n.chooseDate,
-                    onPressed: _chooseDate,
-                    icon: const Icon(Icons.calendar_month_outlined),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              sessions.when(
-                loading: () => const LinearProgressIndicator(),
-                error: (error, stackTrace) => const SizedBox.shrink(),
-                data: (items) => _DailySummary(
-                  sessionCount: items.length,
-                  movements: _dailyMovementStats(
-                    progress.asData?.value ?? const [],
-                    _formatDate(_selectedDate),
-                  ),
-                  locale: locale,
                 ),
+                IconButton.filledTonal(
+                  tooltip: l10n.chooseDate,
+                  onPressed: _chooseDate,
+                  icon: const Icon(Icons.calendar_month_outlined),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            sessions.when(
+              loading: () => const LinearProgressIndicator(),
+              error: (error, stackTrace) => const SizedBox.shrink(),
+              data: (items) => _DailySummary(
+                sessionCount: items.length,
+                progress: progress.value,
+                date: _formatDate(_selectedDate),
+                locale: locale,
               ),
-              const SizedBox(height: 22),
-              Expanded(
-                child: sessions.when(
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (error, stackTrace) => Center(
-                    child: Text(
-                      l10n.loadWorkoutError,
-                      textAlign: TextAlign.center,
-                    ),
+            ),
+            const SizedBox(height: 22),
+            ...sessions.when<List<Widget>>(
+              loading: () => [const Center(child: CircularProgressIndicator())],
+              error: (error, stackTrace) => [
+                Text(l10n.loadWorkoutError, textAlign: TextAlign.center),
+              ],
+              data: (items) => [
+                if (items.isEmpty) _EmptyWorkoutState(isToday: isToday),
+                for (final session in items)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _TodaySessionTile(session: session),
                   ),
-                  data: (items) => items.isEmpty
-                      ? _EmptyWorkoutState(isToday: isToday)
-                      : ListView.separated(
-                          itemCount: items.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            final session = items[index];
-                            final localCreatedAt =
-                                DateTime.fromMillisecondsSinceEpoch(
-                                  session.createdAt,
-                                  isUtc: true,
-                                ).toLocal();
-                            return Card(
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(20),
-                                onTap: () =>
-                                    context.push('/sessions/${session.id}'),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 15,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 44,
-                                        height: 44,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFEAF3FF),
-                                          borderRadius: BorderRadius.circular(
-                                            14,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.fitness_center_rounded,
-                                          color: Color(0xFF3182F6),
-                                          size: 21,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 14),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              session.title ?? l10n.workoutLog,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium,
-                                            ),
-                                            const SizedBox(height: 3),
-                                            Text(
-                                              TimeOfDay.fromDateTime(
-                                                localCreatedAt,
-                                              ).format(context),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 15,
-                                        color: Color(0xFF9AA4B2),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () async {
-                    final sessionId = await ref
-                        .read(workoutRepositoryProvider)
-                        .createSession(workoutDate: _formatDate(_selectedDate));
-                    if (context.mounted) {
-                      context.push('/sessions/$sessionId');
-                    }
-                  },
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.startWorkout),
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -230,56 +154,62 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 }
 
-List<_MovementDayStats> _dailyMovementStats(
-  List<ExerciseProgress> progress,
-  String date,
-) {
-  return [
-    for (final movement in progress)
-      for (final workout in movement.workouts)
-        if (workout.workoutDate == date)
-          _MovementDayStats(
-            name: movement.name,
-            setCount: workout.setCount,
-            repCount: workout.repCount,
-            volumeKg: workout.volumeKg ?? 0,
-          ),
-  ];
-}
-
-class _MovementDayStats {
-  const _MovementDayStats({
-    required this.name,
-    required this.setCount,
-    required this.repCount,
-    required this.volumeKg,
-  });
-
-  final String name;
-  final int setCount;
-  final int repCount;
-  final double volumeKg;
-}
-
-class _DailySummary extends StatelessWidget {
-  const _DailySummary({
-    required this.sessionCount,
-    required this.movements,
-    required this.locale,
-  });
-
-  final int sessionCount;
-  final List<_MovementDayStats> movements;
-  final String locale;
+class _TodaySessionTile extends StatelessWidget {
+  const _TodaySessionTile({required this.session});
+  final WorkoutSession session;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final setCount = movements.fold<int>(0, (sum, item) => sum + item.setCount);
-    final volumeKg = movements.fold<double>(
-      0,
-      (sum, item) => sum + item.volumeKg,
+    final localTime = DateTime.fromMillisecondsSinceEpoch(
+      session.createdAt,
+      isUtc: true,
+    ).toLocal();
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.fitness_center_rounded),
+        title: Text(session.title ?? l10n.workoutLog),
+        subtitle: Text(TimeOfDay.fromDateTime(localTime).format(context)),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => context.push('/sessions/${session.id}'),
+      ),
     );
+  }
+}
+
+class _DailySummary extends ConsumerWidget {
+  const _DailySummary({
+    required this.sessionCount,
+    required this.progress,
+    required this.date,
+    required this.locale,
+  });
+
+  final int sessionCount;
+  final List<ExerciseProgress>? progress;
+  final String date;
+  final String locale;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
+    final l10n = AppLocalizations.of(context)!;
+    var movementCount = 0;
+    var setCount = 0;
+    double? volumeKg;
+    for (final movement in progress ?? const <ExerciseProgress>[]) {
+      final workouts = movement.workouts.where(
+        (workout) => workout.workoutDate == date,
+      );
+      if (workouts.isEmpty) continue;
+      movementCount++;
+      for (final workout in workouts) {
+        setCount += workout.setCount;
+        if (workout.volumeKg case final volume?) {
+          volumeKg = (volumeKg ?? 0) + volume;
+        }
+      }
+    }
     final number = NumberFormat('#,##0.#', locale);
 
     return Card(
@@ -297,21 +227,23 @@ class _DailySummary extends StatelessWidget {
               children: [
                 Expanded(
                   child: _Metric(
-                    value: '$sessionCount',
+                    value: number.format(sessionCount),
                     label: l10n.sessionsLabel,
                     prominent: true,
                   ),
                 ),
                 Expanded(
                   child: _Metric(
-                    value: '${movements.length}',
+                    value: progress == null
+                        ? '—'
+                        : number.format(movementCount),
                     label: l10n.movementsLabel,
                     prominent: true,
                   ),
                 ),
                 Expanded(
                   child: _Metric(
-                    value: '$setCount',
+                    value: progress == null ? '—' : number.format(setCount),
                     label: l10n.setsLabel,
                     prominent: true,
                   ),
@@ -335,11 +267,15 @@ class _DailySummary extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
-                Text(
-                  '${number.format(volumeKg)} kg',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: const Color(0xFF3182F6),
-                    fontWeight: FontWeight.w700,
+                Flexible(
+                  child: Text(
+                    volumeKg == null
+                        ? '—'
+                        : '${unit.format(volumeKg, number)}·${l10n.reps}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: const Color(0xFF3182F6),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],

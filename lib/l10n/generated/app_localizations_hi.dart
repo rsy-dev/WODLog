@@ -83,7 +83,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get loadSetsError => 'सेट लोड नहीं हो सके।';
 
   @override
-  String get weightKg => 'वज़न (kg)';
+  String setWeight(String unit) {
+    return 'वज़न ($unit)';
+  }
 
   @override
   String get reps => 'दोहराव';
@@ -92,13 +94,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get save => 'सहेजें';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'सेट $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps दोहराव';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps दोहराव';
   }
 
   @override
@@ -235,7 +237,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get movementsLabel => 'मूवमेंट';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count सेट';
   }
 
@@ -311,4 +313,20 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'अन्य उपकरण';
+
+  @override
+  String get settings => 'सेटिंग्स';
+
+  @override
+  String get weightUnit => 'वज़न की इकाई';
+
+  @override
+  String get weightUnitError => 'वज़न की इकाई सहेजी नहीं जा सकी।';
+
+  @override
+  String get categoryBenchmarkWod => 'बेंचमार्क WOD';
+
+  @override
+  String get noRecentMovementRecords =>
+      'पिछले 14 दिनों में किसी मूवमेंट का रिकॉर्ड नहीं है।';
 }

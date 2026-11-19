@@ -81,7 +81,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get loadSetsError => '无法加载训练组。';
 
   @override
-  String get weightKg => '重量 (kg)';
+  String setWeight(String unit) {
+    return '重量 ($unit)';
+  }
 
   @override
   String get reps => '次数';
@@ -90,13 +92,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get save => '保存';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return '第 $number 组';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps 次';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps 次';
   }
 
   @override
@@ -228,7 +230,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get movementsLabel => '动作';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count 组';
   }
 
@@ -303,6 +305,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => '其他器械';
+
+  @override
+  String get settings => '设置';
+
+  @override
+  String get weightUnit => '重量单位';
+
+  @override
+  String get weightUnitError => '无法保存重量单位。';
+
+  @override
+  String get categoryBenchmarkWod => '基准 WOD';
+
+  @override
+  String get noRecentMovementRecords => '过去 14 天没有动作记录。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -381,7 +398,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get loadSetsError => '无法加载训练组。';
 
   @override
-  String get weightKg => '重量 (kg)';
+  String setWeight(String unit) {
+    return '重量 ($unit)';
+  }
 
   @override
   String get reps => '次数';
@@ -390,13 +409,13 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get save => '保存';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return '第 $number 组';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps 次';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps 次';
   }
 
   @override
@@ -528,7 +547,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get movementsLabel => '动作';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count 组';
   }
 
@@ -603,6 +622,21 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get categoryOtherEquipment => '其他器械';
+
+  @override
+  String get settings => '设置';
+
+  @override
+  String get weightUnit => '重量单位';
+
+  @override
+  String get weightUnitError => '无法保存重量单位。';
+
+  @override
+  String get categoryBenchmarkWod => '基准 WOD';
+
+  @override
+  String get noRecentMovementRecords => '过去 14 天没有动作记录。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -681,7 +715,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get loadSetsError => '無法載入訓練組。';
 
   @override
-  String get weightKg => '重量 (kg)';
+  String setWeight(String unit) {
+    return '重量 ($unit)';
+  }
 
   @override
   String get reps => '次數';
@@ -690,13 +726,13 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get save => '儲存';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return '第 $number 組';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps 次';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps 次';
   }
 
   @override
@@ -828,7 +864,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get movementsLabel => '動作';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count 組';
   }
 
@@ -903,4 +939,19 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get categoryOtherEquipment => '其他器材';
+
+  @override
+  String get settings => '設定';
+
+  @override
+  String get weightUnit => '重量單位';
+
+  @override
+  String get weightUnitError => '無法儲存重量單位。';
+
+  @override
+  String get categoryBenchmarkWod => '基準 WOD';
+
+  @override
+  String get noRecentMovementRecords => '過去 14 天沒有動作紀錄。';
 }

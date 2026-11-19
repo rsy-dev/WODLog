@@ -30,18 +30,18 @@
   "addSet": "세트 추가",
   "emptyExerciseHelp": "세트를 추가해 운동을 기록하세요.",
   "loadSetsError": "세트를 불러오지 못했어요.",
-  "weightKg": "중량 (kg)",
+  "setWeight": "중량 ({unit})",
   "reps": "반복 수",
   "save": "저장",
   "setLabel": "{number}세트",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps}회",
+  "setSummary": "{setLabel}  {weight} × {reps}회",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryDumbbellKettlebell": "덤벨·케틀벨",
   "categoryCardio": "유산소",
   "categoryBodyweight": "맨몸",
-  "categoryOtherEquipment": "기타 장비"
+  "categoryOtherEquipment": "기타 장비",
+  "settings": "설정",
+  "weightUnit": "중량 단위",
+  "weightUnitError": "중량 단위를 저장하지 못했어요.",
+  "categoryBenchmarkWod": "벤치마크 WOD",
+  "noRecentMovementRecords": "최근 14일 동안 기록한 동작이 없어요."
 }

@@ -81,7 +81,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get loadSetsError => 'Không thể tải các hiệp tập.';
 
   @override
-  String get weightKg => 'Mức tạ (kg)';
+  String setWeight(String unit) {
+    return 'Mức tạ ($unit)';
+  }
 
   @override
   String get reps => 'Số lần lặp';
@@ -90,13 +92,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get save => 'Lưu';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Hiệp $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight kg × $reps lần';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps lần';
   }
 
   @override
@@ -233,7 +235,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get movementsLabel => 'động tác';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count hiệp';
   }
 
@@ -308,4 +310,20 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Thiết bị khác';
+
+  @override
+  String get settings => 'Cài đặt';
+
+  @override
+  String get weightUnit => 'Đơn vị khối lượng';
+
+  @override
+  String get weightUnitError => 'Không thể lưu đơn vị khối lượng.';
+
+  @override
+  String get categoryBenchmarkWod => 'WOD chuẩn';
+
+  @override
+  String get noRecentMovementRecords =>
+      'Không có bản ghi động tác trong 14 ngày qua.';
 }

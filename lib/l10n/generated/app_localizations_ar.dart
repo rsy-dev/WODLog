@@ -81,7 +81,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get loadSetsError => 'تعذر تحميل المجموعات.';
 
   @override
-  String get weightKg => 'الوزن (كجم)';
+  String setWeight(String unit) {
+    return 'الوزن ($unit)';
+  }
 
   @override
   String get reps => 'التكرارات';
@@ -90,13 +92,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get save => 'حفظ';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'المجموعة $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight كجم × $reps تكرارات';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps تكرارات';
   }
 
   @override
@@ -233,7 +235,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get movementsLabel => 'حركات';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count مجموعات';
   }
 
@@ -308,4 +310,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'معدات أخرى';
+
+  @override
+  String get settings => 'الإعدادات';
+
+  @override
+  String get weightUnit => 'وحدة الوزن';
+
+  @override
+  String get weightUnitError => 'تعذر حفظ وحدة الوزن.';
+
+  @override
+  String get categoryBenchmarkWod => 'تمارين WOD المرجعية';
+
+  @override
+  String get noRecentMovementRecords => 'لا توجد سجلات حركات في آخر ١٤ يومًا.';
 }
