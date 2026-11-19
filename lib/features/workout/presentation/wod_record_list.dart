@@ -26,20 +26,24 @@ class WodRecordList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final dateFormat = DateFormat.yMMMd(
+      Localizations.localeOf(context).toString(),
+    );
     final results = [
       for (final session in sessions)
         (
           session: session,
+          dateLabel: _recordDateLabel(session.workoutDate, dateFormat),
           blocks: ref.watch(wodBlocksForSessionProvider(session.id)),
         ),
     ];
     final records = [
       for (final entry in results)
         for (final block in entry.blocks.value ?? const <WorkoutBlock>[])
-          if ('${block.title ?? ''} ${block.notes ?? ''}'
+          if ('${block.title ?? ''} ${block.notes ?? ''} ${entry.session.workoutDate} ${entry.dateLabel}'
               .toLowerCase()
               .contains(query))
-            (session: entry.session, block: block),
+            (session: entry.session, block: block, dateLabel: entry.dateLabel),
     ];
     final loading = results.any((entry) => entry.blocks.isLoading);
     final failed = results.any((entry) => entry.blocks.hasError);
@@ -55,33 +59,42 @@ class WodRecordList extends ConsumerWidget {
               query.isEmpty ? l10n.emptyHistory : l10n.noMatchingWorkouts,
             ),
           ),
-        for (final (session: session, block: block) in records.take(
+        for (final (:session, :block, :dateLabel) in records.take(
           limit ?? records.length,
         ))
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: _WodRecordTile(session: session, block: block),
+            child: _WodRecordTile(
+              session: session,
+              block: block,
+              dateLabel: dateLabel,
+            ),
           ),
       ],
     );
   }
+
+  String _recordDateLabel(String date, DateFormat format) {
+    final parsed = DateTime.tryParse(date);
+    return parsed == null ? date : format.format(parsed);
+  }
 }
 
 class _WodRecordTile extends ConsumerWidget {
-  const _WodRecordTile({required this.session, required this.block});
+  const _WodRecordTile({
+    required this.session,
+    required this.block,
+    required this.dateLabel,
+  });
 
   final WorkoutSession session;
   final WorkoutBlock block;
+  final String dateLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final title = block.title ?? l10n.wodSectionTitle;
-    final date = DateTime.tryParse(session.workoutDate);
-    final dateLabel = date == null
-        ? session.workoutDate
-        : DateFormat.yMMMd(Localizations.localeOf(context).toString())
-              .format(date);
     final score = ref.watch(wodResultProvider(block.id)).value;
     return Card(
       child: ListTile(

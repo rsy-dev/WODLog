@@ -153,11 +153,40 @@ void main() {
       expect(tester.takeException(), isNull);
       if (locale.languageCode == 'en') {
         await show(const WorkoutHistoryScreen());
+        final search = find.widgetWithText(TextField, l10n.searchWorkouts);
+        await tester.enterText(search, '1900-01-01');
+        await tester.pumpAndSettle();
+        expect(find.text('Fran'), findsNothing);
+        await tester.enterText(search, _session.workoutDate);
+        await tester.pumpAndSettle();
+        expect(find.text('Fran'), findsOneWidget);
+        await tester.enterText(
+          search,
+          DateFormat.yMMMd(locale.toString())
+              .format(DateTime.parse(_session.workoutDate)),
+        );
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Fran'));
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.editWodResult));
         await tester.pumpAndSettle();
-        await tester.tap(find.text(l10n.wodEnterNewScore));
+        final resultType = find.byType(DropdownButtonFormField<String>);
+        await tester.tap(resultType);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.resultEmom).last);
+        await tester.pumpAndSettle();
+        final intervals = find.widgetWithText(
+          TextFormField,
+          l10n.wodCompletedIntervals,
+        );
+        final intervalInput = find.descendant(
+          of: intervals,
+          matching: find.byType(EditableText),
+        );
+        expect(tester.widget<EditableText>(intervalInput).controller.text, '');
+        await tester.tap(resultType);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.resultForTime).last);
         await tester.pumpAndSettle();
         final time = find.widgetWithText(TextFormField, l10n.wodFinishTime);
         await tester.enterText(time, '12:42');

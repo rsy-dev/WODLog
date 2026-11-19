@@ -158,9 +158,12 @@ Future<void> showWodResultEditor(
   final unit = ref.read(weightUnitProvider).value ?? WeightUnit.kg;
   final result = await ref.read(wodResultProvider(blockId).future);
   if (!context.mounted) return;
-  var type = _types.contains(result?.resultType)
-      ? result!.resultType
-      : _types.first;
+  final originalType = result?.resultType;
+  final availableTypes = [
+    ..._types,
+    if (originalType != null && !_types.contains(originalType)) originalType,
+  ];
+  var type = originalType ?? _types.first;
   var score = result?.resultText ?? '';
   final hasPreviousScore = score.trim().isNotEmpty;
   var usePreviousScore = hasPreviousScore;
@@ -169,7 +172,7 @@ Future<void> showWodResultEditor(
   var invalid = false;
 
   String? validatedScore() {
-    if (usePreviousScore || type == 'other') {
+    if (usePreviousScore || type == 'other' || !_types.contains(type)) {
       return score.trim().isEmpty ? null : score.trim();
     }
     int? whole(String text) {
@@ -222,7 +225,7 @@ Future<void> showWodResultEditor(
             isExpanded: true,
             decoration: InputDecoration(labelText: l10n.wodResultType),
             items: [
-              for (final item in _types)
+              for (final item in availableTypes)
                 DropdownMenuItem(
                   value: item,
                   child: Text(wodTypeLabel(l10n, item)),
@@ -235,10 +238,9 @@ Future<void> showWodResultEditor(
                     type = value;
                     ending = _WodEnding.finished;
                     invalid = false;
-                    if (!usePreviousScore) {
-                      score = '';
-                      secondScore = '';
-                    }
+                    usePreviousScore = false;
+                    score = '';
+                    secondScore = '';
                   }),
           ),
           const SizedBox(height: 12),
@@ -283,7 +285,8 @@ Future<void> showWodResultEditor(
                 ('load', _, _) => const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                _ => TextInputType.number,
+                _ when _types.contains(type) => TextInputType.number,
+                _ => TextInputType.text,
               },
               decoration: InputDecoration(
                 labelText: usePreviousScore
