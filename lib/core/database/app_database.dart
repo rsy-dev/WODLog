@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'tables/exercises.dart';
 import 'tables/performed_sets.dart';
 import 'tables/wod_results.dart';
+import 'tables/wod_prescription_snapshots.dart';
 import 'tables/workout_blocks.dart';
 import 'tables/workout_exercises.dart';
 import 'tables/workout_sessions.dart';
@@ -18,13 +19,14 @@ part 'app_database.g.dart';
     WorkoutExercises,
     PerformedSets,
     WodResults,
+    WodPrescriptionSnapshots,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -50,6 +52,29 @@ class AppDatabase extends _$AppDatabase {
         'CREATE UNIQUE INDEX performed_sets_exercise_number_idx '
         'ON performed_sets (workout_exercise_id, set_number)',
       );
+    },
+    onUpgrade: (migrator, from, to) async {
+      if (from < 2) {
+        await transaction(() async {
+          await migrator.createTable(wodPrescriptionSnapshots);
+          await migrator.addColumn(wodResults, wodResults.outcome);
+          await migrator.addColumn(wodResults, wodResults.tieBreakMs);
+          await customStatement("""
+            INSERT INTO wod_prescription_snapshots (block_id, payload)
+            SELECT id, json_object(
+              'title', coalesce(title, ''),
+              'structure', 'unknown',
+              'scoreKind', 'unknown',
+              'version', 'unknown',
+              'movements', json_array(),
+              'standards', json_array(),
+              'rawText', notes,
+              'unparsedLines', CASE WHEN notes IS NULL THEN json_array()
+                                    ELSE json_array(notes) END
+            ) FROM workout_blocks WHERE type = 'wod'
+          """);
+        });
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
