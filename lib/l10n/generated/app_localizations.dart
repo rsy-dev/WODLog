@@ -738,6 +738,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No movement records in the last 14 days.'**
   String get noRecentMovementRecords;
+
+  /// No description provided for @todayTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayTab;
+
+  /// No description provided for @recordWod.
+  ///
+  /// In en, this message translates to:
+  /// **'Record WOD'**
+  String get recordWod;
+
+  /// No description provided for @languageSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageSetting;
+
+  /// No description provided for @deviceLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Device language'**
+  String get deviceLanguage;
+
+  /// No description provided for @weeklyGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly goal'**
+  String get weeklyGoal;
+
+  /// No description provided for @weightCalculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight calculator'**
+  String get weightCalculator;
+
+  /// No description provided for @movementLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Movement library'**
+  String get movementLibrary;
+
+  /// No description provided for @glossary.
+  ///
+  /// In en, this message translates to:
+  /// **'Glossary'**
+  String get glossary;
+
+  /// No description provided for @lastSevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get lastSevenDays;
+
+  /// No description provided for @pastWods.
+  ///
+  /// In en, this message translates to:
+  /// **'Past WODs'**
+  String get pastWods;
+
+  /// No description provided for @strengthSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength sessions'**
+  String get strengthSessions;
+
+  /// No description provided for @chooseBenchmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a benchmark'**
+  String get chooseBenchmark;
+
+  /// No description provided for @searchWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Search workouts'**
+  String get searchWorkouts;
+
+  /// No description provided for @noMatchingWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching workouts'**
+  String get noMatchingWorkouts;
+
+  /// No description provided for @settingsSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the setting. Try again.'**
+  String get settingsSaveError;
+
+  /// No description provided for @openSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Open session'**
+  String get openSession;
+
+  /// No description provided for @reviewWodText.
+  ///
+  /// In en, this message translates to:
+  /// **'Review WOD text'**
+  String get reviewWodText;
+
+  /// No description provided for @wodSourceText.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout text'**
+  String get wodSourceText;
+
+  /// No description provided for @unreadWodLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines to review'**
+  String get unreadWodLines;
+
+  /// No description provided for @wodPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription'**
+  String get wodPrescription;
+
+  /// No description provided for @closeSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeSheet;
+
+  /// No description provided for @glossaryAmrap.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete as many rounds or reps as possible in the time limit.'**
+  String get glossaryAmrap;
+
+  /// No description provided for @glossaryEmom.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the prescribed work at the start of each minute.'**
+  String get glossaryEmom;
+
+  /// No description provided for @glossaryForTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Record completion time or completed reps at the cap.'**
+  String get glossaryForTime;
+
+  /// No description provided for @glossaryRx.
+  ///
+  /// In en, this message translates to:
+  /// **'Perform the workout as prescribed.'**
+  String get glossaryRx;
+
+  /// No description provided for @glossaryScaled.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the load, movement, or volume.'**
+  String get glossaryScaled;
+
+  /// No description provided for @wodSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the WOD result. Try again.'**
+  String get wodSaveError;
+
+  /// No description provided for @applyWodSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to notes'**
+  String get applyWodSource;
+
+  /// No description provided for @statsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get statsTab;
+
+  /// No description provided for @wodFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get wodFinished;
+
+  /// No description provided for @wodCapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Time cap'**
+  String get wodCapped;
+
+  /// No description provided for @wodStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get wodStopped;
+
+  /// No description provided for @wodEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish status'**
+  String get wodEnding;
+
+  /// No description provided for @wodFinishTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish time (min:sec)'**
+  String get wodFinishTime;
+
+  /// No description provided for @wodCompletedReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps completed at the cap'**
+  String get wodCompletedReps;
+
+  /// No description provided for @wodCompletedRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed rounds'**
+  String get wodCompletedRounds;
+
+  /// No description provided for @wodCompletedIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed intervals'**
+  String get wodCompletedIntervals;
+
+  /// No description provided for @wodExtraReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra reps'**
+  String get wodExtraReps;
+
+  /// No description provided for @wodEnterNewScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a new score'**
+  String get wodEnterNewScore;
+
+  /// No description provided for @wodInvalidScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid result for this workout type.'**
+  String get wodInvalidScore;
 }
 
 class _AppLocalizationsDelegate

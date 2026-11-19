@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/wodlog_sheet.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/weight_unit.dart';
@@ -14,9 +15,14 @@ import '../providers/workout_providers.dart';
 import 'workout_dialog.dart';
 
 class WorkoutSessionScreen extends ConsumerWidget {
-  const WorkoutSessionScreen({required this.sessionId, super.key});
+  const WorkoutSessionScreen({
+    required this.sessionId,
+    this.initialBenchmark,
+    super.key,
+  });
 
   final String sessionId;
+  final String? initialBenchmark;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +64,10 @@ class WorkoutSessionScreen extends ConsumerWidget {
                     _SessionHeader(session: record),
                     const SizedBox(height: 16),
                   ],
-                  WodBlocksSection(sessionId: sessionId),
+                  WodBlocksSection(
+                    sessionId: sessionId,
+                    initialBenchmark: initialBenchmark,
+                  ),
                   if (items.isEmpty) const _EmptyBlocksState(),
                   for (final item in items) _WorkoutBlockCard(block: item),
                 ],
@@ -290,10 +299,9 @@ class _WorkoutBlockCard extends ConsumerWidget {
     int sortOrder,
   ) async {
     final l10n = AppLocalizations.of(context)!;
-    final selection = await showModalBottomSheet<_ExerciseSelection>(
+    final selection = await showWodLogSheet<_ExerciseSelection>(
       context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
+      title: l10n.addExercise,
       builder: (sheetContext) => _MovementPickerSheet(
         onSelected: (name) =>
             Navigator.of(sheetContext).pop(_ExerciseSelection(name: name)),
@@ -387,100 +395,84 @@ class _MovementPickerSheetState extends State<_MovementPickerSheet> {
       category: _category,
     ).where((entry) => entry.category != CrossFitCategory.benchmarkWod);
 
-    final mediaQuery = MediaQuery.of(context);
-    final availableHeight =
-        mediaQuery.size.height - mediaQuery.viewInsets.bottom;
-    final sheetHeight = availableHeight * 0.82;
-
-    return SafeArea(
-      child: SizedBox(
-        height: sheetHeight,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.addExercise,
-                style: Theme.of(context).textTheme.titleLarge,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _searchController,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: l10n.searchMovements,
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: IconButton(
+                tooltip: l10n.cancel,
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() {});
+                },
+                icon: const Icon(Icons.close),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _searchController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: l10n.searchMovements,
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    tooltip: l10n.cancel,
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.close),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 42,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: ChoiceChip(
+                    label: Text(l10n.allMovements),
+                    selected: _category == null,
+                    onSelected: (_) => setState(() => _category = null),
                   ),
                 ),
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 42,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 8),
-                      child: ChoiceChip(
-                        label: Text(l10n.allMovements),
-                        selected: _category == null,
-                        onSelected: (_) => setState(() => _category = null),
-                      ),
+                for (final category in categories)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: ChoiceChip(
+                      label: Text(movementCategoryLabel(l10n, category)),
+                      selected: _category == category,
+                      onSelected: (_) => setState(() => _category = category),
                     ),
-                    for (final category in categories)
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(end: 8),
-                        child: ChoiceChip(
-                          label: Text(movementCategoryLabel(l10n, category)),
-                          selected: _category == category,
-                          onSelected: (_) =>
-                              setState(() => _category = category),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const Divider(height: 16),
-              Expanded(
-                child: movements.isEmpty
-                    ? Center(child: Text(l10n.noMovementsFound))
-                    : ListView.builder(
-                        itemCount: movements.length,
-                        itemBuilder: (context, index) {
-                          final movement = movements.elementAt(index);
-                          return ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(movement.name),
-                            subtitle: Text(
-                              movementCategoryLabel(l10n, movement.category),
-                            ),
-                            trailing: const Icon(Icons.add),
-                            onTap: () => widget.onSelected(movement.name),
-                          );
-                        },
-                      ),
-              ),
-              const Divider(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: widget.onCustom,
-                  icon: const Icon(Icons.edit_outlined),
-                  label: Text(l10n.customExercise),
-                ),
-              ),
-            ],
+                  ),
+              ],
+            ),
           ),
-        ),
+          const Divider(height: 16),
+          Expanded(
+            child: movements.isEmpty
+                ? Center(child: Text(l10n.noMovementsFound))
+                : ListView.builder(
+                    itemCount: movements.length,
+                    itemBuilder: (context, index) {
+                      final movement = movements.elementAt(index);
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(movement.name),
+                        subtitle: Text(
+                          movementCategoryLabel(l10n, movement.category),
+                        ),
+                        trailing: const Icon(Icons.add),
+                        onTap: () => widget.onSelected(movement.name),
+                      );
+                    },
+                  ),
+          ),
+          const Divider(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: widget.onCustom,
+              icon: const Icon(Icons.edit_outlined),
+              label: Text(l10n.customExercise),
+            ),
+          ),
+        ],
       ),
     );
   }

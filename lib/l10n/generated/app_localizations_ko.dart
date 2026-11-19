@@ -322,4 +322,124 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get noRecentMovementRecords => '최근 14일 동안 기록한 동작이 없어요.';
+
+  @override
+  String get todayTab => '오늘';
+
+  @override
+  String get recordWod => 'WOD 기록하기';
+
+  @override
+  String get languageSetting => '언어';
+
+  @override
+  String get deviceLanguage => '기기 언어';
+
+  @override
+  String get weeklyGoal => '주간 목표';
+
+  @override
+  String get weightCalculator => '중량 계산기';
+
+  @override
+  String get movementLibrary => '동작 목록';
+
+  @override
+  String get glossary => '용어집';
+
+  @override
+  String get lastSevenDays => '최근 7일';
+
+  @override
+  String get pastWods => '지난 WOD';
+
+  @override
+  String get strengthSessions => '근력 세션';
+
+  @override
+  String get chooseBenchmark => '벤치마크 선택';
+
+  @override
+  String get searchWorkouts => '운동 검색';
+
+  @override
+  String get noMatchingWorkouts => '검색 결과가 없어요.';
+
+  @override
+  String get settingsSaveError => '설정을 저장하지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get openSession => '세션 열기';
+
+  @override
+  String get reviewWodText => 'WOD 원문 검토';
+
+  @override
+  String get wodSourceText => 'WOD 원문';
+
+  @override
+  String get unreadWodLines => '검토가 필요한 줄';
+
+  @override
+  String get wodPrescription => '운동 처방';
+
+  @override
+  String get closeSheet => '닫기';
+
+  @override
+  String get glossaryAmrap => '제한시간 안에 가능한 많은 라운드 또는 반복을 완료합니다.';
+
+  @override
+  String get glossaryEmom => '매분 시작할 때 정해진 동작을 수행합니다.';
+
+  @override
+  String get glossaryForTime => '완주 시간 또는 타임캡까지 완료한 반복을 기록합니다.';
+
+  @override
+  String get glossaryRx => '처방된 기준대로 운동합니다.';
+
+  @override
+  String get glossaryScaled => '중량, 동작 또는 운동량을 조정합니다.';
+
+  @override
+  String get wodSaveError => 'WOD 결과를 저장하지 못했어요. 다시 시도해 주세요.';
+
+  @override
+  String get applyWodSource => '메모에 반영';
+
+  @override
+  String get statsTab => '통계';
+
+  @override
+  String get wodFinished => '완주';
+
+  @override
+  String get wodCapped => '타임캡';
+
+  @override
+  String get wodStopped => '중단';
+
+  @override
+  String get wodEnding => '종료 상태';
+
+  @override
+  String get wodFinishTime => '완주 시간 (분:초)';
+
+  @override
+  String get wodCompletedReps => '타임캡까지 완료한 반복';
+
+  @override
+  String get wodCompletedRounds => '완료 라운드';
+
+  @override
+  String get wodCompletedIntervals => '완료한 인터벌';
+
+  @override
+  String get wodExtraReps => '추가 반복';
+
+  @override
+  String get wodEnterNewScore => '새 점수 입력';
+
+  @override
+  String get wodInvalidScore => '운동 유형에 맞는 결과를 입력해 주세요.';
 }

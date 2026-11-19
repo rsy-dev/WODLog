@@ -3,9 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/wodlog_sheet.dart';
+import '../../../app/wodlog_theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../settings/display_preferences.dart';
 import '../../settings/weight_unit.dart';
+import 'wod_library_sheet.dart';
+import 'wod_record_list.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
 
@@ -30,44 +35,30 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final today = DateUtils.dateOnly(DateTime.now());
     final isToday = DateUtils.isSameDay(_selectedDate, today);
 
+    final recent = ref.watch(recentSessionsProvider).value;
+    final goal = ref.watch(displayPreferencesProvider).value?.weeklyGoal;
+    final days = {
+      for (final session in recent ?? const <WorkoutSession>[])
+        session.workoutDate,
+    };
+    final weekStart = DateUtils.addDaysToDate(today, 1 - today.weekday);
+    final weeklyCount = List.generate(
+      today.weekday,
+      (index) => _formatDate(DateUtils.addDaysToDate(weekStart, index)),
+    ).where(days.contains).length;
+    final number = NumberFormat.decimalPattern(locale);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('WODLog'),
-        actions: [
-          IconButton(
-            tooltip: l10n.settings,
-            onPressed: () => context.push('/settings'),
-            icon: const Icon(Icons.settings_outlined),
-          ),
-          IconButton(
-            tooltip: l10n.progress,
-            onPressed: () => context.push('/progress'),
-            icon: const Icon(Icons.trending_up),
-          ),
-          IconButton(
-            tooltip: l10n.history,
-            onPressed: () => context.push('/history'),
-            icon: const Icon(Icons.history),
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-        child: FilledButton.icon(
-          onPressed: () async {
-            final sessionId = await ref
-                .read(workoutRepositoryProvider)
-                .createSession(workoutDate: _formatDate(_selectedDate));
-            if (context.mounted) context.push('/sessions/$sessionId');
-          },
-          icon: const Icon(Icons.add),
-          label: Text(l10n.startWorkout),
-        ),
-      ),
+      appBar: AppBar(title: const Text('WODLog')),
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            8,
+            20,
+            16 + MediaQuery.paddingOf(context).bottom,
+          ),
           children: [
             Row(
               children: [
@@ -97,6 +88,69 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _startWorkout,
+              icon: const Icon(Icons.add),
+              label: Text(l10n.recordWod),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              children: [
+                OutlinedButton(
+                  onPressed: () async {
+                    final template = await showWodLibrary(context);
+                    if (template != null && mounted) {
+                      await _startWorkout(template.name);
+                    }
+                  },
+                  child: Text(l10n.benchmarkWorkouts),
+                ),
+                OutlinedButton(
+                  onPressed: () => context.go('/history'),
+                  child: Text(l10n.pastWods),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              l10n.lastSevenDays,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Wrap(
+              spacing: 4,
+              children: [
+                for (var offset = -6; offset <= 0; offset++)
+                  _dayChip(
+                    context,
+                    DateUtils.addDaysToDate(today, offset),
+                    days,
+                    locale,
+                  ),
+              ],
+            ),
+            Text(
+              [
+                l10n.weeklyGoal,
+                if (recent != null && goal != null)
+                  '${number.format(weeklyCount)} / ${number.format(goal)}',
+              ].join(' · '),
+            ),
+            const SizedBox(height: 16),
+            if (sessions.value case final currentSessions?)
+              WodRecordList(
+                sessions: isToday
+                    ? [
+                        ...currentSessions,
+                        for (final item
+                            in (recent ?? const <WorkoutSession>[]).take(7))
+                          if (item.workoutDate != _formatDate(today)) item,
+                      ]
+                    : currentSessions,
+                showEmpty: false,
+                limit: isToday ? 3 : null,
+              ),
             const SizedBox(height: 20),
             sessions.when(
               loading: () => const LinearProgressIndicator(),
@@ -129,12 +183,66 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     );
   }
 
+  bool _starting = false;
+
+  Future<void> _startWorkout([String? benchmark]) async {
+    if (_starting) return;
+    _starting = true;
+    try {
+      final sessionId = await ref
+          .read(workoutRepositoryProvider)
+          .createSession(workoutDate: _formatDate(_selectedDate));
+      if (mounted) {
+        context.push(
+          Uri(
+            path: '/sessions/$sessionId',
+            queryParameters: benchmark == null
+                ? null
+                : {'benchmark': benchmark},
+          ).toString(),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.wodSaveError)),
+        );
+      }
+    } finally {
+      _starting = false;
+    }
+  }
+
+  Widget _dayChip(
+    BuildContext context,
+    DateTime date,
+    Set<String> dates,
+    String locale,
+  ) {
+    final selected = DateUtils.isSameDay(date, _selectedDate);
+    final recorded = dates.contains(_formatDate(date));
+    return ChoiceChip(
+      tooltip: _formatDisplayDate(date, context),
+      selected: selected,
+      avatar: recorded ? const Icon(Icons.check, size: 14) : null,
+      label: Text(DateFormat.d(locale).format(date)),
+      onSelected: (_) => setState(() => _selectedDate = date),
+    );
+  }
+
   Future<void> _chooseDate() async {
-    final selected = await showDatePicker(
+    final today = DateUtils.dateOnly(DateTime.now());
+    final selected = await showWodLogSheet<DateTime>(
       context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(DateTime.now().year - 5),
-      lastDate: DateTime.now(),
+      title: AppLocalizations.of(context)!.chooseDate,
+      builder: (context) => SingleChildScrollView(
+        child: CalendarDatePicker(
+          initialDate: _selectedDate,
+          firstDate: DateTime(today.year - 5),
+          lastDate: today,
+          onDateChanged: (date) => Navigator.pop(context, date),
+        ),
+      ),
     );
     if (selected != null && mounted) {
       setState(() => _selectedDate = DateUtils.dateOnly(selected));
@@ -273,7 +381,7 @@ class _DailySummary extends ConsumerWidget {
                         ? '—'
                         : '${unit.format(volumeKg, number)}·${l10n.reps}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: const Color(0xFF3182F6),
+                      color: WodLogColors.accent,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -309,7 +417,7 @@ class _Metric extends StatelessWidget {
               (prominent
                       ? Theme.of(context).textTheme.headlineSmall
                       : Theme.of(context).textTheme.titleMedium)
-                  ?.copyWith(color: const Color(0xFF191F28)),
+                  ?.copyWith(color: WodLogColors.ink),
         ),
         Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],

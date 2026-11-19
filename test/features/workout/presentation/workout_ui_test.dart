@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:wodlog/app/app.dart';
 import 'package:wodlog/app/wodlog_theme.dart';
+import 'package:wodlog/features/settings/display_preferences.dart';
 import 'package:wodlog/core/database/app_database.dart';
 import 'package:wodlog/features/settings/settings_screen.dart';
 import 'package:wodlog/features/settings/weight_unit.dart';
 import 'package:wodlog/features/workout/data/exercise_progress_service.dart';
+import 'package:wodlog/features/workout/data/wod_repository.dart';
 import 'package:wodlog/features/workout/presentation/localized_decimal.dart';
 import 'package:wodlog/features/workout/presentation/progress_screen.dart';
 import 'package:wodlog/features/workout/presentation/today_screen.dart';
@@ -45,11 +48,16 @@ void main() {
       final number = NumberFormat.decimalPattern(locale.toString());
       final displayedWeight = '\u2066${number.format(100.125)}\u00a0lb\u2069';
 
+      final wodWriter = _RetryWodWriter();
       Future<void> show(Widget screen) async {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
               weightUnitProvider.overrideWith(_PoundsPreference.new),
+              wodRepositoryProvider.overrideWithValue(wodWriter),
+              displayPreferencesProvider.overrideWith(
+                _TestDisplayPreference.new,
+              ),
               sessionsForDateProvider.overrideWith(
                 (ref, date) => Stream.value([_session]),
               ),
@@ -97,14 +105,15 @@ void main() {
       }
 
       await show(const TodayScreen());
-      expect(find.text(l10n.startWorkout), findsOneWidget);
+      expect(find.text(l10n.recordWod), findsOneWidget);
       final date = DateFormat.yMMMMEEEEd(locale.toString())
           .format(DateTime.now());
       expect(find.text(l10n.workoutDate(date)), findsOneWidget);
-      expect(
-        find.text('\u2066${number.format(500.625)}\u00a0lb\u2069·${l10n.reps}'),
-        findsOneWidget,
+      final todayVolume = find.text(
+        '\u2066${number.format(500.625)}\u00a0lb\u2069·${l10n.reps}',
       );
+      await tester.scrollUntilVisible(todayVolume, 120);
+      expect(todayVolume, findsOneWidget);
 
       await show(const WorkoutHistoryScreen());
       final chevron = tester.widget<Icon>(find.byIcon(Icons.chevron_right));
@@ -142,8 +151,77 @@ void main() {
       await tester.tap(find.text(l10n.cancel));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
+      if (locale.languageCode == 'en') {
+        await show(const WorkoutHistoryScreen());
+        await tester.tap(find.text('Fran'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.editWodResult));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.wodEnterNewScore));
+        await tester.pumpAndSettle();
+        final time = find.widgetWithText(TextFormField, l10n.wodFinishTime);
+        await tester.enterText(time, '12:42');
+        final save = find.widgetWithText(FilledButton, l10n.save);
+        await tester.scrollUntilVisible(
+          save,
+          100,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.tap(save);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.wodSaveError), findsOneWidget);
+        await tester.scrollUntilVisible(
+          time,
+          -100,
+          scrollable: find.byType(Scrollable).last,
+        );
+        expect(find.text('12:42'), findsOneWidget);
+        await tester.scrollUntilVisible(
+          save,
+          100,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.tap(save);
+        await tester.pumpAndSettle();
+        expect(wodWriter.scores, ['12:42', '12:42']);
+        await tester.tap(find.byTooltip(l10n.closeSheet));
+        await tester.pumpAndSettle();
+      }
+      if (locale.languageCode == 'en') {
+        await show(const WodLogApp());
+        await tester.tap(find.byIcon(Icons.receipt_long_outlined));
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.searchWorkouts), findsOneWidget);
+        await tester.tap(find.byIcon(Icons.settings_outlined));
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.languageSetting), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
     });
   }
+}
+
+class _RetryWodWriter implements WodRepository {
+  final scores = <String>[];
+
+  @override
+  Future<void> saveResult({
+    required String blockId,
+    required String resultType,
+    required String resultText,
+    required String notes,
+  }) async {
+    scores.add(resultText);
+    if (scores.length == 1) throw StateError('Write failed');
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _TestDisplayPreference extends DisplayPreferenceNotifier {
+  @override
+  Future<DisplayPreferences> build() async => (locale: null, weeklyGoal: 3);
 }
 
 class _PoundsPreference extends WeightUnitPreference {

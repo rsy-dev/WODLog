@@ -64,7 +64,12 @@ class ProgressScreen extends ConsumerWidget {
           }
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+            padding: EdgeInsets.fromLTRB(
+              20,
+              12,
+              20,
+              28 + MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               Text(
                 l10n.trainingOverview,
