@@ -1,3 +1,31 @@
+import 'crossfit_catalog.dart';
+import 'wod_prescription.dart';
+
+enum BenchmarkScoring {
+  elapsedTime,
+  roundsAndReps,
+  totalStationPoints,
+  sumOfStationMinimums,
+}
+
+enum BenchmarkStandard { women, men }
+
+class NamedWodPrescription {
+  const NamedWodPrescription({
+    required this.id,
+    required this.sourceUrl,
+    required this.scoring,
+    required this.draft,
+    this.confirmations = const [],
+  });
+
+  final String id;
+  final String sourceUrl;
+  final BenchmarkScoring scoring;
+  final WodPrescription draft;
+  final List<String> confirmations;
+}
+
 /// Offline templates for common CrossFit benchmark workouts.
 ///
 /// Prescriptions are saved as editable notes so athletes can scale the WOD
@@ -183,6 +211,276 @@ abstract final class NamedWodCatalog {
       ],
     ),
   ];
+
+  /// Builds a fresh prescription with the athlete's selected load profile.
+  /// The actual performance version is confirmed by the editor.
+  static List<NamedWodPrescription> prescriptions({
+    BenchmarkStandard? standard,
+  }) {
+    const repScheme = [21, 15, 9];
+    const annieScheme = [50, 40, 30, 20, 10];
+    const meters = WodQuantityUnit.meters;
+    const calories = WodQuantityUnit.calories;
+
+    WodMovementPrescription movement(
+      String id,
+      List<num> quantities, {
+      WodQuantityUnit unit = WodQuantityUnit.reps,
+      String? equipment,
+      int? interval,
+      String? technique,
+      (int, int)? lb,
+      (int, int)? targetFeet,
+    }) {
+      final entry = CrossFitCatalog.byId(id)!;
+      final pounds = switch (standard) {
+        BenchmarkStandard.women => lb?.$1,
+        BenchmarkStandard.men => lb?.$2,
+        null => null,
+      };
+      final target = switch (standard) {
+        BenchmarkStandard.women => targetFeet?.$1,
+        BenchmarkStandard.men => targetFeet?.$2,
+        null => null,
+      };
+      String describe(int pounds, int? feet) =>
+          feet == null ? '$pounds lb' : '$pounds lb to $feet ft';
+      return WodMovementPrescription(
+        name: entry.name,
+        movementId: entry.id,
+        quantities: List.unmodifiable(quantities),
+        unit: unit,
+        equipment: equipment,
+        interval: interval,
+        weightKg: pounds == null ? null : pounds * 0.45359237,
+        standard: [
+          ?technique,
+          if (pounds != null) describe(pounds, target),
+        ].join('. '),
+        options: lb == null
+            ? const []
+            : List.unmodifiable([
+                'Women: ${describe(lb.$1, targetFeet?.$1)}',
+                'Men: ${describe(lb.$2, targetFeet?.$2)}',
+              ]),
+      );
+    }
+
+    NamedWodPrescription template(
+      String id,
+      String title,
+      String url,
+      List<WodMovementPrescription> movements, {
+      BenchmarkScoring scoring = BenchmarkScoring.elapsedTime,
+      WodStructure structure = WodStructure.forTime,
+      int? rounds,
+      int? duration,
+      int? intervalSeconds,
+      int? intervalCount,
+      List<String> standards = const [],
+      List<String> confirmations = const [],
+      String collection = 'benchmark',
+      String version = '1',
+    }) => NamedWodPrescription(
+      id: id,
+      sourceUrl: url,
+      scoring: scoring,
+      confirmations: List.unmodifiable([
+        if (standard == null && movements.any((m) => m.options.isNotEmpty))
+          'Confirm the load and target for the selected standard.',
+        ...confirmations,
+      ]),
+      draft: WodPrescription(
+        title: title,
+        sourceCollection: collection,
+        sourceVersion: '$id@$version',
+        structure: structure,
+        scoreKind: switch (scoring) {
+          BenchmarkScoring.elapsedTime => WodScoreKind.time,
+          BenchmarkScoring.roundsAndReps => WodScoreKind.roundsAndReps,
+          _ => WodScoreKind.points,
+        },
+        rounds: rounds,
+        durationSeconds: duration,
+        intervalSeconds: intervalSeconds,
+        intervalCount: intervalCount,
+        standards: standards,
+        movements: List.unmodifiable(movements),
+      ),
+    );
+
+    return List.unmodifiable([
+      template(
+        'fran',
+        'Fran',
+        'https://www.crossfit.com/essentials/crossfit-15-benchmarks',
+        [
+          movement('thruster', repScheme, lb: (65, 95), equipment: 'barbell'),
+          movement('pull_up', repScheme),
+        ],
+      ),
+      template(
+        'cindy',
+        'Cindy',
+        'https://www.crossfit.com/benchmark/cindy',
+        [
+          movement('pull_up', [5]),
+          movement('push_up', [10]),
+          movement('air_squat', [15]),
+        ],
+        scoring: BenchmarkScoring.roundsAndReps,
+        structure: WodStructure.amrap,
+        duration: 1200,
+      ),
+      template('grace', 'Grace', 'https://www.crossfit.com/benchmark/grace', [
+        movement(
+          'clean_and_jerk',
+          [30],
+          lb: (95, 135),
+          equipment: 'barbell',
+          technique: 'Power clean and jerk',
+        ),
+      ]),
+      template('annie', 'Annie', 'https://www.crossfit.com/benchmark/annie', [
+        movement('double_unders', annieScheme, equipment: 'jump rope'),
+        movement('sit_up', annieScheme),
+      ]),
+      template(
+        'dt',
+        'DT',
+        'https://www.crossfit.com/heroes/dt-workout',
+        [
+          movement('deadlift', [12], lb: (105, 155), equipment: 'barbell'),
+          movement(
+            'hang_power_clean',
+            [9],
+            lb: (105, 155),
+            equipment: 'barbell',
+          ),
+          movement('push_jerk', [6], lb: (105, 155), equipment: 'barbell'),
+        ],
+        rounds: 5,
+        collection: 'hero',
+      ),
+      template(
+        'helen',
+        'Helen',
+        'https://www.crossfit.com/250625',
+        [
+          movement('run', [400], unit: meters),
+          movement(
+            'american_kettlebell_swing',
+            [21],
+            lb: (35, 53),
+            equipment: 'kettlebell',
+          ),
+          movement('pull_up', [12]),
+        ],
+        rounds: 3,
+        version: '2025-06-25',
+      ),
+      template('karen', 'Karen', 'https://www.crossfit.com/benchmark/karen', [
+        movement(
+          'wall_ball',
+          [150],
+          lb: (14, 20),
+          targetFeet: (9, 10),
+          equipment: 'medicine ball',
+        ),
+      ]),
+      template('diane', 'Diane', 'https://www.crossfit.com/benchmark/diane', [
+        movement('deadlift', repScheme, lb: (155, 225), equipment: 'barbell'),
+        movement('handstand_push_up', repScheme),
+      ]),
+      template(
+        'murph',
+        'Murph',
+        'https://www.crossfit.com/benchmark/murph',
+        [
+          movement('run', [1609.344], unit: meters),
+          movement('pull_up', [100]),
+          movement('push_up', [200]),
+          movement('air_squat', [300]),
+          movement('run', [1609.344], unit: meters),
+        ],
+        collection: 'hero',
+        standards: const [
+          'The middle movements may be partitioned. The runs bracket the middle work.',
+          'Prescribed vest or armor: women 14 lb, men 20 lb if available.',
+        ],
+        confirmations: const [
+          'Confirm the actual vest weight or no vest.',
+          'Confirm the partition scheme or unpartitioned work.',
+        ],
+      ),
+      template(
+        'fight_gone_bad',
+        'Fight Gone Bad',
+        'https://www.crossfit.com/240412',
+        [
+          movement(
+            'wall_ball',
+            [],
+            lb: (14, 20),
+            targetFeet: (9, 10),
+            equipment: 'medicine ball',
+            interval: 1,
+          ),
+          movement(
+            'sumo_deadlift_high_pull',
+            [],
+            lb: (55, 75),
+            equipment: 'barbell',
+            interval: 2,
+          ),
+          movement('box_jump', [], equipment: '20-inch box', interval: 3),
+          movement(
+            'push_press',
+            [],
+            lb: (55, 75),
+            equipment: 'barbell',
+            interval: 4,
+          ),
+          movement('row', [], unit: calories, equipment: 'rower', interval: 5),
+        ],
+        scoring: BenchmarkScoring.totalStationPoints,
+        structure: WodStructure.intervals,
+        rounds: 3,
+        intervalSeconds: 60,
+        intervalCount: 15,
+        version: '2024-04-12',
+        standards: const [
+          'Each station lasts 60 seconds. Rest 60 seconds between rounds.',
+          'Add every rep and every rowing calorie from all rounds.',
+        ],
+      ),
+      template(
+        'tabata_this',
+        'Tabata This!',
+        'https://library.crossfit.com/free/pdf/04_02_erg_scores_hof_workouts.pdf',
+        [
+          movement('air_squat', [], interval: 1),
+          movement('row', [], unit: calories, equipment: 'rower', interval: 2),
+          movement('pull_up', [], interval: 3),
+          movement('sit_up', [], interval: 4),
+          movement('push_up', [], interval: 5),
+        ],
+        scoring: BenchmarkScoring.sumOfStationMinimums,
+        structure: WodStructure.intervals,
+        intervalSeconds: 30,
+        intervalCount: 40,
+        standards: const [
+          'Complete eight intervals at each station: 20 seconds of work and 10 seconds of rest.',
+          'Allow a 60-second transition between stations.',
+          'For each station, take the lowest interval result, then sum the five station minimums.',
+        ],
+      ),
+    ]);
+  }
+
+  /// Copies only the snapshot. A new attempt ID and score are chosen at save.
+  static WodPrescription repeatDraft(WodPrescription previous) =>
+      WodPrescription.fromJson(previous.toJson());
 
   static String _normalize(String value) => value
       .toLowerCase()
