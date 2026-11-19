@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WODLog 기록 UI 목업</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper:#f6f7f2; --white:#fff; --ink:#17251f; --soft:#526258;
+    --night:#172922; --lime:#d8fa72; --line:#dce4db; --mint:#e9f0e8;
+    --error:#a52a32; --radius:22px;
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color:var(--ink); background:#e2e9df;
+  }
+  * {box-sizing:border-box}
+  body {margin:0}
+  button,input,select {font:inherit}
+  button {cursor:pointer; color:inherit}
+  button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible {
+    outline:3px solid #537d46; outline-offset:3px
+  }
+  button[disabled] {opacity:.48; cursor:default}
+  .shell {width:min(100%,460px); min-height:100dvh; margin:auto; background:var(--paper); display:flex; flex-direction:column; box-shadow:0 0 75px #192c2022}
+  .topbar {display:flex; justify-content:space-between; align-items:center; gap:10px; padding:18px 22px 12px}
+  .brand {display:flex; gap:10px; align-items:center; font-weight:800; font-size:20px; letter-spacing:-.6px}
+  .brandmark {display:grid; place-items:center; width:34px; height:34px; background:var(--ink); color:var(--lime); border-radius:11px}
+  .icon {width:20px; height:20px; flex:none}
+  .icon-button {display:grid; place-items:center; min-width:44px; min-height:44px; background:var(--white); border:1px solid var(--line); border-radius:15px}
+  .top-actions,.inline {display:flex; align-items:center; gap:8px}
+  main {flex:1; padding:12px 22px 30px}
+  h1,h2,h3,p {margin:0}
+  h1 {font-size:34px; font-weight:850; line-height:1.1; letter-spacing:-1.5px; overflow-wrap:anywhere}
+  h2 {font-size:19px; letter-spacing:-.45px}
+  h3 {font-size:17px; letter-spacing:-.3px; overflow-wrap:anywhere}
+  .eyebrow,.meta {font-size:12px; color:var(--soft); font-weight:650; line-height:1.45}
+  .intro {display:grid; gap:7px; margin-bottom:18px}
+  .week {display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; margin-bottom:19px}
+  .day {background:transparent; min-height:54px; border:0; border-radius:13px; display:grid; align-content:center; gap:4px; font-weight:720; font-size:16px}
+  .day small {color:var(--soft); font-size:11px}
+  .day[aria-pressed=true] {background:var(--night); color:white}
+  .day[aria-pressed=true] small {color:#d5e2d7}
+  .hero {background:var(--night); color:#fff; border-radius:var(--radius); padding:20px; display:grid; gap:16px; margin-bottom:24px}
+  .hero-top,.heading,.spread {display:flex; align-items:center; justify-content:space-between; gap:12px}
+  .hero .meta {color:#c0d2c5}
+  .hero h2 {color:#f5f8f4; font-size:16px; margin-top:3px}
+  .big {font-size:38px; font-weight:850; line-height:1; letter-spacing:-1.7px; font-variant-numeric:tabular-nums}
+  .big small {font-size:14px; letter-spacing:0; font-weight:650; opacity:.85}
+  .gain {color:var(--lime); font-size:12px; font-weight:750; margin-top:6px}
+  .badge {display:inline-flex; align-items:center; border-radius:999px; padding:4px 9px; font-size:11px; font-weight:760; background:var(--mint); color:var(--ink); white-space:nowrap}
+  .hero .badge {background:#30453b; color:#e3eee5}
+  .primary,.secondary,.text-button,.chip {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:13px; min-height:44px;
+    padding:10px 14px; border:1px solid transparent; font-weight:800; overflow-wrap:anywhere
+  }
+  .primary {background:var(--lime); color:#192615}
+  .secondary {background:var(--white); border-color:var(--line)}
+  .text-button {background:transparent; color:#375943; padding-inline:5px}
+  .wide {width:100%}
+  .heading {margin:18px 0 10px}
+  .stack {display:grid; gap:10px}
+  .tile,.card {background:var(--white); border:1px solid var(--line); border-radius:18px; padding:14px}
+  .tile {width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; text-align:start; min-height:68px}
+  .tile:hover,.secondary:hover,.icon-button:hover {border-color:#729076}
+  .tile p,.card p {margin-top:4px}
+  .tilecopy {flex:1; min-width:0}
+  .tile-icon {display:grid; place-items:center; width:38px; height:38px; flex:none; border-radius:12px; background:var(--mint); color:#355440}
+  .card {display:grid; gap:11px}
+  .sets {width:100%; border-collapse:collapse; text-align:start; font-variant-numeric:tabular-nums}
+  .sets th,.sets td {padding:8px 3px; text-align:start; border-bottom:1px solid var(--line)}
+  .sets th {font-size:11px; color:var(--soft)}
+  .sets td {font-size:14px; font-weight:700}
+  .two {display:grid; grid-template-columns:1fr 1fr; gap:9px}
+  .tools {display:flex; flex-wrap:wrap; gap:6px; margin:10px 0}
+  .chip {background:var(--white); border-color:var(--line); font-size:12px; padding:6px 11px; min-height:44px}
+  .chip[aria-pressed=true] {background:var(--night); border-color:var(--night); color:white}
+  label {display:grid; gap:6px; font-size:13px; font-weight:760}
+  input,select {min-width:0; width:100%; padding:11px 12px; border:1px solid #aebeb0; background:#fff; color:var(--ink); border-radius:11px; min-height:46px}
+  .digits {font-size:23px; font-weight:780; font-variant-numeric:tabular-nums}
+  .editor {display:grid; gap:14px; margin:0}
+  details {padding:10px 0; border-block:1px solid var(--line)}
+  summary {cursor:pointer; font-weight:720; min-height:36px; padding-top:7px}
+  .notice {background:var(--mint); color:#294435; border-radius:12px; padding:10px 12px; font-size:13px; line-height:1.5}
+  .error {color:var(--error); font-weight:750; font-size:13px}
+  .error:empty {display:none}
+  .empty {padding:24px 14px; text-align:center; color:var(--soft)}
+  .nav {position:sticky; bottom:0; z-index:1; background:var(--white); border-top:1px solid var(--line); display:grid; grid-template-columns:repeat(4,1fr); gap:2px; padding:8px 12px max(9px, env(safe-area-inset-bottom))}
+  .nav button {border:0; background:transparent; min-height:51px; display:grid; justify-items:center; align-content:center; gap:4px; border-radius:12px; font-size:11px; font-weight:700; color:var(--soft)}
+  .nav button[aria-current=page] {background:var(--mint); color:var(--ink); font-weight:860}
+  @media(max-width:355px) {main,.topbar {padding-inline:14px} .hero {padding:16px} .big{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar" id="header"></header>
+  <main id="screen" aria-label="WODLog 화면"></main>
+  <nav class="nav" id="nav" aria-label="주 메뉴"></nav>
+</div>
+<script>
+'use strict';
+const icons = {
+  barbell:'<path d="M2 12h20M6 7v10M9 5v14M15 5v14M18 7v10"/>',
+  today:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-13 5h3m3 0h3"/>',
+  history:'<path d="M3 12a9 9 0 1 1 2.5 6M3 12V6m0 6h6m3-5v5l3 2"/>',
+  trend:'<path d="M3 18l6-6 4 3 7-9m-5 0h5v5"/>',
+  library:'<path d="M3 5h5v15H3zm7 0h5v15h-5zm7 1 3-1 4 14-4 1z"/>',
+  next:'<path d="m9 6 6 6-6 6"/>',
+  back:'<path d="m15 6-6 6 6 6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+};
+const icon = name => '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>';
+const esc = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]);
+const templates = [
+  {key:'cindy',name:'Cindy',collection:'Girls',kind:'amrap',cap:'20',plan:'풀업 5회 · 푸시업 10회 · 에어 스쿼트 15회',perRound:30},
+  {key:'fran',name:'Fran',collection:'Girls',kind:'time',cap:'',plan:'스러스터와 풀업을 21·15·9회씩',},
+  {key:'grace',name:'Grace',collection:'Girls',kind:'time',cap:'',plan:'클린 앤 저크 30회'},
+  {key:'helen',name:'Helen',collection:'Girls',kind:'time',cap:'',plan:'400m 달리기 · 케틀벨 스윙 · 풀업, 3라운드'},
+  {key:'chelsea',name:'Chelsea',collection:'Girls',kind:'interval',cap:'30',plan:'매분 풀업 5회 · 푸시업 10회 · 에어 스쿼트 15회'},
+  {key:'murph',name:'Murph',collection:'Hero',kind:'time',cap:'',plan:'1마일 달리기 사이에 풀업 · 푸시업 · 에어 스쿼트'},
+  {key:'dt',name:'DT',collection:'Hero',kind:'time',cap:'',plan:'데드리프트 · 행 파워 클린 · 푸시 저크, 5라운드'},
+  {key:'fgb',name:'Fight Gone Bad',collection:'클래식',kind:'points',cap:'',plan:'5개 스테이션 · 반복과 로잉 칼로리의 합계'},
+  {key:'total',name:'CrossFit Total',collection:'클래식',kind:'load',cap:'',plan:'백 스쿼트 · 숄더 프레스 · 데드리프트의 성공한 1RM'},
+  {key:'open261',name:'Open 26.1',collection:'Open',kind:'time',cap:'12',plan:'월볼 샷과 박스 동작을 교대로 진행'},
+];
+const custom = {key:'custom',name:'',collection:'직접 입력',kind:'other',cap:'',plan:''};
+const labels = {amrap:'AMRAP',time:'For Time',interval:'EMOM',points:'스테이션 점수',load:'최고 중량 합계',other:'자유 기록'};
+const lifts = [['squat','Back Squat'],['press','Shoulder Press'],['deadlift','Deadlift']];
+const variants = ['미확인','Rx','Scaled','Foundations','사용자 변형'];
+const sessions = [
+  {id:1,day:19,title:'오후 클래스',sets:[[60,5],[65,5],[65,5]],wods:[{key:'cindy',kind:'amrap',name:'Cindy',variant:'Rx',cap:'20',plan:templates[0].plan,rounds:16,reps:8}]},
+  {id:2,day:17,title:'오전 클래스',sets:[[55,5],[60,5]],wods:[{key:'cindy',kind:'amrap',name:'Cindy',variant:'Rx',cap:'20',plan:templates[0].plan,rounds:15,reps:11}]},
+];
+const screen = document.getElementById('screen');
+const header = document.getElementById('header');
+const nav = document.getElementById('nav');
+let returnFromSettings='today';
+let view='today', day=19, session=sessions[0], nextId=3, destination='library';
+let category='전체', query='', editor=null, editingIndex=null, message='', unit='kg';
+
+const primary = (action,label) => '<button type="button" class="primary wide" data-action="'+action+'">'+icon('plus')+label+'</button>';
+const tile = (action,label,caption,ic='barbell') =>
+  '<button type="button" class="tile" data-action="'+action+'"><span class="tile-icon">'+icon(ic)+'</span><span class="tilecopy"><strong>'+esc(label)+'</strong><br><span class="meta">'+esc(caption)+'</span></span>'+icon('next')+'</button>';
+const dateLabel = d => '11월 '+d+'일';
+const summary = wod => {
+  if (wod.kind==='amrap') return wod.rounds+'라운드 + '+wod.reps+'회';
+  if (wod.kind==='interval') return wod.completed+'개 인터벌';
+  if (wod.kind==='time') return wod.status==='finished' ? wod.time : (wod.status==='capped' ? '타임캡 · '+wod.reps+'회' : '중단');
+  if (wod.kind==='points') return wod.points+'점';
+  if (wod.kind==='load') return formatLoad(wod.loadsKg.reduce((sum,n)=>sum+n,0))+' '+unit;
+  return wod.note;
+};
+function go(next) {
+  view=next; message=''; window.scrollTo(0,0); render();
+}
+function render() {
+  const menu=[['today','오늘','today'],['history','기록','history'],['progress','성장','trend'],['library','라이브러리','library']];
+  const nested=['session','editor','settings'].includes(view) || (view==='library' && destination==='session');
+  header.innerHTML=(nested?'<button class="icon-button" aria-label="뒤로" data-action="back">'+icon('back')+'</button>':'<div class="brand"><span class="brandmark">'+icon('barbell')+'</span>WODLog</div>')+
+    '<div class="top-actions"><button class="icon-button" aria-label="중량 단위 설정" data-action="settings">'+unit+'</button></div>';
+  nav.innerHTML=menu.map(([key,label,glyph])=>'<button type="button" data-action="tab:'+key+'" '+(view===key?'aria-current="page"':'')+'>'+icon(glyph)+label+'</button>').join('');
+  const pages={today:todayPage,history:historyPage,session:sessionPage,library:libraryPage,editor:editorPage,progress:progressPage,settings:settingsPage};
+  screen.innerHTML=pages[view]();
+}
+const intro = (lead,title) => '<div class="intro"><div class="eyebrow">'+esc(lead)+'</div><h1>'+esc(title)+'</h1></div>';
+function todayPage() {
+  const items=sessions.filter(item=>item.day===day);
+  const wod=items.flatMap(item=>item.wods).at(-1);
+  return intro('11월 '+day+'일 '+['월','화','수','목','금','토','일'][day-16]+'요일',day===19?'오늘의 운동':'일별 운동')+
+    '<div class="week" aria-label="운동 날짜">'+[16,17,18,19,20,21,22].map((d,i)=>'<button class="day" type="button" data-action="day:'+d+'" aria-pressed="'+(day===d)+'" aria-label="'+dateLabel(d)+'"><small>'+['월','화','수','목','금','토','일'][i]+'</small>'+d+'</button>').join('')+'</div>'+
+    '<section class="hero"><div class="hero-top"><div><span class="meta">최근 WOD 결과</span><h2>'+esc(wod?.name||'이 날짜의 WOD 기록 없음')+'</h2></div>'+(wod?'<span class="badge">'+esc(wod.variant)+'</span>':'')+'</div>'+
+    (wod?.kind==='amrap'?'<div class="big">'+wod.rounds+'<small> 라운드</small> + '+wod.reps+'<small> 회</small></div>':wod?'<div class="big">'+esc(summary(wod))+'</div>':'')+
+    primary('new-session','운동 기록')+'</section>'+
+    '<div class="heading"><h2>세션</h2><span class="meta">'+items.length+'개</span></div><div class="stack">'+
+    (items.length?items.map(item=>tile('session:'+item.id,item.title,'근력 '+item.sets.length+'세트 · WOD '+item.wods.length+'개')).join(''):'<p class="empty">이 날짜에 저장된 세션이 없어요.</p>')+'</div>';
+}
+function historyPage() {
+  return intro('11월','운동 기록')+'<div class="stack">'+sessions.slice().sort((a,b)=>b.day-a.day||b.id-a.id).map(item=>
+    tile('session:'+item.id,dateLabel(item.day)+' · '+item.title,item.wods.length?item.wods.map(wod=>wod.name+' '+summary(wod)).join(' · '):'근력 '+item.sets.length+'세트','history')).join('')+'</div>';
+}
+function sessionPage() {
+  return intro(dateLabel(session.day),session.title)+
+    (message?'<p class="notice" role="status">'+esc(message)+'</p>':'')+
+    '<div class="heading"><h2>근력</h2></div><section class="card"><h3>Back Squat</h3>'+
+    (session.sets.length?'<table class="sets"><thead><tr><th scope="col">세트</th><th scope="col">중량 ('+unit+')</th><th scope="col">반복</th></tr></thead><tbody>'+session.sets.map(([kg,reps],i)=>'<tr><td>'+ (i+1)+'</td><td>'+formatLoad(kg)+'</td><td>'+reps+'</td></tr>').join('')+'</tbody></table>':'')+
+    '<form id="set-form" class="stack"><div class="two"><label>중량 ('+unit+')<input name="load" type="number" min="0" step="any" inputmode="decimal" required placeholder="0"></label><label>반복<input name="reps" type="number" min="1" max="999" inputmode="numeric" required placeholder="5"></label></div>'+
+    '<div class="two"><button class="secondary" type="button" data-action="copy-set" '+(session.sets.length?'':'disabled')+'>직전 값 복사</button><button class="primary" type="submit">세트 저장</button></div></form></section>'+
+    '<div class="heading"><h2>WOD</h2><button class="text-button" data-action="pick">'+icon('plus')+'WOD 추가</button></div><div class="stack">'+
+    (session.wods.length?session.wods.map((wod,i)=>tile('edit:'+i,wod.name,summary(wod)+' · '+wod.variant,'clock')).join(''):'<p class="notice">최근 WOD, 공식 템플릿 또는 직접 입력으로 기록하세요.</p>')+'</div>';
+}
+function libraryPage() {
+  const recentKeys=new Set(sessions.flatMap(item=>item.wods.map(wod=>wod.key)));
+  const rows=templates.filter(t=>(category==='전체'||t.collection===category||(category==='최근'&&recentKeys.has(t.key)))&&
+    (t.name+' '+t.plan+' '+labels[t.kind]).toLowerCase().includes(query.trim().toLowerCase()));
+  return intro(destination==='session'?'세션에 추가':'벤치마크','WOD 라이브러리')+
+    '<label>WOD 검색<input id="library-search" type="search" placeholder="Cindy, 풀업, AMRAP" value="'+esc(query)+'"></label>'+
+    '<div class="tools" aria-label="컬렉션">'+['전체','최근','Girls','Hero','클래식','Open'].map(c=>'<button type="button" class="chip" data-action="filter:'+c+'" aria-pressed="'+(c===category)+'">'+c+'</button>').join('')+'</div>'+
+    '<div class="stack">'+rows.map(t=>tile('template:'+t.key,t.name,t.collection+' · '+labels[t.kind]+' · '+t.plan,'clock')).join('')+
+    (rows.length?'':'<p class="empty">해당하는 WOD가 없어요.</p>')+
+    '<button class="secondary wide" type="button" data-action="template:custom">'+icon('plus')+'직접 입력</button></div>';
+}
+function editorPage() {
+  const data=editor;
+  let inputs='';
+  if (data.kind==='amrap') {
+    const max=data.key==='cindy'&&data.plan===templates[0].plan?' max="29"':'';
+    inputs='<div class="two"><label>완료 라운드<input class="digits" name="rounds" type="number" inputmode="numeric" min="0" required value="'+(data.rounds??'')+'"></label>'+
+      '<label>추가 반복<input class="digits" name="reps" type="number" inputmode="numeric" min="0"'+max+' required value="'+(data.reps??'')+'"></label></div>';
+  } else if (data.kind==='time') {
+    inputs='<label>종료 상태<select name="status">'+[['finished','완주'],['capped','타임캡'],['stopped','중단']].map(([key,name])=>'<option value="'+key+'" '+(data.status===key?'selected':'')+'>'+name+'</option>').join('')+'</select></label>'+
+      (data.status==='capped'?'<label>캡까지 완료한 반복<input name="reps" type="number" class="digits" inputmode="numeric" min="0" required value="'+(data.reps??'')+'"></label>'+
+        (data.key==='open261'?'<label>타이브레이크 (선택)<input name="tie" placeholder="MM:SS" pattern="[0-9]{1,3}:[0-5][0-9]" value="'+esc(data.tie||'')+'"></label>':''):
+        data.status==='stopped'?'':'<label>완주 시간<input class="digits" name="time" placeholder="MM:SS" pattern="[0-9]{1,3}:[0-5][0-9]" required value="'+esc(data.time||'')+'"></label>');
+  } else if (data.kind==='interval') {
+    inputs='<label>완료 인터벌<input class="digits" name="completed" type="number" min="0" '+(data.cap?'max="'+esc(data.cap)+'"':'')+' required value="'+(data.completed??'')+'"></label>';
+  } else if (data.kind==='points') {
+    inputs='<label>스테이션 점수 합계<input name="points" class="digits" type="number" min="0" inputmode="numeric" required value="'+(data.points??'')+'"></label>';
+  } else if (data.kind==='load') {
+    inputs=lifts.map(([key,label],index)=>'<label>'+label+' ('+unit+')<input name="'+key+'" type="number" step="any" min="0.001" inputmode="decimal" required value="'+(data.loadsKg?toDisplayLoad(data.loadsKg[index]):'')+'"></label>').join('');
+  } else {
+    inputs='<label>결과<input name="note" placeholder="운동 결과나 메모" required value="'+esc(data.note||'')+'"></label>';
+  }
+  return intro(labels[data.kind]+(data.cap?' · '+data.cap+'분':''),data.name||'WOD 직접 입력')+'<form id="wod-form" class="editor">'+
+    (data.key==='custom'?'<label>WOD 이름<input name="name" required value="'+esc(data.name)+'"></label><label>점수 종류<select name="kind">'+Object.entries(labels).map(([key,label])=>'<option value="'+key+'" '+(key===data.kind?'selected':'')+'>'+label+'</option>').join('')+'</select></label>':'')+
+    '<label>수행 버전<select name="variant">'+variants.map(v=>'<option '+(v===data.variant?'selected':'')+'>'+v+'</option>').join('')+'</select></label>'+
+    '<section class="card"><h2>결과</h2>'+inputs+'</section>'+
+    '<details '+(data.details?'open':'')+'><summary>운동 구성 및 제한시간</summary><div class="stack"><label>수행한 동작·중량·변형<input name="plan" value="'+esc(data.plan)+'"></label><label>제한시간 (분)<input name="cap" type="number" min="1" max="999" value="'+esc(data.cap)+'"></label></div></details>'+
+    '<p class="error" role="alert"></p><button class="primary wide" type="submit">결과 저장</button></form>';
+}
+function startEditor(template,index=null) {
+  editingIndex=index;
+  editor=index===null?{...template,variant:'미확인',status:'finished'}:{...session.wods[index]};
+  go('editor');
+}
+function progressPage() {
+  const records=sessions.slice().sort((a,b)=>b.day-a.day||b.id-a.id).flatMap(s=>s.wods.slice().reverse().map(w=>({w,day:s.day})));
+  const current=records[0];
+  const previous=current&&records.slice(1).find(({w})=>w.key===current.w.key&&w.key!=='custom'&&
+    w.kind===current.w.kind&&w.plan===current.w.plan&&w.cap===current.w.cap&&w.variant===current.w.variant&&
+    w.variant==='Rx'&&w.kind==='amrap'&&w.key==='cindy');
+  const older=current&&records.slice(1).find(({w})=>w.key===current.w.key);
+  const reason=current?.w.variant==='미확인'?'수행 버전이 확인되면 이전 기록과 비교할 수 있어요.':
+    older&&older.w.variant!==current.w.variant?'이전 기록과 수행 버전이 달라요.':
+    older&&(older.w.cap!==current.w.cap||older.w.plan!==current.w.plan)?'이전 기록과 운동 구성 또는 제한시간이 달라요.':
+    '비교할 수 있는 동일 조건의 기록이 없어요.';
+  const delta=previous?(current.w.rounds-previous.w.rounds)*30+current.w.reps-previous.w.reps:null;
+  const strength=sessions.flatMap(s=>s.sets);
+  const best=strength.length?Math.max(...strength.map(([kg])=>kg)):null;
+  return intro('운동 성과','성장')+
+    (current?'<section class="hero"><div class="hero-top"><div><span class="meta">최근 WOD</span><h2>'+esc(current.w.name)+'</h2></div><span class="badge">'+esc(current.w.variant)+'</span></div><div class="big">'+esc(summary(current.w))+'</div>'+
+      (delta===null?'<p class="meta">'+esc(reason)+'</p>':'<p class="gain">직전 동일 조건 대비 '+(delta>0?'+':'')+delta+'회</p>')+'</section>':'')+
+    (previous?'<div class="heading"><h2>같은 조건으로 비교</h2></div><div class="stack">'+[current,previous].map(({w,day})=>'<div class="card"><div class="spread"><strong>'+dateLabel(day)+'</strong><span class="badge">'+esc(w.variant)+'</span></div><span>'+esc(summary(w))+'</span><p class="meta">'+esc(w.cap)+'분 · '+esc(w.plan)+'</p></div>').join('')+'</div>':'')+
+    '<div class="heading"><h2>동작 기록</h2></div><div class="card"><div class="spread"><h3>Back Squat</h3><strong>'+(best===null?'—':formatLoad(best)+' '+unit)+'</strong></div><p class="meta">기록한 세트 중 최고 중량</p></div>';
+}
+const toDisplayLoad = kg => Number((unit==='kg'?kg:kg/0.45359237).toFixed(4));
+const toKg = value => unit==='kg'?value:value*0.45359237;
+const formatLoad = kg => new Intl.NumberFormat('ko-KR',{maximumFractionDigits:2}).format(toDisplayLoad(kg));
+function settingsPage() {
+  return intro('기록 환경','설정')+'<div class="card"><h2>중량 단위</h2><div class="two">'+['kg','lb'].map(u=>'<button type="button" class="chip" data-action="unit:'+u+'" aria-pressed="'+(unit===u)+'">'+u+'</button>').join('')+'</div></div>';
+}
+function newSession(title='새 세션') {
+  session={id:nextId++,day,title,sets:[],wods:[]};
+}
+function retainEditor(form) {
+  const data=new FormData(form);
+  for (const [key,value] of data) {
+    editor[key]=['rounds','reps','completed','points'].includes(key)?(value===''?null:Number(value)):String(value);
+  }
+  editor.details=form.querySelector('details').open;
+}
+document.addEventListener('click',event=>{
+  const button=event.target.closest('[data-action]');
+  if (!button) return;
+  const [action,value]=button.dataset.action.split(':');
+  switch(action) {
+    case 'tab': destination='library'; category='전체'; query=''; go(value); break;
+    case 'day': day=Number(value); render(); break;
+    case 'session': session=sessions.find(item=>item.id===Number(value)); go('session'); break;
+    case 'new-session': newSession(); go('session'); break;
+    case 'pick': destination='session'; category='최근'; query=''; go('library'); break;
+    case 'filter': category=value; render(); break;
+    case 'template':
+      if (destination!=='session') newSession('WOD 세션');
+      startEditor(templates.find(t=>t.key===value)||custom); break;
+    case 'edit': startEditor(null,Number(value)); break;
+    case 'copy-set': {
+      const [kg,reps]=session.sets.at(-1);
+      const form=document.getElementById('set-form');
+      form.elements.load.value=unit==='kg'?kg:(kg/0.45359237).toFixed(5);
+      form.elements.reps.value=reps; form.elements.load.focus(); break;
+    }
+    case 'settings': returnFromSettings=view; go('settings'); break;
+    case 'unit': unit=value; render(); break;
+    case 'back': if(view==='editor') go(destination==='session'||editingIndex!==null?'session':'library');
+      else if(view==='library'&&destination==='session') go('session');
+      else if(view==='settings') go(returnFromSettings);
+      else go('today'); break;
+  }
+});
+document.addEventListener('input',event=>{
+  if(event.target.id!=='library-search') return;
+  query=event.target.value;
+  const position=event.target.selectionStart;
+  render();
+  const field=document.getElementById('library-search');
+  field.focus();
+  if(position!==null) field.setSelectionRange(position,position);
+});
+document.addEventListener('change',event=>{
+  if(event.target.form?.id!=='wod-form'||!['kind','status'].includes(event.target.name)) return;
+  retainEditor(event.target.form);
+  render();
+});
+document.addEventListener('submit',event=>{
+  event.preventDefault();
+  if(event.target.id==='set-form') {
+    const data=new FormData(event.target);
+    const weight=Number(data.get('load'));
+    session.sets.push([toKg(weight),Number(data.get('reps'))]);
+    if(!sessions.includes(session)) sessions.push(session);
+    message='세트를 저장했어요.';
+    render();
+  }
+  if(event.target.id==='wod-form') {
+    retainEditor(event.target);
+    if(editor.kind==='time'&&editor.status==='capped'&&!editor.cap) {
+      event.target.querySelector('.error').textContent='타임캡에 도달한 경우 제한시간을 입력하세요.';
+      return;
+    }
+    if(editor.kind==='interval'&&editor.cap&&editor.completed>Number(editor.cap)) {
+      event.target.querySelector('.error').textContent='완료 인터벌 수가 예정된 인터벌 수를 넘어요.';
+      return;
+    }
+    if(editor.kind==='time'&&editor.status==='finished'&&editor.cap) {
+      const [minutes,seconds]=editor.time.split(':').map(Number);
+      if(minutes*60+seconds>Number(editor.cap)*60) {
+        event.target.querySelector('.error').textContent='완주 시간이 타임캡을 넘어요. 시간을 수정하거나 타임캡을 선택하세요.';
+        return;
+      }
+    }
+    if(editor.kind==='load') {
+      editor.loadsKg=lifts.map(([key],index)=>{
+        const value=Number(editor[key]);
+        const previous=editor.loadsKg?.[index];
+        delete editor[key];
+        return previous!==undefined&&value===toDisplayLoad(previous)?previous:toKg(value);
+      });
+    }
+    if(editingIndex===null) session.wods.push({...editor}); else session.wods[editingIndex]={...editor};
+    if(!sessions.includes(session)) sessions.push(session);
+    go('session');
+    message='WOD 결과를 저장했어요.';
+    render();
+  }
+});
+render();
+</script>
+</body>
+</html>

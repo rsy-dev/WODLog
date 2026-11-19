@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "sourceCheckedOn": "2026-11-19",
+  "description": "Research fixtures. Movement keys must be mapped to app catalog IDs before adoption. Source loads retain their published units. Confirm the actual prescription before comparison.",
+  "templates": [
+    {
+      "key": "benchmark:cindy", "version": "rx", "score": "rounds_reps",
+      "source": "https://www.crossfit.com/benchmark/cindy", "limitSeconds": 1200,
+      "cycle": [{"movement":"pull-up","reps":5},{"movement":"push-up","reps":10},{"movement":"air-squat","reps":15}]
+    },
+    {
+      "key": "benchmark:fran", "version": "rx", "score": "for_time",
+      "source": "https://www.crossfit.com/benchmark/fran", "repsPerPass": [21,15,9],
+      "cycle": [{"movement":"thruster","loadLb":{"women":65,"men":95}},{"movement":"pull-up"}]
+    },
+    {
+      "key": "benchmark:grace", "version": "rx", "score": "for_time",
+      "source": "https://www.crossfit.com/benchmark/grace",
+      "steps": [{"movement":"clean-and-jerk","reps":30,"loadLb":{"women":95,"men":135}}]
+    },
+    {
+      "key": "benchmark:helen", "version": "rx", "score": "for_time",
+      "source": "https://www.crossfit.com/benchmark/helen", "rounds": 3,
+      "cycle": [{"movement":"run","distance":{"value":400,"unit":"m"}},{"movement":"kettlebell-swing","reps":21,"loadLb":{"women":35,"men":53}},{"movement":"pull-up","reps":12}]
+    },
+    {
+      "key": "benchmark:chelsea", "version": "original", "score": "completed_intervals",
+      "source": "https://trainerdirectory.crossfit.com/cf/faq",
+      "intervalSeconds": 60, "intervalCount": 30,
+      "cycle": [{"movement":"pull-up","reps":5},{"movement":"push-up","reps":10},{"movement":"air-squat","reps":15}]
+    },
+    {
+      "key": "benchmark:barbara", "version": "original", "score": "interval_times",
+      "source": "https://trainerdirectory.crossfit.com/cf/faq", "rounds": 5, "restBetweenRoundsSeconds": 180,
+      "cycle": [{"movement":"pull-up","reps":20},{"movement":"push-up","reps":30},{"movement":"sit-up","reps":40},{"movement":"air-squat","reps":50}]
+    },
+    {
+      "key": "hero:murph", "version": "published-base", "score": "for_time",
+      "source": "https://www.crossfit.com/benchmark/murph", "confirm": ["vest_load","partition_strategy"],
+      "steps": [{"movement":"run","distance":{"value":1,"unit":"mi"}},{"group":"partitionable","steps":[{"movement":"pull-up","reps":100},{"movement":"push-up","reps":200},{"movement":"air-squat","reps":300}]},{"movement":"run","distance":{"value":1,"unit":"mi"}}]
+    },
+    {
+      "key": "hero:dt", "version": "rx", "score": "for_time",
+      "source": "https://www.crossfit.com/benchmark/dt", "rounds": 5, "sharedLoadLb":{"women":105,"men":155},
+      "cycle": [{"movement":"deadlift","reps":12},{"movement":"hang-power-clean","reps":9},{"movement":"push-jerk","reps":6}]
+    },
+    {
+      "key": "benchmark:fight-gone-bad", "version": "faq-three-rounds", "score": "station_points",
+      "source": "https://trainerdirectory.crossfit.com/cf/faq", "rounds": 3, "stationSeconds": 60, "restBetweenRoundsSeconds": 60,
+      "stations": [{"movement":"wall-ball-shot","scoreUnit":"rep","loadLb":20,"targetFt":10},{"movement":"sumo-deadlift-high-pull","scoreUnit":"rep","loadLb":75},{"movement":"box-jump","scoreUnit":"rep","heightIn":20},{"movement":"push-press","scoreUnit":"rep","loadLb":75},{"movement":"row","scoreUnit":"cal"}],
+      "pointsPerStationUnit": 1
+    },
+    {
+      "key": "benchmark:crossfit-total", "version": "community-cup-2026-level-1", "score": "multi_lift_total",
+      "source": "https://games.crossfit.com/workouts/level-1/2026/2?division=1",
+      "lifts": ["back-squat","shoulder-press","deadlift"], "repsPerAttempt": 1, "maxAttemptsPerLift": 3,
+      "aggregation":"sum_best_success_per_lift","publishedScoreUnit":"lb","tiebreak":"elapsed_after_all_lifts"
+    },
+    {
+      "key": "benchmark:open-26-1", "version": "individual-rx", "score": "time_or_reps_at_cap",
+      "source": "https://games.crossfit.com/workouts/open/2026/1", "limitSeconds": 720,
+      "equipment": {"medicineBallLb":{"women":14,"men":20},"targetFt":{"women":9,"men":10},"boxHeightIn":{"women":20,"men":24}},
+      "steps": [{"movement":"wall-ball-shot","reps":20},{"movement":"box-jump-over","reps":18},{"movement":"wall-ball-shot","reps":30},{"movement":"box-jump-over","reps":18},{"movement":"wall-ball-shot","reps":40},{"movement":"medicine-ball-box-step-over","reps":18},{"movement":"wall-ball-shot","reps":66},{"movement":"medicine-ball-box-step-over","reps":18},{"movement":"wall-ball-shot","reps":40},{"movement":"box-jump-over","reps":18},{"movement":"wall-ball-shot","reps":30},{"movement":"box-jump-over","reps":18},{"movement":"wall-ball-shot","reps":20}],
+      "tiebreakWhenCapped":"elapsed_at_last_completed_box_set"
+    }
+  ]
+}
