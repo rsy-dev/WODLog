@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wodlog/core/database/app_database.dart';
 import 'package:wodlog/features/workout/data/wod_repository.dart';
+import 'package:wodlog/features/workout/data/wod_prescription.dart';
 
 void main() {
   late AppDatabase database;
@@ -25,6 +26,146 @@ void main() {
   tearDown(() async {
     await database.close();
   });
+
+  const prescription = WodPrescription(
+    title: '21-15-9',
+    structure: WodStructure.forTime,
+    scoreKind: WodScoreKind.time,
+    sourceCollection: 'benchmark',
+    sourceVersion: '1',
+    version: WodVersion.scaled,
+    timeCapSeconds: 600,
+    rawText: '21-15-9 Thruster',
+    unparsedLines: ['Choose a target'],
+    movements: [
+      WodMovementPrescription(
+        name: 'Thruster',
+        quantities: [21, 15, 9],
+        weightKg: 30,
+      ),
+    ],
+  );
+  const score = WodAttemptScore(
+    outcome: WodOutcome.capped,
+    reps: 42,
+    tieBreakMs: 530000,
+  );
+
+  Future<String> save({WodAttemptScore result = score}) =>
+      repository.saveConfirmed(
+        attemptId: 'attempt',
+        sessionId: 'session-1',
+        sortOrder: 0,
+        prescription: prescription,
+        score: result,
+      );
+
+  test(
+    'confirmed snapshots survive concurrent retries with original scores',
+    () async {
+      expect(await Future.wait([save(), save()]), ['attempt', 'attempt']);
+      final records = await repository.searchRecords('thruster');
+      final record = records.single;
+      expect(record.prescription.toJson(), prescription.toJson());
+      expect(record.outcome, WodOutcome.capped);
+      expect(record.result?.durationMs, isNull);
+      expect(record.result?.extraReps, 42);
+      expect(record.result?.tieBreakMs, 530000);
+      await expectLater(
+        save(
+          result: const WodAttemptScore(
+            outcome: WodOutcome.completed,
+            elapsedMs: 400000,
+          ),
+        ),
+        throwsStateError,
+      );
+      expect(await database.select(database.wodResults).get(), hasLength(1));
+    },
+  );
+
+  test('failed score insert rolls back the block and snapshot', () async {
+    await database.customStatement("""
+      CREATE TRIGGER reject_result BEFORE INSERT ON wod_results
+      BEGIN SELECT RAISE(ABORT, 'forced failure'); END
+    """);
+    await expectLater(save(), throwsException);
+    expect(await repository.getRecord('attempt'), isNull);
+    expect(
+      await database.select(database.wodPrescriptionSnapshots).get(),
+      isEmpty,
+    );
+    await database.customStatement('DROP TRIGGER reject_result');
+    expect(await save(), 'attempt');
+  });
+
+  test('score validation distinguishes complete, capped, and stopped', () {
+    expect(
+      () => const WodAttemptScore(
+        outcome: WodOutcome.capped,
+        elapsedMs: 600000,
+        reps: 42,
+      ).validate(WodScoreKind.time),
+      throwsArgumentError,
+    );
+    expect(
+      () =>
+          const WodAttemptScore(outcome: WodOutcome.stopped)
+              .validate(WodScoreKind.time),
+      returnsNormally,
+    );
+    expect(
+      () => const WodAttemptScore(
+        outcome: WodOutcome.completed,
+        rounds: 4,
+        reps: 9,
+      ).validate(WodScoreKind.roundsAndReps),
+      returnsNormally,
+    );
+  });
+
+  test(
+    'v1 migration retains searchable text and unconfirmed conditions',
+    () async {
+      await database.close();
+      database = AppDatabase(
+        NativeDatabase.memory(
+          setup: (db) {
+            db.execute("""
+        CREATE TABLE workout_blocks (
+          id TEXT PRIMARY KEY NOT NULL, session_id TEXT NOT NULL,
+          type TEXT NOT NULL, title TEXT, sort_order INTEGER NOT NULL DEFAULT 0, notes TEXT
+        );
+        CREATE TABLE wod_results (
+          id TEXT PRIMARY KEY NOT NULL, block_id TEXT NOT NULL UNIQUE,
+          result_type TEXT NOT NULL, duration_ms INTEGER, rounds REAL,
+          extra_reps INTEGER, score_value REAL, result_text TEXT, notes TEXT,
+          created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL
+        );
+        INSERT INTO workout_blocks VALUES
+          ('old', 'session-1', 'wod', 'Legacy', 0, 'Unedited origin');
+        INSERT INTO wod_results
+          (id, block_id, result_type, result_text, created_at, updated_at)
+          VALUES ('result', 'old', 'for_time', '12:51', 1, 1);
+        PRAGMA user_version = 1;
+      """);
+          },
+        ),
+      );
+      final repo = WodRepository(database);
+      final record = (await repo.searchRecords('unedited origin')).single;
+      expect(record.prescription.rawText, 'Unedited origin');
+      expect(record.prescription.unparsedLines, ['Unedited origin']);
+      expect(record.prescription.version, WodVersion.unknown);
+      expect(record.prescription.structure, WodStructure.unknown);
+      expect(record.outcome, WodOutcome.unknown);
+      expect(record.result?.resultText, '12:51');
+      expect(
+        await database.select(database.wodPrescriptionSnapshots).get(),
+        hasLength(1),
+      );
+    },
+  );
 
   test('saves and updates a WOD result without duplicating it', () async {
     await repository.createWodBlock(

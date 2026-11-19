@@ -2456,6 +2456,28 @@ class $WodResultsTable extends WodResults
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _outcomeMeta = const VerificationMeta(
+    'outcome',
+  );
+  @override
+  late final GeneratedColumn<String> outcome = GeneratedColumn<String>(
+    'outcome',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tieBreakMsMeta = const VerificationMeta(
+    'tieBreakMs',
+  );
+  @override
+  late final GeneratedColumn<int> tieBreakMs = GeneratedColumn<int>(
+    'tie_break_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _resultTextMeta = const VerificationMeta(
     'resultText',
   );
@@ -2507,6 +2529,8 @@ class $WodResultsTable extends WodResults
     rounds,
     extraReps,
     scoreValue,
+    outcome,
+    tieBreakMs,
     resultText,
     notes,
     createdAt,
@@ -2567,6 +2591,21 @@ class $WodResultsTable extends WodResults
       context.handle(
         _scoreValueMeta,
         scoreValue.isAcceptableOrUnknown(data['score_value']!, _scoreValueMeta),
+      );
+    }
+    if (data.containsKey('outcome')) {
+      context.handle(
+        _outcomeMeta,
+        outcome.isAcceptableOrUnknown(data['outcome']!, _outcomeMeta),
+      );
+    }
+    if (data.containsKey('tie_break_ms')) {
+      context.handle(
+        _tieBreakMsMeta,
+        tieBreakMs.isAcceptableOrUnknown(
+          data['tie_break_ms']!,
+          _tieBreakMsMeta,
+        ),
       );
     }
     if (data.containsKey('result_text')) {
@@ -2634,6 +2673,14 @@ class $WodResultsTable extends WodResults
         DriftSqlType.double,
         data['${effectivePrefix}score_value'],
       ),
+      outcome: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}outcome'],
+      ),
+      tieBreakMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tie_break_ms'],
+      ),
       resultText: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}result_text'],
@@ -2667,6 +2714,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
   final double? rounds;
   final int? extraReps;
   final double? scoreValue;
+  final String? outcome;
+  final int? tieBreakMs;
   final String? resultText;
   final String? notes;
   final int createdAt;
@@ -2679,6 +2728,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
     this.rounds,
     this.extraReps,
     this.scoreValue,
+    this.outcome,
+    this.tieBreakMs,
     this.resultText,
     this.notes,
     required this.createdAt,
@@ -2701,6 +2752,12 @@ class WodResult extends DataClass implements Insertable<WodResult> {
     }
     if (!nullToAbsent || scoreValue != null) {
       map['score_value'] = Variable<double>(scoreValue);
+    }
+    if (!nullToAbsent || outcome != null) {
+      map['outcome'] = Variable<String>(outcome);
+    }
+    if (!nullToAbsent || tieBreakMs != null) {
+      map['tie_break_ms'] = Variable<int>(tieBreakMs);
     }
     if (!nullToAbsent || resultText != null) {
       map['result_text'] = Variable<String>(resultText);
@@ -2730,6 +2787,12 @@ class WodResult extends DataClass implements Insertable<WodResult> {
       scoreValue: scoreValue == null && nullToAbsent
           ? const Value.absent()
           : Value(scoreValue),
+      outcome: outcome == null && nullToAbsent
+          ? const Value.absent()
+          : Value(outcome),
+      tieBreakMs: tieBreakMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tieBreakMs),
       resultText: resultText == null && nullToAbsent
           ? const Value.absent()
           : Value(resultText),
@@ -2754,6 +2817,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
       rounds: serializer.fromJson<double?>(json['rounds']),
       extraReps: serializer.fromJson<int?>(json['extraReps']),
       scoreValue: serializer.fromJson<double?>(json['scoreValue']),
+      outcome: serializer.fromJson<String?>(json['outcome']),
+      tieBreakMs: serializer.fromJson<int?>(json['tieBreakMs']),
       resultText: serializer.fromJson<String?>(json['resultText']),
       notes: serializer.fromJson<String?>(json['notes']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
@@ -2771,6 +2836,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
       'rounds': serializer.toJson<double?>(rounds),
       'extraReps': serializer.toJson<int?>(extraReps),
       'scoreValue': serializer.toJson<double?>(scoreValue),
+      'outcome': serializer.toJson<String?>(outcome),
+      'tieBreakMs': serializer.toJson<int?>(tieBreakMs),
       'resultText': serializer.toJson<String?>(resultText),
       'notes': serializer.toJson<String?>(notes),
       'createdAt': serializer.toJson<int>(createdAt),
@@ -2786,6 +2853,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
     Value<double?> rounds = const Value.absent(),
     Value<int?> extraReps = const Value.absent(),
     Value<double?> scoreValue = const Value.absent(),
+    Value<String?> outcome = const Value.absent(),
+    Value<int?> tieBreakMs = const Value.absent(),
     Value<String?> resultText = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     int? createdAt,
@@ -2798,6 +2867,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
     rounds: rounds.present ? rounds.value : this.rounds,
     extraReps: extraReps.present ? extraReps.value : this.extraReps,
     scoreValue: scoreValue.present ? scoreValue.value : this.scoreValue,
+    outcome: outcome.present ? outcome.value : this.outcome,
+    tieBreakMs: tieBreakMs.present ? tieBreakMs.value : this.tieBreakMs,
     resultText: resultText.present ? resultText.value : this.resultText,
     notes: notes.present ? notes.value : this.notes,
     createdAt: createdAt ?? this.createdAt,
@@ -2818,6 +2889,10 @@ class WodResult extends DataClass implements Insertable<WodResult> {
       scoreValue: data.scoreValue.present
           ? data.scoreValue.value
           : this.scoreValue,
+      outcome: data.outcome.present ? data.outcome.value : this.outcome,
+      tieBreakMs: data.tieBreakMs.present
+          ? data.tieBreakMs.value
+          : this.tieBreakMs,
       resultText: data.resultText.present
           ? data.resultText.value
           : this.resultText,
@@ -2837,6 +2912,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
           ..write('rounds: $rounds, ')
           ..write('extraReps: $extraReps, ')
           ..write('scoreValue: $scoreValue, ')
+          ..write('outcome: $outcome, ')
+          ..write('tieBreakMs: $tieBreakMs, ')
           ..write('resultText: $resultText, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
@@ -2854,6 +2931,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
     rounds,
     extraReps,
     scoreValue,
+    outcome,
+    tieBreakMs,
     resultText,
     notes,
     createdAt,
@@ -2870,6 +2949,8 @@ class WodResult extends DataClass implements Insertable<WodResult> {
           other.rounds == this.rounds &&
           other.extraReps == this.extraReps &&
           other.scoreValue == this.scoreValue &&
+          other.outcome == this.outcome &&
+          other.tieBreakMs == this.tieBreakMs &&
           other.resultText == this.resultText &&
           other.notes == this.notes &&
           other.createdAt == this.createdAt &&
@@ -2884,6 +2965,8 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
   final Value<double?> rounds;
   final Value<int?> extraReps;
   final Value<double?> scoreValue;
+  final Value<String?> outcome;
+  final Value<int?> tieBreakMs;
   final Value<String?> resultText;
   final Value<String?> notes;
   final Value<int> createdAt;
@@ -2897,6 +2980,8 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
     this.rounds = const Value.absent(),
     this.extraReps = const Value.absent(),
     this.scoreValue = const Value.absent(),
+    this.outcome = const Value.absent(),
+    this.tieBreakMs = const Value.absent(),
     this.resultText = const Value.absent(),
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2911,6 +2996,8 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
     this.rounds = const Value.absent(),
     this.extraReps = const Value.absent(),
     this.scoreValue = const Value.absent(),
+    this.outcome = const Value.absent(),
+    this.tieBreakMs = const Value.absent(),
     this.resultText = const Value.absent(),
     this.notes = const Value.absent(),
     required int createdAt,
@@ -2929,6 +3016,8 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
     Expression<double>? rounds,
     Expression<int>? extraReps,
     Expression<double>? scoreValue,
+    Expression<String>? outcome,
+    Expression<int>? tieBreakMs,
     Expression<String>? resultText,
     Expression<String>? notes,
     Expression<int>? createdAt,
@@ -2943,6 +3032,8 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
       if (rounds != null) 'rounds': rounds,
       if (extraReps != null) 'extra_reps': extraReps,
       if (scoreValue != null) 'score_value': scoreValue,
+      if (outcome != null) 'outcome': outcome,
+      if (tieBreakMs != null) 'tie_break_ms': tieBreakMs,
       if (resultText != null) 'result_text': resultText,
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
@@ -2959,6 +3050,8 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
     Value<double?>? rounds,
     Value<int?>? extraReps,
     Value<double?>? scoreValue,
+    Value<String?>? outcome,
+    Value<int?>? tieBreakMs,
     Value<String?>? resultText,
     Value<String?>? notes,
     Value<int>? createdAt,
@@ -2973,6 +3066,8 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
       rounds: rounds ?? this.rounds,
       extraReps: extraReps ?? this.extraReps,
       scoreValue: scoreValue ?? this.scoreValue,
+      outcome: outcome ?? this.outcome,
+      tieBreakMs: tieBreakMs ?? this.tieBreakMs,
       resultText: resultText ?? this.resultText,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
@@ -3005,6 +3100,12 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
     if (scoreValue.present) {
       map['score_value'] = Variable<double>(scoreValue.value);
     }
+    if (outcome.present) {
+      map['outcome'] = Variable<String>(outcome.value);
+    }
+    if (tieBreakMs.present) {
+      map['tie_break_ms'] = Variable<int>(tieBreakMs.value);
+    }
     if (resultText.present) {
       map['result_text'] = Variable<String>(resultText.value);
     }
@@ -3033,10 +3134,240 @@ class WodResultsCompanion extends UpdateCompanion<WodResult> {
           ..write('rounds: $rounds, ')
           ..write('extraReps: $extraReps, ')
           ..write('scoreValue: $scoreValue, ')
+          ..write('outcome: $outcome, ')
+          ..write('tieBreakMs: $tieBreakMs, ')
           ..write('resultText: $resultText, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WodPrescriptionSnapshotsTable extends WodPrescriptionSnapshots
+    with TableInfo<$WodPrescriptionSnapshotsTable, WodPrescriptionSnapshot> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WodPrescriptionSnapshotsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _blockIdMeta = const VerificationMeta(
+    'blockId',
+  );
+  @override
+  late final GeneratedColumn<String> blockId = GeneratedColumn<String>(
+    'block_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES workout_blocks (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [blockId, payload];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'wod_prescription_snapshots';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WodPrescriptionSnapshot> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('block_id')) {
+      context.handle(
+        _blockIdMeta,
+        blockId.isAcceptableOrUnknown(data['block_id']!, _blockIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_blockIdMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {blockId};
+  @override
+  WodPrescriptionSnapshot map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WodPrescriptionSnapshot(
+      blockId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}block_id'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+    );
+  }
+
+  @override
+  $WodPrescriptionSnapshotsTable createAlias(String alias) {
+    return $WodPrescriptionSnapshotsTable(attachedDatabase, alias);
+  }
+}
+
+class WodPrescriptionSnapshot extends DataClass
+    implements Insertable<WodPrescriptionSnapshot> {
+  final String blockId;
+  final String payload;
+  const WodPrescriptionSnapshot({required this.blockId, required this.payload});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['block_id'] = Variable<String>(blockId);
+    map['payload'] = Variable<String>(payload);
+    return map;
+  }
+
+  WodPrescriptionSnapshotsCompanion toCompanion(bool nullToAbsent) {
+    return WodPrescriptionSnapshotsCompanion(
+      blockId: Value(blockId),
+      payload: Value(payload),
+    );
+  }
+
+  factory WodPrescriptionSnapshot.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WodPrescriptionSnapshot(
+      blockId: serializer.fromJson<String>(json['blockId']),
+      payload: serializer.fromJson<String>(json['payload']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'blockId': serializer.toJson<String>(blockId),
+      'payload': serializer.toJson<String>(payload),
+    };
+  }
+
+  WodPrescriptionSnapshot copyWith({String? blockId, String? payload}) =>
+      WodPrescriptionSnapshot(
+        blockId: blockId ?? this.blockId,
+        payload: payload ?? this.payload,
+      );
+  WodPrescriptionSnapshot copyWithCompanion(
+    WodPrescriptionSnapshotsCompanion data,
+  ) {
+    return WodPrescriptionSnapshot(
+      blockId: data.blockId.present ? data.blockId.value : this.blockId,
+      payload: data.payload.present ? data.payload.value : this.payload,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WodPrescriptionSnapshot(')
+          ..write('blockId: $blockId, ')
+          ..write('payload: $payload')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(blockId, payload);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WodPrescriptionSnapshot &&
+          other.blockId == this.blockId &&
+          other.payload == this.payload);
+}
+
+class WodPrescriptionSnapshotsCompanion
+    extends UpdateCompanion<WodPrescriptionSnapshot> {
+  final Value<String> blockId;
+  final Value<String> payload;
+  final Value<int> rowid;
+  const WodPrescriptionSnapshotsCompanion({
+    this.blockId = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WodPrescriptionSnapshotsCompanion.insert({
+    required String blockId,
+    required String payload,
+    this.rowid = const Value.absent(),
+  }) : blockId = Value(blockId),
+       payload = Value(payload);
+  static Insertable<WodPrescriptionSnapshot> custom({
+    Expression<String>? blockId,
+    Expression<String>? payload,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (blockId != null) 'block_id': blockId,
+      if (payload != null) 'payload': payload,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WodPrescriptionSnapshotsCompanion copyWith({
+    Value<String>? blockId,
+    Value<String>? payload,
+    Value<int>? rowid,
+  }) {
+    return WodPrescriptionSnapshotsCompanion(
+      blockId: blockId ?? this.blockId,
+      payload: payload ?? this.payload,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (blockId.present) {
+      map['block_id'] = Variable<String>(blockId.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WodPrescriptionSnapshotsCompanion(')
+          ..write('blockId: $blockId, ')
+          ..write('payload: $payload, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3056,6 +3387,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $PerformedSetsTable performedSets = $PerformedSetsTable(this);
   late final $WodResultsTable wodResults = $WodResultsTable(this);
+  late final $WodPrescriptionSnapshotsTable wodPrescriptionSnapshots =
+      $WodPrescriptionSnapshotsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3067,6 +3400,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     workoutExercises,
     performedSets,
     wodResults,
+    wodPrescriptionSnapshots,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3104,6 +3438,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('wod_results', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'workout_blocks',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('wod_prescription_snapshots', kind: UpdateKind.delete),
+      ],
     ),
   ]);
 }
@@ -3524,6 +3867,31 @@ final class $$WorkoutBlocksTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $WodPrescriptionSnapshotsTable,
+    List<WodPrescriptionSnapshot>
+  >
+  _wodPrescriptionSnapshotsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.wodPrescriptionSnapshots,
+        aliasName: 'workout_blocks__id__wod_prescription_snapshots__block_id',
+      );
+
+  $$WodPrescriptionSnapshotsTableProcessedTableManager
+  get wodPrescriptionSnapshotsRefs {
+    final manager = $$WodPrescriptionSnapshotsTableTableManager(
+      $_db,
+      $_db.wodPrescriptionSnapshots,
+    ).filter((f) => f.blockId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _wodPrescriptionSnapshotsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$WorkoutBlocksTableFilterComposer
@@ -3630,6 +3998,33 @@ class $$WorkoutBlocksTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> wodPrescriptionSnapshotsRefs(
+    Expression<bool> Function($$WodPrescriptionSnapshotsTableFilterComposer f)
+    f,
+  ) {
+    final $$WodPrescriptionSnapshotsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.wodPrescriptionSnapshots,
+          getReferencedColumn: (t) => t.blockId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WodPrescriptionSnapshotsTableFilterComposer(
+                $db: $db,
+                $table: $db.wodPrescriptionSnapshots,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -3788,6 +4183,33 @@ class $$WorkoutBlocksTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> wodPrescriptionSnapshotsRefs<T extends Object>(
+    Expression<T> Function($$WodPrescriptionSnapshotsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$WodPrescriptionSnapshotsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.wodPrescriptionSnapshots,
+          getReferencedColumn: (t) => t.blockId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WodPrescriptionSnapshotsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.wodPrescriptionSnapshots,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$WorkoutBlocksTableTableManager
@@ -3807,6 +4229,7 @@ class $$WorkoutBlocksTableTableManager
             bool sessionId,
             bool workoutExercisesRefs,
             bool wodResultsRefs,
+            bool wodPrescriptionSnapshotsRefs,
           })
         > {
   $$WorkoutBlocksTableTableManager(_$AppDatabase db, $WorkoutBlocksTable table)
@@ -3869,12 +4292,15 @@ class $$WorkoutBlocksTableTableManager
                 sessionId = false,
                 workoutExercisesRefs = false,
                 wodResultsRefs = false,
+                wodPrescriptionSnapshotsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (workoutExercisesRefs) db.workoutExercises,
                     if (wodResultsRefs) db.wodResults,
+                    if (wodPrescriptionSnapshotsRefs)
+                      db.wodPrescriptionSnapshots,
                   ],
                   addJoins:
                       <
@@ -3948,6 +4374,26 @@ class $$WorkoutBlocksTableTableManager
                           referencedColumn: 'block_id',
                           typedResults: items,
                         ),
+                      if (wodPrescriptionSnapshotsRefs)
+                        await $_getPrefetchedDataByColumns<
+                          WorkoutBlock,
+                          $WorkoutBlocksTable,
+                          WodPrescriptionSnapshot,
+                          $WodPrescriptionSnapshotsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WorkoutBlocksTableReferences
+                              ._wodPrescriptionSnapshotsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WorkoutBlocksTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).wodPrescriptionSnapshotsRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'block_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -3972,6 +4418,7 @@ typedef $$WorkoutBlocksTableProcessedTableManager =
         bool sessionId,
         bool workoutExercisesRefs,
         bool wodResultsRefs,
+        bool wodPrescriptionSnapshotsRefs,
       })
     >;
 typedef $$ExercisesTableCreateCompanionBuilder = ExercisesCompanion Function({
@@ -5298,6 +5745,8 @@ typedef $$WodResultsTableCreateCompanionBuilder = WodResultsCompanion Function({
   Value<double?> rounds,
   Value<int?> extraReps,
   Value<double?> scoreValue,
+  Value<String?> outcome,
+  Value<int?> tieBreakMs,
   Value<String?> resultText,
   Value<String?> notes,
   required int createdAt,
@@ -5312,6 +5761,8 @@ typedef $$WodResultsTableUpdateCompanionBuilder = WodResultsCompanion Function({
   Value<double?> rounds,
   Value<int?> extraReps,
   Value<double?> scoreValue,
+  Value<String?> outcome,
+  Value<int?> tieBreakMs,
   Value<String?> resultText,
   Value<String?> notes,
   Value<int> createdAt,
@@ -5377,6 +5828,16 @@ class $$WodResultsTableFilterComposer
 
   ColumnFilters<double> get scoreValue => $composableBuilder(
     column: $table.scoreValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tieBreakMs => $composableBuilder(
+    column: $table.tieBreakMs,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5463,6 +5924,16 @@ class $$WodResultsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tieBreakMs => $composableBuilder(
+    column: $table.tieBreakMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get resultText => $composableBuilder(
     column: $table.resultText,
     builder: (column) => ColumnOrderings(column),
@@ -5540,6 +6011,14 @@ class $$WodResultsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get outcome =>
+      $composableBuilder(column: $table.outcome, builder: (column) => column);
+
+  GeneratedColumn<int> get tieBreakMs => $composableBuilder(
+    column: $table.tieBreakMs,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get resultText => $composableBuilder(
     column: $table.resultText,
     builder: (column) => column,
@@ -5613,6 +6092,8 @@ class $$WodResultsTableTableManager
                 Value<double?> rounds = const Value.absent(),
                 Value<int?> extraReps = const Value.absent(),
                 Value<double?> scoreValue = const Value.absent(),
+                Value<String?> outcome = const Value.absent(),
+                Value<int?> tieBreakMs = const Value.absent(),
                 Value<String?> resultText = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> createdAt = const Value.absent(),
@@ -5626,6 +6107,8 @@ class $$WodResultsTableTableManager
                 rounds: rounds,
                 extraReps: extraReps,
                 scoreValue: scoreValue,
+                outcome: outcome,
+                tieBreakMs: tieBreakMs,
                 resultText: resultText,
                 notes: notes,
                 createdAt: createdAt,
@@ -5641,6 +6124,8 @@ class $$WodResultsTableTableManager
                 Value<double?> rounds = const Value.absent(),
                 Value<int?> extraReps = const Value.absent(),
                 Value<double?> scoreValue = const Value.absent(),
+                Value<String?> outcome = const Value.absent(),
+                Value<int?> tieBreakMs = const Value.absent(),
                 Value<String?> resultText = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 required int createdAt,
@@ -5654,6 +6139,8 @@ class $$WodResultsTableTableManager
                 rounds: rounds,
                 extraReps: extraReps,
                 scoreValue: scoreValue,
+                outcome: outcome,
+                tieBreakMs: tieBreakMs,
                 resultText: resultText,
                 notes: notes,
                 createdAt: createdAt,
@@ -5725,6 +6212,289 @@ typedef $$WodResultsTableProcessedTableManager =
       WodResult,
       PrefetchHooks Function({bool blockId})
     >;
+typedef $$WodPrescriptionSnapshotsTableCreateCompanionBuilder =
+    WodPrescriptionSnapshotsCompanion Function({
+      required String blockId,
+      required String payload,
+      Value<int> rowid,
+    });
+typedef $$WodPrescriptionSnapshotsTableUpdateCompanionBuilder =
+    WodPrescriptionSnapshotsCompanion Function({
+      Value<String> blockId,
+      Value<String> payload,
+      Value<int> rowid,
+    });
+
+final class $$WodPrescriptionSnapshotsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $WodPrescriptionSnapshotsTable,
+          WodPrescriptionSnapshot
+        > {
+  $$WodPrescriptionSnapshotsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $WorkoutBlocksTable _blockIdTable(_$AppDatabase db) => db.workoutBlocks
+      .createAlias('wod_prescription_snapshots__block_id__workout_blocks__id');
+
+  $$WorkoutBlocksTableProcessedTableManager get blockId {
+    final $_column = $_itemColumn<String>('block_id')!;
+
+    final manager = $$WorkoutBlocksTableTableManager(
+      $_db,
+      $_db.workoutBlocks,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_blockIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$WodPrescriptionSnapshotsTableFilterComposer
+    extends Composer<_$AppDatabase, $WodPrescriptionSnapshotsTable> {
+  $$WodPrescriptionSnapshotsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$WorkoutBlocksTableFilterComposer get blockId {
+    final $$WorkoutBlocksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blockId,
+      referencedTable: $db.workoutBlocks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkoutBlocksTableFilterComposer(
+            $db: $db,
+            $table: $db.workoutBlocks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WodPrescriptionSnapshotsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WodPrescriptionSnapshotsTable> {
+  $$WodPrescriptionSnapshotsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$WorkoutBlocksTableOrderingComposer get blockId {
+    final $$WorkoutBlocksTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blockId,
+      referencedTable: $db.workoutBlocks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkoutBlocksTableOrderingComposer(
+            $db: $db,
+            $table: $db.workoutBlocks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WodPrescriptionSnapshotsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WodPrescriptionSnapshotsTable> {
+  $$WodPrescriptionSnapshotsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  $$WorkoutBlocksTableAnnotationComposer get blockId {
+    final $$WorkoutBlocksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.blockId,
+      referencedTable: $db.workoutBlocks,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WorkoutBlocksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.workoutBlocks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$WodPrescriptionSnapshotsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WodPrescriptionSnapshotsTable,
+          WodPrescriptionSnapshot,
+          $$WodPrescriptionSnapshotsTableFilterComposer,
+          $$WodPrescriptionSnapshotsTableOrderingComposer,
+          $$WodPrescriptionSnapshotsTableAnnotationComposer,
+          $$WodPrescriptionSnapshotsTableCreateCompanionBuilder,
+          $$WodPrescriptionSnapshotsTableUpdateCompanionBuilder,
+          (WodPrescriptionSnapshot, $$WodPrescriptionSnapshotsTableReferences),
+          WodPrescriptionSnapshot,
+          PrefetchHooks Function({bool blockId})
+        > {
+  $$WodPrescriptionSnapshotsTableTableManager(
+    _$AppDatabase db,
+    $WodPrescriptionSnapshotsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WodPrescriptionSnapshotsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$WodPrescriptionSnapshotsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$WodPrescriptionSnapshotsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> blockId = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WodPrescriptionSnapshotsCompanion(
+                blockId: blockId,
+                payload: payload,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String blockId,
+                required String payload,
+                Value<int> rowid = const Value.absent(),
+              }) => WodPrescriptionSnapshotsCompanion.insert(
+                blockId: blockId,
+                payload: payload,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $WodPrescriptionSnapshotsTable,
+                    WodPrescriptionSnapshot
+                  >(table),
+                  $$WodPrescriptionSnapshotsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({blockId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (blockId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.blockId,
+                        referencedTable:
+                            $$WodPrescriptionSnapshotsTableReferences
+                                ._blockIdTable(db),
+                        referencedColumn:
+                            $$WodPrescriptionSnapshotsTableReferences
+                                ._blockIdTable(db)
+                                .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$WodPrescriptionSnapshotsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WodPrescriptionSnapshotsTable,
+      WodPrescriptionSnapshot,
+      $$WodPrescriptionSnapshotsTableFilterComposer,
+      $$WodPrescriptionSnapshotsTableOrderingComposer,
+      $$WodPrescriptionSnapshotsTableAnnotationComposer,
+      $$WodPrescriptionSnapshotsTableCreateCompanionBuilder,
+      $$WodPrescriptionSnapshotsTableUpdateCompanionBuilder,
+      (WodPrescriptionSnapshot, $$WodPrescriptionSnapshotsTableReferences),
+      WodPrescriptionSnapshot,
+      PrefetchHooks Function({bool blockId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5741,4 +6511,9 @@ class $AppDatabaseManager {
       $$PerformedSetsTableTableManager(_db, _db.performedSets);
   $$WodResultsTableTableManager get wodResults =>
       $$WodResultsTableTableManager(_db, _db.wodResults);
+  $$WodPrescriptionSnapshotsTableTableManager get wodPrescriptionSnapshots =>
+      $$WodPrescriptionSnapshotsTableTableManager(
+        _db,
+        _db.wodPrescriptionSnapshots,
+      );
 }
