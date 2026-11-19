@@ -1,3 +1,6 @@
+import 'crossfit_catalog.dart';
+import 'wod_prescription.dart';
+
 /// The workout structure inferred from text, not a confirmed workout record.
 enum WodFormat { amrap, forTime, emom, unknown }
 
@@ -89,6 +92,234 @@ class WodTextParser {
     r'^\s*(\d+)\s+(?:reps?\s+of\s+)?(.+)$',
     caseSensitive: false,
   );
+
+  /// Parses pasted text into the shared editor model.
+  WodPrescription parsePrescription(String rawText, {String title = ''}) {
+    final movements = <WodMovementPrescription>[];
+    final unparsed = <String>[];
+    final standards = <String>[];
+    var structure = WodStructure.unknown;
+    int? rounds;
+    int? intervalSeconds;
+    int? durationSeconds;
+    int? timeCapSeconds;
+    List<num> scheme = const [];
+    int? interval;
+    for (final rawLine in rawText.split(RegExp(r'\r\n?|\n'))) {
+      final line = rawLine.trim();
+      if (line.isEmpty) continue;
+      final cap = _pasteCap.firstMatch(line);
+      if (cap != null) {
+        final minutes = _positiveInt(cap[1]);
+        timeCapSeconds = minutes == null
+            ? null
+            : minutes * 60 + (int.tryParse(cap[2] ?? '') ?? 0);
+      }
+      final withoutCap = cap == null
+          ? line
+          : line
+                .substring(0, cap.start)
+                .replaceFirst(RegExp(r'[\s(:,-]+$'), '');
+      if (withoutCap.isEmpty && cap != null) continue;
+
+      final intervalHeader = _intervalHeader.firstMatch(withoutCap);
+      if (intervalHeader != null && structure == WodStructure.unknown) {
+        structure = WodStructure.intervals;
+        rounds = _positiveInt(intervalHeader[1]);
+        final minutes = _positiveInt(intervalHeader[2]);
+        intervalSeconds = minutes == null ? null : minutes * 60;
+        continue;
+      }
+
+      final header = _pasteHeader.firstMatch(withoutCap);
+      if (header != null) {
+        if (structure != WodStructure.unknown) {
+          unparsed.add(rawLine);
+          continue;
+        }
+        final kind = header[3]!.toLowerCase();
+        if (kind == 'for time' || kind == 'rft' || kind.contains('rounds')) {
+          structure = WodStructure.forTime;
+          rounds = _positiveInt(header[2] ?? header[5]);
+        } else if (kind == 'amrap') {
+          structure = WodStructure.amrap;
+          durationSeconds = _positiveInt(header[1] ?? header[5]);
+        } else {
+          structure = kind.startsWith('interval')
+              ? WodStructure.intervals
+              : WodStructure.emom;
+          rounds = structure == WodStructure.intervals
+              ? _positiveInt(header[2])
+              : null;
+          final cadence = _positiveInt(header[4]);
+          intervalSeconds = cadence == null
+              ? (kind == 'emom' ? 60 : null)
+              : cadence * 60;
+          durationSeconds = _positiveInt(header[1] ?? header[5]);
+        }
+        if (durationSeconds != null) durationSeconds *= 60;
+        continue;
+      }
+      if (cap != null) {
+        unparsed.add(rawLine);
+        continue;
+      }
+      if (_standaloneScheme.hasMatch(line)) {
+        scheme = line
+            .split(RegExp(r'\s*[-–]\s*'))
+            .map(int.tryParse)
+            .whereType<int>()
+            .toList();
+        continue;
+      }
+      if (_reviewLine.hasMatch(line)) {
+        unparsed.add(rawLine);
+        standards.add(rawLine);
+        scheme = const [];
+        interval = null;
+        continue;
+      }
+      final slot = _minuteSlot.firstMatch(line);
+      if (slot != null) interval = _positiveInt(slot[1]);
+      final body = slot == null ? line : line.substring(slot.end);
+      final movement = _pasteMovement(body, scheme, interval, rawLine);
+      if (movement == null ||
+          movement.movementId == null ||
+          movement.options.isNotEmpty) {
+        unparsed.add(rawLine);
+      }
+      if (movement != null) movements.add(movement);
+    }
+    final count = switch (structure) {
+      WodStructure.emom
+          when intervalSeconds != null &&
+              durationSeconds != null &&
+              durationSeconds % intervalSeconds == 0 =>
+        durationSeconds ~/ intervalSeconds,
+      WodStructure.intervals => rounds,
+      _ => null,
+    };
+    return WodPrescription(
+      title: title,
+      structure: structure,
+      scoreKind: switch (structure) {
+        WodStructure.forTime => WodScoreKind.time,
+        WodStructure.amrap => WodScoreKind.roundsAndReps,
+        WodStructure.emom => WodScoreKind.intervals,
+        _ => WodScoreKind.unknown,
+      },
+      rounds: structure == WodStructure.forTime ? rounds : null,
+      intervalSeconds: intervalSeconds,
+      intervalCount: count,
+      timeCapSeconds: timeCapSeconds,
+      durationSeconds: durationSeconds,
+      movements: List.unmodifiable(movements),
+      standards: List.unmodifiable(standards),
+      rawText: rawText,
+      unparsedLines: List.unmodifiable(unparsed),
+      parserVersion: '1',
+    );
+  }
+
+  static final _pasteCap = RegExp(
+    r'\b(?:time\s*cap|cap)\s*[:(]?\s*(\d+)(?::([0-5]\d)|\s*(?:minutes?|min|분)\b)?\s*\)?$',
+    caseSensitive: false,
+  );
+  static final _intervalHeader = RegExp(
+    r'^intervals?\s*:\s*(\d+)\s*[x×]\s*(\d+)\s*(?:minutes?|min)\s*:?$',
+    caseSensitive: false,
+  );
+  static final _pasteHeader = RegExp(
+    r'^(?:(\d+)\s*(?:minutes?|min|분)\s+|(\d+)\s*(?:rounds?\s+(?=for time)|(?=rft)|(?=intervals?)))?'
+    r'(for time|rft|rounds for time|amrap|emom|e(\d+)mom|intervals?)'
+    r'(?:\s*[:–-]?\s*(\d+)\s*(?:minutes?|min|분|rounds?)?)?\s*:?$',
+    caseSensitive: false,
+  );
+  static final _standaloneScheme = RegExp(r'^\d+(?:\s*[-–]\s*\d+)+$');
+  static final _reviewLine = RegExp(
+    r'^\s*(?:part\b|rest\b|then\b|set\s+[a-z0-9]+\s*:|score\b|tiebreak\b)|\s+or\s+',
+    caseSensitive: false,
+  );
+  static final _minuteSlot = RegExp(
+    r'^minute\s+(\d+)\s*:\s*',
+    caseSensitive: false,
+  );
+  static final _metricMovement = RegExp(
+    r'^(\d+(?:\.\d+)?)\s*-?\s*(m(?:eters?|etres?)?|km|cal(?:orie)?s?|seconds?|sec|minutes?|min)\s+(.+)$',
+    caseSensitive: false,
+  );
+  static final _multipleStandards = RegExp(
+    r'\d\s*/\s*\d|\b(?:women|men|female|male|target|height|scaled|rx|sets?)\b|["″]|\b(?:inches|feet|inch|ft)\b',
+    caseSensitive: false,
+  );
+
+  static int? _positiveInt(String? text) {
+    final value = int.tryParse(text ?? '');
+    return value == null || value <= 0 ? null : value;
+  }
+
+  WodMovementPrescription? _pasteMovement(
+    String text,
+    List<num> scheme,
+    int? interval,
+    String rawLine,
+  ) {
+    final metrics = _metricMovement.firstMatch(text);
+    final movement = metrics == null ? _parseMovement(text) : null;
+    if (metrics == null && movement == null && scheme.isEmpty) return null;
+    final options =
+        _multipleStandards.hasMatch(text) ||
+        _weightPattern.allMatches(text).length > 1;
+    final label = metrics?[3] ?? movement?.name ?? text;
+    final singleLoad = options ? null : _weightPattern.firstMatch(label);
+    final name =
+        (singleLoad == null
+                ? label
+                : label.replaceRange(singleLoad.start, singleLoad.end, ''))
+            .replaceAll(RegExp(r'[()]'), '')
+            .trim();
+    final metric = metrics?[2]?.toLowerCase();
+    final unit = switch (metric) {
+      null => WodQuantityUnit.reps,
+      'km' || 'm' => WodQuantityUnit.meters,
+      _ when metric.startsWith('met') => WodQuantityUnit.meters,
+      _ when metric.startsWith('cal') => WodQuantityUnit.calories,
+      _ => WodQuantityUnit.seconds,
+    };
+    final multiplier = metric == 'km'
+        ? 1000
+        : (metric?.startsWith('min') ?? false)
+        ? 60
+        : 1;
+    final quantities = metrics == null
+        ? movement?.repScheme ?? scheme
+        : [double.parse(metrics[1]!) * multiplier];
+    final resolved = CrossFitCatalog.resolveMovement(name);
+    final singular = resolved.entry == null && name.endsWith('s')
+        ? CrossFitCatalog.resolveMovement(name.substring(0, name.length - 1))
+              .entry
+        : null;
+    final entry = resolved.entry ?? singular;
+    final weight = options
+        ? null
+        : movement?.weight ??
+              double.tryParse((singleLoad?[1] ?? '').replaceAll(',', '.'));
+    final weightUnit = movement?.weightUnit ?? singleLoad?[2]?.toLowerCase();
+    return WodMovementPrescription(
+      name: entry?.name ?? name,
+      movementId: entry?.id,
+      quantities: List.unmodifiable(quantities),
+      unit: unit,
+      interval: interval,
+      weightKg: weight == null
+          ? null
+          : (weightUnit?.startsWith('lb') == true ||
+                weightUnit?.startsWith('pound') == true)
+          ? weight * 0.45359237
+          : weight,
+      options: options ? [rawLine] : const [],
+    );
+  }
 
   WodDraft parse(String rawText) {
     final lines = rawText
