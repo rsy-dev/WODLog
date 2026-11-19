@@ -1,0 +1,41 @@
+key,name,collection,default_score_kind,source_url,source_checked_on
+benchmark:angie,Angie,Girls,for_time,https://www.crossfit.com/workout/2004/07/26,2026-11-19
+benchmark:diane,Diane,Girls,for_time,https://www.crossfit.com/workout/2003/09/19,2026-11-19
+benchmark:elizabeth,Elizabeth,Girls,for_time,https://www.crossfit.com/workout/2003/09/12,2026-11-19
+benchmark:fran,Fran,Girls,for_time,https://www.crossfit.com/benchmark/fran,2026-11-19
+benchmark:grace,Grace,Girls,for_time,https://www.crossfit.com/workout/2004/06/24,2026-11-19
+benchmark:helen,Helen,Girls,for_time,https://www.crossfit.com/workout/2003/08/09,2026-11-19
+benchmark:isabel,Isabel,Girls,for_time,https://www.crossfit.com/workout/2004/11/11,2026-11-19
+benchmark:jackie,Jackie,Girls,for_time,https://www.crossfit.com/workout/2005/08/03,2026-11-19
+benchmark:karen,Karen,Girls,for_time,https://www.crossfit.com/workout/2008/08/07,2026-11-19
+benchmark:linda,Linda,Girls,for_time,https://www.crossfit.com/workout/2003/07/05,2026-11-19
+benchmark:nancy,Nancy,Girls,for_time,https://www.crossfit.com/workout/2004/12/05,2026-11-19
+benchmark:annie,Annie,Girls,for_time,https://www.crossfit.com/workout/2005/04/16,2026-11-19
+benchmark:eva,Eva,Girls,for_time,https://www.crossfit.com/workout/2008/02/24,2026-11-19
+benchmark:kelly,Kelly,Girls,for_time,https://www.crossfit.com/workout/2005/04/10,2026-11-19
+benchmark:amanda,Amanda,Girls,for_time,https://www.crossfit.com/workout/2010/07/17,2026-11-19
+benchmark:marguerita,Marguerita,Girls,for_time,https://www.crossfit.com/workout/2014/01/15,2026-11-19
+benchmark:candy,Candy,Girls,for_time,https://www.crossfit.com/benchmark/candy,2026-11-19
+benchmark:maggie,Maggie,Girls,for_time,https://www.crossfit.com/workout/2006/07/28,2026-11-19
+benchmark:cindy,Cindy,Girls,rounds_reps,https://www.crossfit.com/benchmark/cindy,2026-11-19
+benchmark:mary,Mary,Girls,rounds_reps,https://www.crossfit.com/workout/2005/01/19,2026-11-19
+benchmark:barbara,Barbara,Girls,interval_times,https://www.crossfit.com/workout/2003/09/27,2026-11-19
+benchmark:chelsea,Chelsea,Girls,completed_intervals,https://www.crossfit.com/workout/2003/09/07,2026-11-19
+benchmark:lynne,Lynne,Girls,interval_reps,https://www.crossfit.com/workout/2004/04/22,2026-11-19
+benchmark:nicole,Nicole,Girls,interval_reps,https://www.crossfit.com/workout/2006/12/11,2026-11-19
+benchmark:gwen,Gwen,Girls,load,https://www.crossfit.com/workout/2003/05/25,2026-11-19
+benchmark:andi,Andi,Girls,for_time,https://www.crossfit.com/210114,2026-11-19
+benchmark:ellen,Ellen,Girls,for_time,https://www.crossfit.com/210110,2026-11-19
+benchmark:lyla,Lyla,Girls,for_time,https://www.crossfit.com/210107,2026-11-19
+benchmark:lane,Lane,Girls,interval_reps,https://www.crossfit.com/210126,2026-11-19
+benchmark:barbara-ann,Barbara Ann,Girls,interval_times,https://www.crossfit.com/210104,2026-11-19
+benchmark:grettel,Grettel,Girls,for_time,https://www.crossfit.com/benchmark/grettel,2026-11-19
+benchmark:ingrid,Ingrid,Girls,for_time,https://www.crossfit.com/210103,2026-11-19
+benchmark:filthy-fifty,Filthy Fifty,Classic,for_time,https://www.crossfit.com/essentials/crossfit-15-benchmarks,2026-11-19
+benchmark:nasty-girls,Nasty Girls,Classic,for_time,https://www.crossfit.com/essentials/nasty-girls-a-retrospective-2,2026-11-19
+benchmark:fight-gone-bad,Fight Gone Bad,Classic,station_points,https://trainerdirectory.crossfit.com/cf/faq#FGB,2026-11-19
+benchmark:tabata-this,Tabata This,Classic,station_minimum_sum,https://trainerdirectory.crossfit.com/cf/faq,2026-11-19
+benchmark:crossfit-total,CrossFit Total,Classic,multi_lift_total,https://games.crossfit.com/workouts/level-1/2026/2?division=1,2026-11-19
+benchmark:chad1000x,CHAD1000X,Classic,for_time,https://chad1000x.com/,2026-11-19
+benchmark:5k-run,5K Run,Classic,for_time,https://www.crossfit.com/essentials/crossfit-15-benchmarks,2026-11-19
+benchmark:open-26-1,Open 26.1,Competition,time_or_reps_at_cap,https://games.crossfit.com/workouts/open/2026/1,2026-11-19

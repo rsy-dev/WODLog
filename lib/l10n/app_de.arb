@@ -30,18 +30,18 @@
   "addSet": "Satz hinzufügen",
   "emptyExerciseHelp": "Füge einen Satz hinzu, um dein Training zu erfassen.",
   "loadSetsError": "Sätze konnten nicht geladen werden.",
-  "weightKg": "Gewicht (kg)",
+  "setWeight": "Gewicht ({unit})",
   "reps": "Wiederholungen",
   "save": "Speichern",
   "setLabel": "Satz {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} Wiederholungen",
+  "setSummary": "{setLabel}  {weight} × {reps} Wiederholungen",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "Körpergewicht",
   "categoryOtherEquipment": "Sonstige Geräte",
   "benchmarkWorkouts": "Benchmark-WODs",
-  "noChange": "Keine Änderung"
+  "noChange": "Keine Änderung",
+  "settings": "Einstellungen",
+  "weightUnit": "Gewichtseinheit",
+  "weightUnitError": "Die Gewichtseinheit konnte nicht gespeichert werden.",
+  "categoryBenchmarkWod": "Benchmark-WODs",
+  "noRecentMovementRecords": "Keine Bewegungsdaten für die letzten 14 Tage."
 }

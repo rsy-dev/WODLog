@@ -30,18 +30,18 @@
   "addSet": "Add set",
   "emptyExerciseHelp": "Add a set to record your work.",
   "loadSetsError": "Couldn't load sets.",
-  "weightKg": "Weight (kg)",
+  "setWeight": "Weight ({unit})",
   "reps": "Reps",
   "save": "Save",
   "setLabel": "Set {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} reps",
+  "setSummary": "{setLabel}  {weight} × {reps} reps",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -108,7 +108,7 @@
   "@setCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -135,5 +135,57 @@
   "categoryDumbbellKettlebell": "Dumbbell & kettlebell",
   "categoryCardio": "Cardio",
   "categoryBodyweight": "Bodyweight",
-  "categoryOtherEquipment": "Other equipment"
+  "categoryOtherEquipment": "Other equipment",
+  "settings": "Settings",
+  "weightUnit": "Weight unit",
+  "weightUnitError": "Could not save the weight unit.",
+  "categoryBenchmarkWod": "Benchmark WODs",
+  "@setWeight": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "noRecentMovementRecords": "No movement records in the last 14 days.",
+  "todayTab": "Today",
+  "recordWod": "Record WOD",
+  "languageSetting": "Language",
+  "deviceLanguage": "Device language",
+  "weeklyGoal": "Weekly goal",
+  "weightCalculator": "Weight calculator",
+  "movementLibrary": "Movement library",
+  "glossary": "Glossary",
+  "lastSevenDays": "Last 7 days",
+  "pastWods": "Past WODs",
+  "strengthSessions": "Strength sessions",
+  "chooseBenchmark": "Choose a benchmark",
+  "searchWorkouts": "Search workouts",
+  "noMatchingWorkouts": "No matching workouts",
+  "settingsSaveError": "Could not save the setting. Try again.",
+  "openSession": "Open session",
+  "reviewWodText": "Review WOD text",
+  "wodSourceText": "Workout text",
+  "unreadWodLines": "Lines to review",
+  "wodPrescription": "Prescription",
+  "closeSheet": "Close",
+  "glossaryAmrap": "Complete as many rounds or reps as possible in the time limit.",
+  "glossaryEmom": "Start the prescribed work at the start of each minute.",
+  "glossaryForTime": "Record completion time or completed reps at the cap.",
+  "glossaryRx": "Perform the workout as prescribed.",
+  "glossaryScaled": "Adjust the load, movement, or volume.",
+  "wodSaveError": "Could not save the WOD result. Try again.",
+  "applyWodSource": "Apply to notes",
+  "statsTab": "Stats",
+  "wodFinished": "Finished",
+  "wodCapped": "Time cap",
+  "wodStopped": "Stopped",
+  "wodEnding": "Finish status",
+  "wodFinishTime": "Finish time (min:sec)",
+  "wodCompletedReps": "Reps completed at the cap",
+  "wodCompletedRounds": "Completed rounds",
+  "wodCompletedIntervals": "Completed intervals",
+  "wodExtraReps": "Extra reps",
+  "wodEnterNewScore": "Enter a new score",
+  "wodInvalidScore": "Enter a valid result for this workout type."
 }

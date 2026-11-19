@@ -30,18 +30,18 @@
   "addSet": "Dodaj serię",
   "emptyExerciseHelp": "Dodaj serię, aby zapisać trening.",
   "loadSetsError": "Nie udało się wczytać serii.",
-  "weightKg": "Ciężar (kg)",
+  "setWeight": "Ciężar ({unit})",
   "reps": "Powtórzenia",
   "save": "Zapisz",
   "setLabel": "Seria {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} powt.",
+  "setSummary": "{setLabel}  {weight} × {reps} powt.",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "Masa ciała",
   "categoryOtherEquipment": "Inny sprzęt",
   "benchmarkWorkouts": "WOD-y wzorcowe",
-  "noChange": "Bez zmian"
+  "noChange": "Bez zmian",
+  "settings": "Ustawienia",
+  "weightUnit": "Jednostka ciężaru",
+  "weightUnitError": "Nie udało się zapisać jednostki ciężaru.",
+  "categoryBenchmarkWod": "WOD referencyjne",
+  "noRecentMovementRecords": "Brak zapisów ruchu z ostatnich 14 dni."
 }

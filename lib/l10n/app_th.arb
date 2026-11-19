@@ -30,18 +30,18 @@
   "addSet": "เพิ่มเซต",
   "emptyExerciseHelp": "เพิ่มเซตเพื่อบันทึกการออกกำลังกาย",
   "loadSetsError": "โหลดเซตไม่สำเร็จ",
-  "weightKg": "น้ำหนัก (กก.)",
+  "setWeight": "น้ำหนัก ({unit})",
   "reps": "จำนวนครั้ง",
   "save": "บันทึก",
   "setLabel": "เซตที่ {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} กก. × {reps} ครั้ง",
+  "setSummary": "{setLabel}  {weight} × {reps} ครั้ง",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "น้ำหนักตัว",
   "categoryOtherEquipment": "อุปกรณ์อื่น",
   "benchmarkWorkouts": "WOD มาตรฐาน",
-  "noChange": "ไม่มีการเปลี่ยนแปลง"
+  "noChange": "ไม่มีการเปลี่ยนแปลง",
+  "settings": "การตั้งค่า",
+  "weightUnit": "หน่วยน้ำหนัก",
+  "weightUnitError": "บันทึกหน่วยน้ำหนักไม่ได้",
+  "categoryBenchmarkWod": "WOD มาตรฐาน",
+  "noRecentMovementRecords": "ไม่มีบันทึกการเคลื่อนไหวในช่วง 14 วันที่ผ่านมา"
 }

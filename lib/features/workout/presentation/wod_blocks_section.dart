@@ -1,34 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 
+import '../../../app/wodlog_sheet.dart';
 import '../../../l10n/generated/app_localizations.dart';
-import '../data/crossfit_catalog.dart';
+import '../../settings/weight_unit.dart';
 import '../data/named_wod_catalog.dart';
+import 'localized_decimal.dart';
 import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
+import 'wod_library_sheet.dart';
+import 'wod_source_review_sheet.dart';
+import 'workout_dialog.dart';
 
 class WodBlocksSection extends ConsumerWidget {
-  const WodBlocksSection({super.key, required this.sessionId});
+  const WodBlocksSection({
+    super.key,
+    required this.sessionId,
+    this.initialBenchmark,
+  });
 
   final String sessionId;
-
-  static const _types = <String>[
-    'for_time',
-    'amrap',
-    'emom',
-    'rounds_reps',
-    'load',
-    'other',
-  ];
-
-  String _typeLabel(AppLocalizations l10n, String type) => switch (type) {
-    'for_time' => l10n.resultForTime,
-    'amrap' => l10n.resultAmrap,
-    'emom' => l10n.resultEmom,
-    'rounds_reps' => l10n.resultRoundsReps,
-    'load' => l10n.resultLoad,
-    _ => l10n.resultOther,
-  };
+  final String? initialBenchmark;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,7 +55,7 @@ class WodBlocksSection extends ConsumerWidget {
               child: TextButton.icon(
                 onPressed: () => _addBlock(context, ref),
                 icon: const Icon(Icons.add),
-                label: Text(l10n.addWodBlock),
+                label: Text(initialBenchmark ?? l10n.addWodBlock),
               ),
             )
           else
@@ -71,8 +64,8 @@ class WodBlocksSection extends ConsumerWidget {
                 blockId: block.id,
                 title: block.title ?? l10n.wodSectionTitle,
                 notes: block.notes,
-                labelFor: (type) => _typeLabel(l10n, type),
-                onEdit: () => _editResult(context, ref, block.id),
+                labelFor: (type) => wodTypeLabel(l10n, type),
+                onEdit: () => showWodResultEditor(context, ref, block.id),
               ),
         ],
       ),
@@ -81,54 +74,32 @@ class WodBlocksSection extends ConsumerWidget {
 
   Future<void> _addBlock(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController();
-    final title = await showDialog<String>(
+    final controller = TextEditingController(text: initialBenchmark);
+    final title = await showWorkoutDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: Text(l10n.addWodBlock),
-        content: SizedBox(
-          width: 360,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: controller,
-                  autofocus: true,
-                  decoration: InputDecoration(labelText: l10n.wodName),
-                  textCapitalization: TextCapitalization.sentences,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.benchmarkWorkouts,
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    for (final wod in CrossFitCatalog.inCategory(
-                      CrossFitCategory.benchmarkWod,
-                    ))
-                      ActionChip(
-                        label: Text(wod.name),
-                        onPressed: () => Navigator.pop(context, wod.name),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(labelText: l10n.wodName),
+          textCapitalization: TextCapitalization.sentences,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
+            onPressed: () async {
+              final template = await showWodLibrary(context);
+              if (template != null && context.mounted) {
+                controller.text = template.name;
+              }
+            },
+            child: Text(l10n.chooseBenchmark),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text),
+            onPressed: () {
+              final name = controller.text.trim();
+              if (name.isNotEmpty) Navigator.pop(context, name);
+            },
             child: Text(l10n.add),
           ),
         ],
@@ -154,90 +125,274 @@ class WodBlocksSection extends ConsumerWidget {
       );
     }
   }
+}
 
-  Future<void> _editResult(
-    BuildContext context,
-    WidgetRef ref,
-    String blockId,
-  ) async {
-    final l10n = AppLocalizations.of(context)!;
-    final result = await ref
-        .read(wodRepositoryProvider)
-        .watchResult(blockId)
-        .first;
-    if (!context.mounted) return;
-    var selectedType = _types.contains(result?.resultType)
-        ? result!.resultType
-        : _types.first;
-    final scoreController = TextEditingController(
-      text: result?.resultText ?? '',
-    );
-    final notesController = TextEditingController(text: result?.notes ?? '');
-    final values = await showDialog<(String, String, String)>(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(result == null ? l10n.addWodResult : l10n.editWodResult),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  initialValue: selectedType,
-                  decoration: InputDecoration(labelText: l10n.wodResultType),
-                  items: [
-                    for (final type in _types)
-                      DropdownMenuItem(
-                        value: type,
-                        child: Text(_typeLabel(l10n, type)),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) setState(() => selectedType = value);
-                  },
+const _types = <String>[
+  'for_time',
+  'amrap',
+  'emom',
+  'rounds_reps',
+  'load',
+  'other',
+];
+
+String wodTypeLabel(AppLocalizations l10n, String type) => switch (type) {
+  'for_time' => l10n.resultForTime,
+  'amrap' => l10n.resultAmrap,
+  'emom' => l10n.resultEmom,
+  'rounds_reps' => l10n.resultRoundsReps,
+  'load' => l10n.resultLoad,
+  _ => l10n.resultOther,
+};
+
+Future<void> showWodResultEditor(
+  BuildContext context,
+  WidgetRef ref,
+  String blockId,
+) async {
+  final repository = ref.read(wodRepositoryProvider);
+  final l10n = AppLocalizations.of(context)!;
+  final number = NumberFormat.decimalPattern(
+    Localizations.localeOf(context).toString(),
+  );
+  final unit = ref.read(weightUnitProvider).value ?? WeightUnit.kg;
+  final result = await ref.read(wodResultProvider(blockId).future);
+  if (!context.mounted) return;
+  var type = _types.contains(result?.resultType)
+      ? result!.resultType
+      : _types.first;
+  var score = result?.resultText ?? '';
+  final hasPreviousScore = score.trim().isNotEmpty;
+  var usePreviousScore = hasPreviousScore;
+  var secondScore = '';
+  var ending = _WodEnding.finished;
+  var invalid = false;
+
+  String? validatedScore() {
+    if (usePreviousScore || type == 'other') {
+      return score.trim().isEmpty ? null : score.trim();
+    }
+    int? whole(String text) {
+      final value = parseLocalizedDecimal(text, number);
+      return value != null && value <= 2147483647 && value == value.truncate()
+          ? value.toInt()
+          : null;
+    }
+
+    if (type == 'for_time' && ending == _WodEnding.stopped) return 'DNF';
+    if (type == 'for_time' && ending == _WodEnding.finished) {
+      final parts = score.trim().split(':');
+      if (parts.length != 2) return null;
+      final minutes = whole(parts.first);
+      final seconds = whole(parts.last);
+      if (minutes == null ||
+          seconds == null ||
+          seconds >= 60 ||
+          (minutes == 0 && seconds == 0)) {
+        return null;
+      }
+      return '$minutes:${seconds.toString().padLeft(2, '0')}';
+    }
+    if (type == 'load') {
+      final value = parseLocalizedDecimal(score, number);
+      return value != null && value > 0 ? '$value ${unit.name}' : null;
+    }
+    final first = whole(score);
+    if (first == null) return null;
+    if (type == 'for_time') return 'CAP · $first reps';
+    if (type == 'emom') return '$first intervals';
+    final second = whole(secondScore);
+    return second == null ? null : '$first + $second';
+  }
+
+  var notes = result?.notes ?? '';
+  var notesRevision = 0;
+  final appliedSources = <String>{};
+  var saving = false;
+  var failed = false;
+  await showWodLogSheet<void>(
+    context: context,
+    title: result == null ? l10n.addWodResult : l10n.editWodResult,
+    builder: (_) => StatefulBuilder(
+      builder: (context, setState) => ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          DropdownButtonFormField<String>(
+            initialValue: type,
+            isExpanded: true,
+            decoration: InputDecoration(labelText: l10n.wodResultType),
+            items: [
+              for (final item in _types)
+                DropdownMenuItem(
+                  value: item,
+                  child: Text(wodTypeLabel(l10n, item)),
                 ),
-                TextField(
-                  controller: scoreController,
-                  decoration: InputDecoration(labelText: l10n.wodScore),
+            ],
+            onChanged: saving
+                ? null
+                : (value) => setState(() {
+                    if (value == null || type == value) return;
+                    type = value;
+                    ending = _WodEnding.finished;
+                    invalid = false;
+                    if (!usePreviousScore) {
+                      score = '';
+                      secondScore = '';
+                    }
+                  }),
+          ),
+          const SizedBox(height: 12),
+          if (type == 'for_time' && !usePreviousScore)
+            DropdownButtonFormField<_WodEnding>(
+              initialValue: ending,
+              items: [
+                DropdownMenuItem(
+                  value: _WodEnding.finished,
+                  child: Text(l10n.wodFinished),
                 ),
-                TextField(
-                  controller: notesController,
-                  decoration: InputDecoration(labelText: l10n.wodNotes),
-                  maxLines: 3,
+                DropdownMenuItem(
+                  value: _WodEnding.capped,
+                  child: Text(l10n.wodCapped),
+                ),
+                DropdownMenuItem(
+                  value: _WodEnding.stopped,
+                  child: Text(l10n.wodStopped),
                 ),
               ],
+              decoration: InputDecoration(labelText: l10n.wodEnding),
+              onChanged: saving
+                  ? null
+                  : (value) => setState(() {
+                      if (value == null || value == ending) return;
+                      ending = value;
+                      score = '';
+                      invalid = false;
+                    }),
             ),
-          ),
-          actions: [
+          if (usePreviousScore ||
+              type != 'for_time' ||
+              ending != _WodEnding.stopped)
+            TextFormField(
+              key: ValueKey((type, ending, usePreviousScore)),
+              initialValue: score,
+              enabled: !saving,
+              keyboardType: switch ((type, usePreviousScore, ending)) {
+                (_, true, _) ||
+                ('other', _, _) ||
+                ('for_time', _, _WodEnding.finished) => TextInputType.text,
+                ('load', _, _) => const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                _ => TextInputType.number,
+              },
+              decoration: InputDecoration(
+                labelText: usePreviousScore
+                    ? l10n.wodScore
+                    : switch (type) {
+                        'for_time' when ending == _WodEnding.finished =>
+                          l10n.wodFinishTime,
+                        'for_time' => l10n.wodCompletedReps,
+                        'amrap' || 'rounds_reps' => l10n.wodCompletedRounds,
+                        'emom' => l10n.wodCompletedIntervals,
+                        'load' => l10n.setWeight(unit.name),
+                        _ => l10n.wodScore,
+                      },
+              ),
+              onChanged: (value) => score = value,
+            ),
+          if (!usePreviousScore && (type == 'amrap' || type == 'rounds_reps'))
+            TextFormField(
+              key: ValueKey(type),
+              initialValue: secondScore,
+              enabled: !saving,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: l10n.wodExtraReps),
+              onChanged: (value) => secondScore = value,
+            ),
+          if (usePreviousScore)
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel),
+              onPressed: saving
+                  ? null
+                  : () => setState(() {
+                      usePreviousScore = false;
+                      score = '';
+                      invalid = false;
+                    }),
+              child: Text(l10n.wodEnterNewScore),
             ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, (
-                selectedType,
-                scoreController.text,
-                notesController.text,
-              )),
-              child: Text(l10n.save),
-            ),
-          ],
-        ),
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    final source = await showWodSourceReview(context);
+                    if (!context.mounted ||
+                        source == null ||
+                        notes.contains(source) ||
+                        !appliedSources.add(source)) {
+                      return;
+                    }
+                    setState(() {
+                      notes = [
+                        if (notes.trim().isNotEmpty) notes.trim(),
+                        source,
+                      ].join('\n\n');
+                      notesRevision++;
+                    });
+                  },
+            child: Text(l10n.reviewWodText),
+          ),
+          TextFormField(
+            key: ValueKey(notesRevision),
+            initialValue: notes,
+            enabled: !saving,
+            decoration: InputDecoration(labelText: l10n.wodNotes),
+            maxLines: 3,
+            onChanged: (value) => notes = value,
+          ),
+          const SizedBox(height: 12),
+          if (invalid) Text(l10n.wodInvalidScore),
+          if (failed) Text(l10n.wodSaveError),
+          FilledButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    final confirmedScore = validatedScore();
+                    if (confirmedScore == null) {
+                      setState(() => invalid = true);
+                      return;
+                    }
+                    setState(() {
+                      invalid = false;
+                      saving = true;
+                      failed = false;
+                    });
+                    try {
+                      await repository.saveResult(
+                        blockId: blockId,
+                        resultType: type,
+                        resultText: confirmedScore,
+                        notes: notes,
+                      );
+                      if (context.mounted) Navigator.pop(context);
+                    } catch (_) {
+                      if (context.mounted) {
+                        setState(() {
+                          saving = false;
+                          failed = true;
+                        });
+                      }
+                    }
+                  },
+            child: Text(l10n.save),
+          ),
+        ],
       ),
-    );
-    scoreController.dispose();
-    notesController.dispose();
-    if (values == null) return;
-    await ref
-        .read(wodRepositoryProvider)
-        .saveResult(
-          blockId: blockId,
-          resultType: values.$1,
-          resultText: values.$2,
-          notes: values.$3,
-        );
-  }
+    ),
+  );
 }
+
+enum _WodEnding { finished, capped, stopped }
 
 class _WodBlockTile extends ConsumerWidget {
   const _WodBlockTile({

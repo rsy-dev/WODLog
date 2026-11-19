@@ -82,7 +82,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loadSetsError => 'Не удалось загрузить подходы.';
 
   @override
-  String get weightKg => 'Вес (кг)';
+  String setWeight(String unit) {
+    return 'Вес ($unit)';
+  }
 
   @override
   String get reps => 'Повторения';
@@ -91,13 +93,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get save => 'Сохранить';
 
   @override
-  String setLabel(int number) {
+  String setLabel(String number) {
     return 'Подход $number';
   }
 
   @override
-  String setSummary(String setLabel, String weight, int reps) {
-    return '$setLabel  $weight кг × $reps повт.';
+  String setSummary(String setLabel, String weight, String reps) {
+    return '$setLabel  $weight × $reps повт.';
   }
 
   @override
@@ -234,7 +236,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get movementsLabel => 'движения';
 
   @override
-  String setCount(int count) {
+  String setCount(String count) {
     return '$count подходов';
   }
 
@@ -309,4 +311,143 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get categoryOtherEquipment => 'Другое оборудование';
+
+  @override
+  String get settings => 'Настройки';
+
+  @override
+  String get weightUnit => 'Единица веса';
+
+  @override
+  String get weightUnitError => 'Не удалось сохранить единицу веса.';
+
+  @override
+  String get categoryBenchmarkWod => 'Эталонные WOD';
+
+  @override
+  String get noRecentMovementRecords =>
+      'За последние 14 дней нет записей о движениях.';
+
+  @override
+  String get todayTab => 'Today';
+
+  @override
+  String get recordWod => 'Record WOD';
+
+  @override
+  String get languageSetting => 'Language';
+
+  @override
+  String get deviceLanguage => 'Device language';
+
+  @override
+  String get weeklyGoal => 'Weekly goal';
+
+  @override
+  String get weightCalculator => 'Weight calculator';
+
+  @override
+  String get movementLibrary => 'Movement library';
+
+  @override
+  String get glossary => 'Glossary';
+
+  @override
+  String get lastSevenDays => 'Last 7 days';
+
+  @override
+  String get pastWods => 'Past WODs';
+
+  @override
+  String get strengthSessions => 'Strength sessions';
+
+  @override
+  String get chooseBenchmark => 'Choose a benchmark';
+
+  @override
+  String get searchWorkouts => 'Search workouts';
+
+  @override
+  String get noMatchingWorkouts => 'No matching workouts';
+
+  @override
+  String get settingsSaveError => 'Could not save the setting. Try again.';
+
+  @override
+  String get openSession => 'Open session';
+
+  @override
+  String get reviewWodText => 'Review WOD text';
+
+  @override
+  String get wodSourceText => 'Workout text';
+
+  @override
+  String get unreadWodLines => 'Lines to review';
+
+  @override
+  String get wodPrescription => 'Prescription';
+
+  @override
+  String get closeSheet => 'Close';
+
+  @override
+  String get glossaryAmrap =>
+      'Complete as many rounds or reps as possible in the time limit.';
+
+  @override
+  String get glossaryEmom =>
+      'Start the prescribed work at the start of each minute.';
+
+  @override
+  String get glossaryForTime =>
+      'Record completion time or completed reps at the cap.';
+
+  @override
+  String get glossaryRx => 'Perform the workout as prescribed.';
+
+  @override
+  String get glossaryScaled => 'Adjust the load, movement, or volume.';
+
+  @override
+  String get wodSaveError => 'Could not save the WOD result. Try again.';
+
+  @override
+  String get applyWodSource => 'Apply to notes';
+
+  @override
+  String get statsTab => 'Stats';
+
+  @override
+  String get wodFinished => 'Finished';
+
+  @override
+  String get wodCapped => 'Time cap';
+
+  @override
+  String get wodStopped => 'Stopped';
+
+  @override
+  String get wodEnding => 'Finish status';
+
+  @override
+  String get wodFinishTime => 'Finish time (min:sec)';
+
+  @override
+  String get wodCompletedReps => 'Reps completed at the cap';
+
+  @override
+  String get wodCompletedRounds => 'Completed rounds';
+
+  @override
+  String get wodCompletedIntervals => 'Completed intervals';
+
+  @override
+  String get wodExtraReps => 'Extra reps';
+
+  @override
+  String get wodEnterNewScore => 'Enter a new score';
+
+  @override
+  String get wodInvalidScore => 'Enter a valid result for this workout type.';
 }

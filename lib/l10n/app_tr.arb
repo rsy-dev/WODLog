@@ -30,18 +30,18 @@
   "addSet": "Set ekle",
   "emptyExerciseHelp": "Antrenmanınızı kaydetmek için bir set ekleyin.",
   "loadSetsError": "Setler yüklenemedi.",
-  "weightKg": "Ağırlık (kg)",
+  "setWeight": "Ağırlık ({unit})",
   "reps": "Tekrar",
   "save": "Kaydet",
   "setLabel": "Set {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} tekrar",
+  "setSummary": "{setLabel}  {weight} × {reps} tekrar",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "Vücut ağırlığı",
   "categoryOtherEquipment": "Diğer ekipman",
   "benchmarkWorkouts": "Kıyaslama WOD’ları",
-  "noChange": "Değişiklik yok"
+  "noChange": "Değişiklik yok",
+  "settings": "Ayarlar",
+  "weightUnit": "Ağırlık birimi",
+  "weightUnitError": "Ağırlık birimi kaydedilemedi.",
+  "categoryBenchmarkWod": "Referans WOD’lar",
+  "noRecentMovementRecords": "Son 14 günde hareket kaydı yok."
 }

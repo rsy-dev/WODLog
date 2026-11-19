@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 abstract final class WodLogColors {
-  static const ink = Color(0xFF191F28);
+  static const ink = Color(0xFF292B2D);
   static const secondaryText = Color(0xFF6B7684);
-  static const blue = Color(0xFF3182F6);
-  static const blueSoft = Color(0xFFEAF3FF);
-  static const background = Color(0xFFF6F7F9);
+  static const accent = Color(0xFFC8451C);
+  static const accentSoft = Color(0xFFF9E5DC);
+  static const background = Color(0xFFF4F3F0);
   static const surface = Colors.white;
   static const line = Color(0xFFE9EDF2);
   static const success = Color(0xFF15966A);
@@ -16,10 +16,11 @@ abstract final class WodLogTheme {
   static ThemeData get light {
     final scheme =
         ColorScheme.fromSeed(
-          seedColor: WodLogColors.blue,
+          seedColor: WodLogColors.accent,
           brightness: Brightness.light,
         ).copyWith(
-          primary: WodLogColors.blue,
+          primary: const Color(0xFFA82E10),
+          primaryContainer: WodLogColors.accentSoft,
           onPrimary: Colors.white,
           secondary: WodLogColors.success,
           error: WodLogColors.negative,
@@ -57,6 +58,7 @@ abstract final class WodLogTheme {
           letterSpacing: -0.35,
         ),
         titleLarge: baseText.titleLarge?.copyWith(
+          fontFeatures: const [FontFeature.tabularFigures()],
           color: WodLogColors.ink,
           fontSize: 19,
           fontWeight: FontWeight.w700,
@@ -74,6 +76,7 @@ abstract final class WodLogTheme {
           height: 1.45,
         ),
         bodyMedium: baseText.bodyMedium?.copyWith(
+          fontFeatures: const [FontFeature.tabularFigures()],
           color: WodLogColors.secondaryText,
           fontSize: 14,
           height: 1.4,
@@ -117,7 +120,7 @@ abstract final class WodLogTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(48, 54),
-          backgroundColor: WodLogColors.blue,
+          backgroundColor: WodLogColors.accent,
           foregroundColor: Colors.white,
           textStyle: const TextStyle(
             fontSize: 16,
@@ -132,7 +135,7 @@ abstract final class WodLogTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(48, 50),
-          foregroundColor: WodLogColors.blue,
+          foregroundColor: WodLogColors.accent,
           side: const BorderSide(color: WodLogColors.line),
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
           shape: RoundedRectangleBorder(
@@ -158,7 +161,7 @@ abstract final class WodLogTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: WodLogColors.blue, width: 1.4),
+          borderSide: const BorderSide(color: WodLogColors.accent, width: 1.4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -167,7 +170,7 @@ abstract final class WodLogTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFFF0F2F5),
-        selectedColor: WodLogColors.blueSoft,
+        selectedColor: WodLogColors.accentSoft,
         side: BorderSide.none,
         shape: const StadiumBorder(),
         labelStyle: const TextStyle(
@@ -175,7 +178,7 @@ abstract final class WodLogTheme {
           fontWeight: FontWeight.w500,
         ),
         secondaryLabelStyle: const TextStyle(
-          color: WodLogColors.blue,
+          color: WodLogColors.accent,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -185,7 +188,7 @@ abstract final class WodLogTheme {
         space: 1,
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: WodLogColors.blue,
+        color: WodLogColors.accent,
         linearTrackColor: Color(0xFFE7EEF9),
       ),
       bottomSheetTheme: const BottomSheetThemeData(

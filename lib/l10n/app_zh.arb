@@ -30,18 +30,18 @@
   "addSet": "添加组数",
   "emptyExerciseHelp": "添加一组训练记录。",
   "loadSetsError": "无法加载训练组。",
-  "weightKg": "重量 (kg)",
+  "setWeight": "重量 ({unit})",
   "reps": "次数",
   "save": "保存",
   "setLabel": "第 {number} 组",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} 次",
+  "setSummary": "{setLabel}  {weight} × {reps} 次",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "自重",
   "categoryOtherEquipment": "其他器械",
   "benchmarkWorkouts": "基准 WOD",
-  "noChange": "无变化"
+  "noChange": "无变化",
+  "settings": "设置",
+  "weightUnit": "重量单位",
+  "weightUnitError": "无法保存重量单位。",
+  "categoryBenchmarkWod": "基准 WOD",
+  "noRecentMovementRecords": "过去 14 天没有动作记录。"
 }

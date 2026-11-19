@@ -30,18 +30,18 @@
   "addSet": "सेट जोड़ें",
   "emptyExerciseHelp": "अपना प्रदर्शन दर्ज करने के लिए एक सेट जोड़ें।",
   "loadSetsError": "सेट लोड नहीं हो सके।",
-  "weightKg": "वज़न (kg)",
+  "setWeight": "वज़न ({unit})",
   "reps": "दोहराव",
   "save": "सहेजें",
   "setLabel": "सेट {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} दोहराव",
+  "setSummary": "{setLabel}  {weight} × {reps} दोहराव",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "शरीर का वज़न",
   "categoryOtherEquipment": "अन्य उपकरण",
   "benchmarkWorkouts": "बेंचमार्क WOD",
-  "noChange": "कोई बदलाव नहीं"
+  "noChange": "कोई बदलाव नहीं",
+  "settings": "सेटिंग्स",
+  "weightUnit": "वज़न की इकाई",
+  "weightUnitError": "वज़न की इकाई सहेजी नहीं जा सकी।",
+  "categoryBenchmarkWod": "बेंचमार्क WOD",
+  "noRecentMovementRecords": "पिछले 14 दिनों में किसी मूवमेंट का रिकॉर्ड नहीं है।"
 }

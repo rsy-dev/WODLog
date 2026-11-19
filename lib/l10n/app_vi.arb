@@ -30,18 +30,18 @@
   "addSet": "Thêm hiệp",
   "emptyExerciseHelp": "Thêm một hiệp để ghi lại kết quả.",
   "loadSetsError": "Không thể tải các hiệp tập.",
-  "weightKg": "Mức tạ (kg)",
+  "setWeight": "Mức tạ ({unit})",
   "reps": "Số lần lặp",
   "save": "Lưu",
   "setLabel": "Hiệp {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps} lần",
+  "setSummary": "{setLabel}  {weight} × {reps} lần",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "Trọng lượng cơ thể",
   "categoryOtherEquipment": "Thiết bị khác",
   "benchmarkWorkouts": "WOD chuẩn",
-  "noChange": "Không thay đổi"
+  "noChange": "Không thay đổi",
+  "settings": "Cài đặt",
+  "weightUnit": "Đơn vị khối lượng",
+  "weightUnitError": "Không thể lưu đơn vị khối lượng.",
+  "categoryBenchmarkWod": "WOD chuẩn",
+  "noRecentMovementRecords": "Không có bản ghi động tác trong 14 ngày qua."
 }

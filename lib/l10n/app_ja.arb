@@ -30,18 +30,18 @@
   "addSet": "セットを追加",
   "emptyExerciseHelp": "セットを追加して記録しましょう。",
   "loadSetsError": "セットを読み込めませんでした。",
-  "weightKg": "重量 (kg)",
+  "setWeight": "重量 ({unit})",
   "reps": "回数",
   "save": "保存",
   "setLabel": "{number}セット",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} kg × {reps}回",
+  "setSummary": "{setLabel}  {weight} × {reps}回",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "自重",
   "categoryOtherEquipment": "その他の器具",
   "benchmarkWorkouts": "ベンチマークWOD",
-  "noChange": "変化なし"
+  "noChange": "変化なし",
+  "settings": "設定",
+  "weightUnit": "重量の単位",
+  "weightUnitError": "重量の単位を保存できませんでした。",
+  "categoryBenchmarkWod": "ベンチマークWOD",
+  "noRecentMovementRecords": "過去14日間に種目の記録がありません。"
 }

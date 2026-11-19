@@ -30,18 +30,18 @@
   "addSet": "إضافة مجموعة تكرارات",
   "emptyExerciseHelp": "أضف مجموعة لتسجيل أدائك.",
   "loadSetsError": "تعذر تحميل المجموعات.",
-  "weightKg": "الوزن (كجم)",
+  "setWeight": "الوزن ({unit})",
   "reps": "التكرارات",
   "save": "حفظ",
   "setLabel": "المجموعة {number}",
   "@setLabel": {
     "placeholders": {
       "number": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
-  "setSummary": "{setLabel}  {weight} كجم × {reps} تكرارات",
+  "setSummary": "{setLabel}  {weight} × {reps} تكرارات",
   "@setSummary": {
     "placeholders": {
       "setLabel": {
@@ -51,7 +51,7 @@
         "type": "String"
       },
       "reps": {
-        "type": "int"
+        "type": "String"
       }
     }
   },
@@ -121,5 +121,10 @@
   "categoryBodyweight": "وزن الجسم",
   "categoryOtherEquipment": "معدات أخرى",
   "benchmarkWorkouts": "تمارين WOD القياسية",
-  "noChange": "لا تغيير"
+  "noChange": "لا تغيير",
+  "settings": "الإعدادات",
+  "weightUnit": "وحدة الوزن",
+  "weightUnitError": "تعذر حفظ وحدة الوزن.",
+  "categoryBenchmarkWod": "تمارين WOD المرجعية",
+  "noRecentMovementRecords": "لا توجد سجلات حركات في آخر ١٤ يومًا."
 }

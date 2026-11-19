@@ -25,16 +25,18 @@ flutter run
 - 근력 블록, 종목, 세트 기록과 벤치마크 WOD 및 자유 형식 WOD 결과 기록
 - 같은 운동의 이전 세션과 세트·반복·중량 볼륨 비교
 - 카탈로그 동작 그룹별 최근 7일과 직전 7일 운동량 비교
-- 24개 UI 로캘과 지역별 날짜·숫자 표시
+- 24개 UI 로캘(중국어 문자·포르투갈어 브라질 변형 포함)과 지역별 날짜·숫자 표시
+- 설정에서 kg/lb 전환과 기기별 선택 저장
+- iOS·Android WODLog W 런처 아이콘
 - GitHub Pages iPhone 웹 미리보기와 홈 화면 추가 지원
 
 ## 진행 중
 
 - 회사에서 사용할 iPhone Safari 미리보기의 Pages 배포 검증
-- JSON 백업/복원 및 kg/lb 단위 설정
+- JSON 백업/복원
 - Galaxy APK 다운로드 경로와 실기기 검증
 - WOD 사진 온디바이스 OCR (기본 기록 흐름 다음 우선순위)
-- 24개 로캘 레이아웃·RTL 및 문구 최종 점검
+- 24개 로캘의 실기기 번역·레이아웃 점검
 
 웹 미리보기는 [iPhone Safari에서 열기](https://rsy-dev.github.io/WODLog/)로 테스트합니다. Safari 공유 메뉴에서 **Add to Home Screen**을 선택하세요. 웹과 네이티브 앱 기록은 서로 동기화되지 않습니다.
 
