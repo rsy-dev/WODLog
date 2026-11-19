@@ -13,6 +13,8 @@ class WodResults extends Table {
   RealColumn get rounds => real().nullable()();
   IntColumn get extraReps => integer().named('extra_reps').nullable()();
   RealColumn get scoreValue => real().named('score_value').nullable()();
+  TextColumn get outcome => text().nullable()();
+  IntColumn get tieBreakMs => integer().nullable()();
   TextColumn get resultText => text().named('result_text').nullable()();
   TextColumn get notes => text().nullable()();
   IntColumn get createdAt => integer().named('created_at')();
