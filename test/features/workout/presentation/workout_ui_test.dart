@@ -117,6 +117,17 @@ void main() {
       final date = DateFormat.yMMMMEEEEd(locale.toString())
           .format(DateTime.now());
       expect(find.text(l10n.workoutDate(date)), findsOneWidget);
+      if (locale.languageCode == 'en') {
+        expect(find.text('${l10n.weeklyGoal} · 1 / 3'), findsOneWidget);
+        await tester.tap(find.text(l10n.recordWod));
+        await tester.pumpAndSettle();
+        expect(
+          find.widgetWithText(TextFormField, l10n.wodName),
+          findsOneWidget,
+        );
+        await tester.tap(find.byTooltip(l10n.closeSheet));
+        await tester.pumpAndSettle();
+      }
       final todayVolume = find.text(
         '\u2066${number.format(500.625)}\u00a0lb\u2069·${l10n.reps}',
       );
@@ -124,15 +135,19 @@ void main() {
       expect(todayVolume, findsOneWidget);
 
       await show(const WorkoutHistoryScreen());
-      final chevron = tester.widget<Icon>(find.byIcon(Icons.chevron_right));
-      expect(chevron.icon!.matchTextDirection, isTrue);
-      final chevronContext = tester.element(find.byIcon(Icons.chevron_right));
+      final scoreLabel = find.text('07:45');
+      await tester.scrollUntilVisible(
+        scoreLabel,
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
+      final scoreContext = tester.element(scoreLabel);
       expect(
-        Directionality.of(chevronContext),
+        Directionality.of(scoreContext),
         isRtl ? TextDirection.rtl : TextDirection.ltr,
       );
       final leading = tester.getCenter(find.byIcon(Icons.fitness_center));
-      final trailing = tester.getCenter(find.byIcon(Icons.chevron_right));
+      final trailing = tester.getCenter(scoreLabel);
       expect(leading.dx > trailing.dx, isRtl);
 
       await show(const ProgressScreen());
@@ -211,6 +226,9 @@ void main() {
 
         await show(const WorkoutHistoryScreen());
         final search = find.widgetWithText(TextField, l10n.searchWorkouts);
+        await tester.enterText(search, 'thruster');
+        await tester.pumpAndSettle();
+        expect(find.text('Fran'), findsOneWidget);
         await tester.enterText(search, '1900-01-01');
         await tester.pumpAndSettle();
         expect(find.text('Fran'), findsNothing);
@@ -274,11 +292,12 @@ void main() {
         expect(find.text('Current best · rx · 07:45'), findsOneWidget);
         await tester.tap(find.text('Fran'));
         await tester.pumpAndSettle();
-        expect(find.text('Record improvements'), findsOneWidget);
-        await tester.tap(find.text('07:45'));
+        expect(find.text('Score history'), findsOneWidget);
+        expect(find.text('08:20'), findsOneWidget);
+        await tester.tap(find.text('07:45').first);
         await tester.pumpAndSettle();
-        expect(find.text(_session.title!), findsOneWidget);
-        await tester.pageBack();
+        expect(find.text(l10n.openSession), findsOneWidget);
+        await tester.tap(find.byTooltip(l10n.closeSheet));
         await tester.pumpAndSettle();
         await tester.tap(find.byIcon(Icons.receipt_long_outlined));
         await tester.pumpAndSettle();
@@ -294,8 +313,30 @@ void main() {
 
 const WodRecord _personalBest = (
   block: _wod,
-  prescription: WodPrescription(title: 'Fran', version: WodVersion.rx),
-  result: _result,
+  prescription: WodPrescription(
+    title: 'Fran',
+    version: WodVersion.rx,
+    structure: WodStructure.forTime,
+    scoreKind: WodScoreKind.time,
+    movements: [
+      WodMovementPrescription(
+        name: 'Thruster',
+        movementId: 'thruster',
+        quantities: [21, 15, 9],
+      ),
+    ],
+  ),
+  result: WodResult(
+    id: 'result',
+    blockId: 'wod',
+    resultType: 'time',
+    resultText: '07:45',
+    outcome: 'completed',
+    durationMs: 465000,
+    createdAt: 0,
+    updatedAt: 0,
+  ),
+
   outcome: WodOutcome.completed,
 );
 
@@ -333,7 +374,30 @@ class _RetryWodWriter implements WodRepository {
   }
 
   @override
-  Stream<List<WodRecord>> watchCompletedRecords() => Stream.value([]);
+  Stream<List<WodRecord>> watchCompletedRecords() => Stream.value([
+    _personalBest,
+    (
+      block: _wod,
+      prescription: _personalBest.prescription,
+      result: const WodResult(
+        id: 'slower',
+        blockId: 'wod',
+        resultType: 'time',
+        resultText: '08:20',
+        outcome: 'completed',
+        durationMs: 500000,
+        createdAt: 1,
+        updatedAt: 1,
+      ),
+      outcome: WodOutcome.completed,
+    ),
+  ]);
+
+  @override
+  Future<List<WodRecord>> searchRecords(
+    String text, {
+    String? sessionId,
+  }) async => [_personalBest];
 
   @override
   Future<WodRecord?> getRecord(String attemptId) async => (

@@ -452,4 +452,160 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get wodInvalidScore => 'Enter a valid result for this workout type.';
+
+  @override
+  String get wodPersonalRecords => 'WOD personal records';
+
+  @override
+  String get wodNoComparableRecords =>
+      'No WOD results with confirmed comparison conditions.';
+
+  @override
+  String get wodCurrentBest => 'Current best';
+
+  @override
+  String get wodRecordImprovements => 'Record improvements';
+
+  @override
+  String get wodScoreHistory => 'Score history';
+
+  @override
+  String get strengthPersonalRecords => 'Strength records';
+
+  @override
+  String get strengthEstimatedOneRepMax => 'Estimated 1RM';
+
+  @override
+  String get strengthRecordMethod =>
+      'Actual: successful sets at each rep count. Estimated: Epley (2–10 reps).';
+
+  @override
+  String get strengthDailyBest => 'Heaviest weight by date';
+
+  @override
+  String get wodRecentRecords => 'Recent WODs';
+
+  @override
+  String get wodViewAll => 'View all';
+
+  @override
+  String get wodRecordAgain => 'Record again';
+
+  @override
+  String get wodNewPersonalRecord => 'New personal record';
+
+  @override
+  String get wodWorkoutStandard => 'Workout standard';
+
+  @override
+  String get wodUnconfirmedStandard => 'Unconfirmed';
+
+  @override
+  String get wodCustomStandard => 'Custom';
+
+  @override
+  String get wodTimeCapSeconds => 'Time cap (seconds)';
+
+  @override
+  String get wodTotalRounds => 'Total rounds';
+
+  @override
+  String get wodDurationSeconds => 'Workout duration (seconds)';
+
+  @override
+  String get wodTotalIntervals => 'Total intervals';
+
+  @override
+  String get wodIntervalLengthSeconds => 'Interval length (seconds)';
+
+  @override
+  String get wodIntervals => 'Intervals';
+
+  @override
+  String get wodTiebreak => 'Tiebreak (min:sec)';
+
+  @override
+  String get wodUnreadLinesConfirmed =>
+      'I reviewed the unread lines and corrected the prescription';
+
+  @override
+  String get wodMovementQuantities => 'Quantities by segment (/ separated)';
+
+  @override
+  String get wodMovementEquipment => 'Equipment';
+
+  @override
+  String get wodMovementStandard => 'Target height and movement standard';
+
+  @override
+  String get wodMoveUp => 'Move up';
+
+  @override
+  String get wodMoveDown => 'Move down';
+
+  @override
+  String get wodDeleteRecord => 'Delete WOD';
+
+  @override
+  String get glossaryWodMetcon =>
+      'Workout of the day / metabolic conditioning.';
+
+  @override
+  String get glossaryRft => 'Time to complete the prescribed rounds.';
+
+  @override
+  String get glossaryE2Mom => 'Start the prescribed work every two minutes.';
+
+  @override
+  String get glossaryIntervals => 'Repeat prescribed work and rest intervals.';
+
+  @override
+  String get glossaryTabata =>
+      'Repeat 20 seconds of work and 10 seconds of rest.';
+
+  @override
+  String get glossaryMaxLoadReps =>
+      'Heaviest successful load / maximum repetitions.';
+
+  @override
+  String get glossaryDistanceCalories =>
+      'Distance or calorie score recorded by the equipment.';
+
+  @override
+  String get glossaryFoundations =>
+      'A prescription for athletes building foundational skills.';
+
+  @override
+  String get glossaryTimeCap => 'The prescribed workout time limit.';
+
+  @override
+  String get glossaryTiebreak =>
+      'The elapsed time at a specified checkpoint used to break a tie.';
+
+  @override
+  String get glossaryChipper =>
+      'Complete a series of movements in order, once each.';
+
+  @override
+  String get glossaryCoupletTriplet =>
+      'A workout combining two / three movements.';
+
+  @override
+  String get glossaryLadder =>
+      'Repetitions or load change in steps across sets.';
+
+  @override
+  String get glossaryBuyInCashOut =>
+      'Prescribed work before / after the main workout.';
+
+  @override
+  String get glossaryUnbroken => 'Complete a set without a break.';
+
+  @override
+  String get glossaryNoRep =>
+      'A repetition that does not meet the movement standard.';
+
+  @override
+  String get glossaryPr =>
+      'A personal record under comparable workout conditions.';
 }

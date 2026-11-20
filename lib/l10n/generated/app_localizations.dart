@@ -978,6 +978,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a valid result for this workout type.'**
   String get wodInvalidScore;
+
+  /// No description provided for @wodPersonalRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'WOD personal records'**
+  String get wodPersonalRecords;
+
+  /// No description provided for @wodNoComparableRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No WOD results with confirmed comparison conditions.'**
+  String get wodNoComparableRecords;
+
+  /// No description provided for @wodCurrentBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Current best'**
+  String get wodCurrentBest;
+
+  /// No description provided for @wodRecordImprovements.
+  ///
+  /// In en, this message translates to:
+  /// **'Record improvements'**
+  String get wodRecordImprovements;
+
+  /// No description provided for @wodScoreHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Score history'**
+  String get wodScoreHistory;
+
+  /// No description provided for @strengthPersonalRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength records'**
+  String get strengthPersonalRecords;
+
+  /// No description provided for @strengthEstimatedOneRepMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated 1RM'**
+  String get strengthEstimatedOneRepMax;
+
+  /// No description provided for @strengthRecordMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual: successful sets at each rep count. Estimated: Epley (2–10 reps).'**
+  String get strengthRecordMethod;
+
+  /// No description provided for @strengthDailyBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Heaviest weight by date'**
+  String get strengthDailyBest;
+
+  /// No description provided for @wodRecentRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent WODs'**
+  String get wodRecentRecords;
+
+  /// No description provided for @wodViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get wodViewAll;
+
+  /// No description provided for @wodRecordAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Record again'**
+  String get wodRecordAgain;
+
+  /// No description provided for @wodNewPersonalRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'New personal record'**
+  String get wodNewPersonalRecord;
+
+  /// No description provided for @wodWorkoutStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout standard'**
+  String get wodWorkoutStandard;
+
+  /// No description provided for @wodUnconfirmedStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconfirmed'**
+  String get wodUnconfirmedStandard;
+
+  /// No description provided for @wodCustomStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get wodCustomStandard;
+
+  /// No description provided for @wodTimeCapSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Time cap (seconds)'**
+  String get wodTimeCapSeconds;
+
+  /// No description provided for @wodTotalRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Total rounds'**
+  String get wodTotalRounds;
+
+  /// No description provided for @wodDurationSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout duration (seconds)'**
+  String get wodDurationSeconds;
+
+  /// No description provided for @wodTotalIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Total intervals'**
+  String get wodTotalIntervals;
+
+  /// No description provided for @wodIntervalLengthSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval length (seconds)'**
+  String get wodIntervalLengthSeconds;
+
+  /// No description provided for @wodIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Intervals'**
+  String get wodIntervals;
+
+  /// No description provided for @wodTiebreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiebreak (min:sec)'**
+  String get wodTiebreak;
+
+  /// No description provided for @wodUnreadLinesConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'I reviewed the unread lines and corrected the prescription'**
+  String get wodUnreadLinesConfirmed;
+
+  /// No description provided for @wodMovementQuantities.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantities by segment (/ separated)'**
+  String get wodMovementQuantities;
+
+  /// No description provided for @wodMovementEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment'**
+  String get wodMovementEquipment;
+
+  /// No description provided for @wodMovementStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Target height and movement standard'**
+  String get wodMovementStandard;
+
+  /// No description provided for @wodMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get wodMoveUp;
+
+  /// No description provided for @wodMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get wodMoveDown;
+
+  /// No description provided for @wodDeleteRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete WOD'**
+  String get wodDeleteRecord;
+
+  /// No description provided for @glossaryWodMetcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout of the day / metabolic conditioning.'**
+  String get glossaryWodMetcon;
+
+  /// No description provided for @glossaryRft.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to complete the prescribed rounds.'**
+  String get glossaryRft;
+
+  /// No description provided for @glossaryE2Mom.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the prescribed work every two minutes.'**
+  String get glossaryE2Mom;
+
+  /// No description provided for @glossaryIntervals.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat prescribed work and rest intervals.'**
+  String get glossaryIntervals;
+
+  /// No description provided for @glossaryTabata.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat 20 seconds of work and 10 seconds of rest.'**
+  String get glossaryTabata;
+
+  /// No description provided for @glossaryMaxLoadReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Heaviest successful load / maximum repetitions.'**
+  String get glossaryMaxLoadReps;
+
+  /// No description provided for @glossaryDistanceCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance or calorie score recorded by the equipment.'**
+  String get glossaryDistanceCalories;
+
+  /// No description provided for @glossaryFoundations.
+  ///
+  /// In en, this message translates to:
+  /// **'A prescription for athletes building foundational skills.'**
+  String get glossaryFoundations;
+
+  /// No description provided for @glossaryTimeCap.
+  ///
+  /// In en, this message translates to:
+  /// **'The prescribed workout time limit.'**
+  String get glossaryTimeCap;
+
+  /// No description provided for @glossaryTiebreak.
+  ///
+  /// In en, this message translates to:
+  /// **'The elapsed time at a specified checkpoint used to break a tie.'**
+  String get glossaryTiebreak;
+
+  /// No description provided for @glossaryChipper.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete a series of movements in order, once each.'**
+  String get glossaryChipper;
+
+  /// No description provided for @glossaryCoupletTriplet.
+  ///
+  /// In en, this message translates to:
+  /// **'A workout combining two / three movements.'**
+  String get glossaryCoupletTriplet;
+
+  /// No description provided for @glossaryLadder.
+  ///
+  /// In en, this message translates to:
+  /// **'Repetitions or load change in steps across sets.'**
+  String get glossaryLadder;
+
+  /// No description provided for @glossaryBuyInCashOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescribed work before / after the main workout.'**
+  String get glossaryBuyInCashOut;
+
+  /// No description provided for @glossaryUnbroken.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete a set without a break.'**
+  String get glossaryUnbroken;
+
+  /// No description provided for @glossaryNoRep.
+  ///
+  /// In en, this message translates to:
+  /// **'A repetition that does not meet the movement standard.'**
+  String get glossaryNoRep;
+
+  /// No description provided for @glossaryPr.
+  ///
+  /// In en, this message translates to:
+  /// **'A personal record under comparable workout conditions.'**
+  String get glossaryPr;
 }
 
 class _AppLocalizationsDelegate

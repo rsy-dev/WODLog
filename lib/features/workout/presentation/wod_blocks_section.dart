@@ -9,14 +9,13 @@ import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/weight_unit.dart';
 import '../data/named_wod_catalog.dart';
-import '../data/wod_parser.dart';
 import '../data/wod_prescription.dart';
 import 'localized_decimal.dart';
-import 'movement_picker_sheet.dart';
+import 'wod_prescription_editor.dart';
 import '../providers/wod_providers.dart';
+import '../providers/workout_providers.dart';
 import 'wod_library_sheet.dart';
 import 'wod_source_review_sheet.dart';
-import 'wod_text_preview_dialog.dart';
 
 class WodBlocksSection extends ConsumerWidget {
   const WodBlocksSection({
@@ -47,21 +46,18 @@ class WodBlocksSection extends ConsumerWidget {
                 ),
               ),
               IconButton(
-                tooltip: wodTextPreviewLabel(context),
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (_) => WodTextPreviewDialog(
-                    onSave: (title, draft, levelIndex, score) => ref
-                        .read(wodRepositoryProvider)
-                        .createImportedWod(
-                          sessionId: sessionId,
-                          title: title,
-                          draft: draft,
-                          levelIndex: levelIndex,
-                          score: score,
-                        ),
-                  ),
-                ),
+                tooltip: l10n.reviewWodText,
+                onPressed: () async {
+                  final draft = await showWodSourceReview(context, title: '');
+                  if (!context.mounted || draft == null) return;
+                  await showWodResultEditor(
+                    context,
+                    ref,
+                    const Uuid().v4(),
+                    newSessionId: sessionId,
+                    initialDraft: draft,
+                  );
+                },
                 icon: const Icon(Icons.content_paste),
               ),
               if (items.isNotEmpty)
@@ -150,6 +146,8 @@ Future<void> showWodResultEditor(
   String blockId, {
   bool repeat = false,
   String? newSessionId,
+  String? newWorkoutDate,
+  WodPrescription? initialDraft,
   String? initialBenchmark,
 }) async {
   final repository = ref.read(wodRepositoryProvider);
@@ -158,7 +156,7 @@ Future<void> showWodResultEditor(
     Localizations.localeOf(context).toString(),
   );
   final unit = ref.read(weightUnitProvider).value ?? WeightUnit.kg;
-  final isNew = newSessionId != null;
+  final isNew = newSessionId != null || newWorkoutDate != null;
   final record = isNew ? null : await repository.getRecord(blockId);
   if ((!isNew && record == null) || !context.mounted) return;
   final result = repeat ? null : record?.result;
@@ -183,8 +181,30 @@ Future<void> showWodResultEditor(
     WodScoreKind.points => 'points',
   };
 
-  var title = record?.block.title ?? initialBenchmark ?? '';
-  var prescription = record?.prescription ?? benchmarkDraft(title);
+  var title =
+      record?.block.title ?? initialBenchmark ?? initialDraft?.title ?? '';
+  var prescription =
+      record?.prescription ?? initialDraft ?? benchmarkDraft(title);
+  void updatePrescription(Map<String, Object?> changes) {
+    prescription = WodPrescription.fromJson({
+      ...prescription.toJson(),
+      ...changes,
+    });
+  }
+
+  void updateMovements(List<WodMovementPrescription> movements) {
+    updatePrescription({
+      'movements': movements.map((item) => item.toJson()).toList(),
+    });
+  }
+
+  void moveMovement(int from, int to) {
+    final movements = [...prescription.movements];
+    final item = movements.removeAt(from);
+    movements.insert(to, item);
+    updateMovements(movements);
+  }
+
   if (repeat) prescription = NamedWodCatalog.repeatDraft(prescription);
   final template = NamedWodCatalog.find(title);
   if (template != null &&
@@ -207,14 +227,15 @@ Future<void> showWodResultEditor(
   var type = originalType ?? typeFor(prescription.scoreKind);
   var titleRevision = 0;
   var typeRevision = 0;
-  final korean = l10n.localeName.startsWith('ko');
   var version = prescription.version;
   var score = result?.resultText ?? '';
   final hasPreviousScore = score.trim().isNotEmpty;
   var usePreviousScore = hasPreviousScore;
   var secondScore = '';
+  var tieBreak = '';
   var ending = _WodEnding.finished;
   var invalid = false;
+  final invalidPrescriptionFields = <String>{};
 
   int? whole(String text) {
     final value = parseLocalizedDecimal(text, number);
@@ -223,23 +244,31 @@ Future<void> showWodResultEditor(
         : null;
   }
 
+  int? durationMs(String text) {
+    final parts = text.trim().split(':');
+    if (parts.length != 2) return null;
+    final minutes = whole(parts.first);
+    final seconds = whole(parts.last);
+    if (minutes == null || seconds == null || seconds >= 60) return null;
+    final elapsed = (minutes * 60 + seconds) * 1000;
+    return elapsed > 0 ? elapsed : null;
+  }
+
   String? validatedScore() {
     if (usePreviousScore || type == 'other' || !_types.contains(type)) {
       return score.trim().isEmpty ? null : score.trim();
     }
+    final capMs = (prescription.timeCapSeconds ?? 0) * 1000;
     if (type == 'for_time' && ending == _WodEnding.stopped) return 'DNF';
     if (type == 'for_time' && ending == _WodEnding.finished) {
-      final parts = score.trim().split(':');
-      if (parts.length != 2) return null;
-      final minutes = whole(parts.first);
-      final seconds = whole(parts.last);
-      if (minutes == null ||
-          seconds == null ||
-          seconds >= 60 ||
-          (minutes == 0 && seconds == 0)) {
-        return null;
-      }
-      return '$minutes:${seconds.toString().padLeft(2, '0')}';
+      final elapsed = durationMs(score);
+      if (elapsed == null || (capMs > 0 && elapsed > capMs)) return null;
+      final seconds = elapsed ~/ 1000;
+      return '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+    }
+    if (type == 'for_time' && tieBreak.trim().isNotEmpty) {
+      final elapsed = durationMs(tieBreak);
+      if (elapsed == null || (capMs > 0 && elapsed > capMs)) return null;
     }
     if (type == 'distance' || type == 'points') {
       return parseLocalizedDecimal(score, number)?.toString();
@@ -252,12 +281,15 @@ Future<void> showWodResultEditor(
     if (first == null) return null;
     if (type == 'for_time') return 'CAP · $first reps';
     if (type == 'reps' || type == 'calories') return '$first';
-    if (type == 'emom') return '$first intervals';
+    if (type == 'emom') {
+      final total = prescription.intervalCount;
+      return total != null && first > total ? null : '$first intervals';
+    }
     final second = whole(secondScore);
     return second == null ? null : '$first + $second';
   }
 
-  var notes = result?.notes ?? '';
+  var notes = result?.notes ?? initialDraft?.rawText ?? '';
   var notesRevision = 0;
   final appliedSources = <String>{};
   var saving = false;
@@ -265,7 +297,7 @@ Future<void> showWodResultEditor(
   final saved = await showWodLogSheet<bool>(
     context: context,
     title: repeat
-        ? (korean ? '다시 기록' : 'Record again')
+        ? (l10n.wodRecordAgain)
         : result == null
         ? l10n.addWodResult
         : l10n.editWodResult,
@@ -291,6 +323,7 @@ Future<void> showWodResultEditor(
                         title = template.name;
                         titleRevision++;
                         prescription = benchmarkDraft(title);
+                        invalidPrescriptionFields.clear();
                         version = prescription.version;
                         type = typeFor(prescription.scoreKind);
                         typeRevision++;
@@ -334,19 +367,38 @@ Future<void> showWodResultEditor(
               subtitle: movement.quantities.isEmpty
                   ? null
                   : Text(movement.quantities.map(number.format).join(' / ')),
+              onTap: saving
+                  ? null
+                  : () async {
+                      final edited = await editWodMovement(
+                        context,
+                        movement,
+                        unit,
+                        number,
+                        index > 0
+                            ? () =>
+                                  setState(() => moveMovement(index, index - 1))
+                            : null,
+                        index < prescription.movements.length - 1
+                            ? () =>
+                                  setState(() => moveMovement(index, index + 1))
+                            : null,
+                      );
+                      if (edited == null || !context.mounted) return;
+                      setState(
+                        () => updateMovements(
+                          [...prescription.movements]..[index] = edited,
+                        ),
+                      );
+                    },
               trailing: IconButton(
                 tooltip: l10n.deleteExercise,
                 onPressed: saving
                     ? null
                     : () => setState(() {
-                        final movements = [...prescription.movements]
-                          ..removeAt(index);
-                        prescription = WodPrescription.fromJson({
-                          ...prescription.toJson(),
-                          'movements': movements
-                              .map((item) => item.toJson())
-                              .toList(),
-                        });
+                        updateMovements(
+                          [...prescription.movements]..removeAt(index),
+                        );
                       }),
                 icon: const Icon(Icons.remove_circle_outline),
               ),
@@ -355,55 +407,32 @@ Future<void> showWodResultEditor(
             onPressed: saving
                 ? null
                 : () async {
-                    final movement =
-                        await showWodLogSheet<WodMovementPrescription>(
-                          context: context,
-                          title: l10n.addExercise,
-                          builder: (sheetContext) => MovementPickerSheet(
-                            useSearchAsCustom: true,
-                            onSelected: (entry) => Navigator.pop(
-                              sheetContext,
-                              WodMovementPrescription(
-                                name: entry.name,
-                                movementId: entry.id,
-                              ),
-                            ),
-                            onCustom: (name) => Navigator.pop(
-                              sheetContext,
-                              WodMovementPrescription(name: name),
-                            ),
-                          ),
-                        );
+                    final movement = await pickWodMovement(context);
                     if (movement == null || !context.mounted) return;
-                    setState(() {
-                      prescription = WodPrescription.fromJson({
-                        ...prescription.toJson(),
-                        'movements': [
-                          for (final item in prescription.movements)
-                            item.toJson(),
-                          movement.toJson(),
-                        ],
-                      });
-                    });
+                    setState(
+                      () => updateMovements([
+                        ...prescription.movements,
+                        movement,
+                      ]),
+                    );
                   },
             child: Text(l10n.addExercise),
           ),
           if (isNew || repeat || prescription.movements.isNotEmpty)
             DropdownButtonFormField<WodVersion>(
+              key: ValueKey(('version', titleRevision, notesRevision)),
               initialValue: version,
-              decoration: InputDecoration(
-                labelText: korean ? '수행 기준' : 'Workout standard',
-              ),
+              decoration: InputDecoration(labelText: l10n.wodWorkoutStandard),
               items: [
                 for (final item in WodVersion.values)
                   DropdownMenuItem(
                     value: item,
                     child: Text(switch (item) {
-                      WodVersion.unknown => korean ? '미확인' : 'Unconfirmed',
+                      WodVersion.unknown => l10n.wodUnconfirmedStandard,
                       WodVersion.rx => 'Rx',
                       WodVersion.scaled => 'Scaled',
                       WodVersion.foundations => 'Foundations',
-                      WodVersion.custom => korean ? '직접 설정' : 'Custom',
+                      WodVersion.custom => l10n.wodCustomStandard,
                     }),
                   ),
               ],
@@ -476,6 +505,15 @@ Future<void> showWodResultEditor(
               ),
               onChanged: (value) => score = value,
             ),
+          if (!usePreviousScore &&
+              type == 'for_time' &&
+              ending == _WodEnding.capped)
+            TextFormField(
+              initialValue: tieBreak,
+              enabled: !saving,
+              decoration: InputDecoration(labelText: l10n.wodTiebreak),
+              onChanged: (value) => tieBreak = value,
+            ),
           if (!usePreviousScore && (type == 'amrap' || type == 'rounds_reps'))
             TextFormField(
               key: ValueKey(type),
@@ -485,6 +523,90 @@ Future<void> showWodResultEditor(
               decoration: InputDecoration(labelText: l10n.wodExtraReps),
               onChanged: (value) => secondScore = value,
             ),
+          ExpansionTile(
+            key: ValueKey(('prescription', titleRevision, notesRevision)),
+            title: Text(l10n.wodPrescription),
+            children: [
+              DropdownButtonFormField<WodStructure>(
+                initialValue: prescription.structure,
+                decoration: InputDecoration(labelText: l10n.wodSectionTitle),
+                items: [
+                  for (final structure in WodStructure.values)
+                    DropdownMenuItem(
+                      value: structure,
+                      child: Text(switch (structure) {
+                        WodStructure.forTime => l10n.resultForTime,
+                        WodStructure.amrap => l10n.resultAmrap,
+                        WodStructure.emom => l10n.resultEmom,
+                        WodStructure.intervals => l10n.wodIntervals,
+                        WodStructure.other => l10n.resultOther,
+                        WodStructure.unknown => l10n.wodUnconfirmedStandard,
+                      }),
+                    ),
+                ],
+                onChanged: saving
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          updatePrescription({'structure': value.name});
+                        }
+                      },
+              ),
+              for (final (field, label, value) in [
+                ('rounds', l10n.wodTotalRounds, prescription.rounds),
+                (
+                  'timeCapSeconds',
+                  l10n.wodTimeCapSeconds,
+                  prescription.timeCapSeconds,
+                ),
+                (
+                  'durationSeconds',
+                  l10n.wodDurationSeconds,
+                  prescription.durationSeconds,
+                ),
+                (
+                  'intervalCount',
+                  l10n.wodTotalIntervals,
+                  prescription.intervalCount,
+                ),
+                (
+                  'intervalSeconds',
+                  l10n.wodIntervalLengthSeconds,
+                  prescription.intervalSeconds,
+                ),
+              ])
+                TextFormField(
+                  initialValue: value == null ? '' : number.format(value),
+                  enabled: !saving,
+                  decoration: InputDecoration(labelText: label),
+                  keyboardType: TextInputType.number,
+                  onChanged: (text) {
+                    final amount = whole(text);
+                    if (text.trim().isNotEmpty &&
+                        (amount == null || amount == 0)) {
+                      invalidPrescriptionFields.add(field);
+                    } else {
+                      invalidPrescriptionFields.remove(field);
+                      updatePrescription({field: amount});
+                    }
+                  },
+                ),
+              if (prescription.unparsedLines.isNotEmpty) ...[
+                Text(l10n.unreadWodLines),
+                for (final line in prescription.unparsedLines) Text(line),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.wodUnreadLinesConfirmed),
+                  value: false,
+                  onChanged: saving
+                      ? null
+                      : (_) => setState(() {
+                          updatePrescription({'unparsedLines': <String>[]});
+                        }),
+                ),
+              ],
+            ],
+          ),
           if (usePreviousScore)
             TextButton(
               onPressed: saving
@@ -501,21 +623,24 @@ Future<void> showWodResultEditor(
             onPressed: saving
                 ? null
                 : () async {
-                    final source = await showWodSourceReview(context);
+                    final draft = await showWodSourceReview(
+                      context,
+                      title: title,
+                    );
+                    final source = draft?.rawText;
                     if (!context.mounted ||
+                        draft == null ||
                         source == null ||
-                        notes.contains(source) ||
+                        source == prescription.rawText ||
                         !appliedSources.add(source)) {
                       return;
                     }
                     setState(() {
-                      prescription = const WodTextParser().parsePrescription(
-                        source,
-                        title: title,
-                      );
+                      prescription = draft;
+                      invalidPrescriptionFields.clear();
                       version = prescription.version;
-                      if (isNew &&
-                          prescription.scoreKind != WodScoreKind.unknown) {
+                      if (prescription.scoreKind != WodScoreKind.unknown) {
+                        usePreviousScore = false;
                         type = typeFor(prescription.scoreKind);
                         typeRevision++;
                         score = '';
@@ -549,6 +674,7 @@ Future<void> showWodResultEditor(
                 : () async {
                     final confirmedScore = validatedScore();
                     if (confirmedScore == null ||
+                        invalidPrescriptionFields.isNotEmpty ||
                         (isNew && title.trim().isEmpty)) {
                       setState(() => invalid = true);
                       return;
@@ -595,7 +721,6 @@ Future<void> showWodResultEditor(
                         );
                       } else if (!usePreviousScore &&
                           kind != WodScoreKind.unknown) {
-                        final time = confirmedScore.split(':');
                         final attemptScore = WodAttemptScore(
                           outcome: type == 'for_time'
                               ? switch (ending) {
@@ -607,9 +732,12 @@ Future<void> showWodResultEditor(
                           elapsedMs:
                               kind == WodScoreKind.time &&
                                   ending == _WodEnding.finished
-                              ? (int.parse(time.first) * 60 +
-                                        int.parse(time.last)) *
-                                    1000
+                              ? durationMs(score)
+                              : null,
+                          tieBreakMs:
+                              kind == WodScoreKind.time &&
+                                  ending == _WodEnding.capped
+                              ? durationMs(tieBreak)
                               : null,
                           rounds: kind == WodScoreKind.roundsAndReps
                               ? whole(score)
@@ -644,10 +772,10 @@ Future<void> showWodResultEditor(
                             prescription: definition,
                             score: attemptScore,
                           );
-                        } else if (repeat) {
+                        } else if (repeat || newWorkoutDate != null) {
                           await repository.saveRepeat(
                             attemptId: attemptId,
-                            workoutDate: workoutDate,
+                            workoutDate: newWorkoutDate ?? workoutDate,
                             prescription: definition,
                             score: attemptScore,
                           );
@@ -689,7 +817,7 @@ Future<void> showWodResultEditor(
     blockId: attemptId,
     sessionId: sessionId,
     title: repeat ? prescription.title : title.trim(),
-    showSessionLink: repeat,
+    showSessionLink: newSessionId == null,
   );
 }
 
@@ -709,17 +837,39 @@ Future<void> showWodRecordDetail(
     builder: (_) => Consumer(
       builder: (context, ref, _) {
         final score = ref.watch(wodResultProvider(blockId));
+        final blocks = ref.watch(wodBlocksForSessionProvider(sessionId));
+        final record = ref.watch(
+          _detailRecordProvider((blockId, blocks.value)),
+        );
+        final prescription = record.value?.prescription;
         final bests = ref.watch(wodPersonalBestsProvider).value ?? [];
         final isPr = bests.any(
           (group) =>
               group.improvements.any((record) => record.block.id == blockId),
         );
-        final korean = l10n.localeName.startsWith('ko');
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
             if (date != null) Text(date),
-            if (isPr) Text(korean ? '개인 기록 갱신' : 'Personal record'),
+            if (prescription != null) ...[
+              Text(prescription.version.name),
+              for (final movement in prescription.movements)
+                Text(
+                  [
+                    movement.name,
+                    if (movement.quantities.isNotEmpty)
+                      '${movement.quantities.join(' / ')} ${movement.unit.name}',
+                    if (movement.weightKg case final kg?)
+                      (ref.watch(weightUnitProvider).value ?? WeightUnit.kg)
+                          .format(
+                            kg,
+                            NumberFormat.decimalPattern(l10n.localeName),
+                          ),
+                    ?movement.standard,
+                  ].join(' · '),
+                ),
+            ],
+            if (isPr) Text(l10n.wodNewPersonalRecord),
             if (notes case final blockNotes?)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -752,7 +902,41 @@ Future<void> showWodRecordDetail(
             OutlinedButton(
               onPressed: () =>
                   showWodResultEditor(context, ref, blockId, repeat: true),
-              child: Text(korean ? '다시 기록' : 'Record again'),
+              child: Text(l10n.wodRecordAgain),
+            ),
+            OutlinedButton(
+              onPressed: () async {
+                final repository = ref.read(workoutRepositoryProvider);
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: Text(l10n.wodDeleteRecord),
+                    content: Text(title),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext, false),
+                        child: Text(l10n.cancel),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(dialogContext, true),
+                        child: Text(l10n.wodDeleteRecord),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed != true || !context.mounted) return;
+                try {
+                  await repository.deleteStrengthBlock(blockId);
+                  if (context.mounted) Navigator.pop(context);
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(l10n.wodSaveError)));
+                  }
+                }
+              },
+              child: Text(l10n.wodDeleteRecord),
             ),
             if (showSessionLink)
               OutlinedButton(
@@ -770,6 +954,11 @@ Future<void> showWodRecordDetail(
     ),
   );
 }
+
+final _detailRecordProvider = FutureProvider.autoDispose.family(
+  (ref, (String, List<WorkoutBlock>?) key) =>
+      ref.watch(wodRepositoryProvider).getRecord(key.$1),
+);
 
 enum _WodEnding { finished, capped, stopped }
 

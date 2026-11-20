@@ -21,7 +21,7 @@ class ProgressScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final progress = ref.watch(exerciseProgressProvider);
-    final wodBests = ref.watch(wodPersonalBestsProvider);
+    final records = ref.watch(_wodAttemptsProvider);
     final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
     final locale = Localizations.localeOf(context).toString();
     final number = NumberFormat.decimalPattern(locale);
@@ -62,24 +62,33 @@ class ProgressScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
-              wodBests.when(
+              records.when(
                 loading: () => const LinearProgressIndicator(),
                 error: (_, _) => Text(l10n.loadWorkoutError),
-                data: (groups) => groups.isEmpty
-                    ? Text(
-                        l10n.localeName.startsWith('ko')
-                            ? '비교 조건이 확인된 WOD 기록이 없습니다.'
-                            : 'No WOD results with confirmed comparison conditions.',
-                      )
-                    : Column(
-                        children: [
-                          for (final group in groups)
-                            _WodPersonalRecordCard(
-                              group: group,
-                              dateFormat: dateFormat,
-                            ),
-                        ],
-                      ),
+                data: (records) {
+                  final groups = wodPersonalBests(records);
+                  if (groups.isEmpty) {
+                    return Text(l10n.wodNoComparableRecords);
+                  }
+                  final attemptsByKey = <String, List<WodRecord>>{};
+                  for (final record in records) {
+                    final key = wodComparisonKey(record);
+                    if (key != null) {
+                      (attemptsByKey[key] ??= []).add(record);
+                    }
+                  }
+                  return Column(
+                    children: [
+                      for (final group in groups)
+                        _WodPersonalRecordCard(
+                          group: group,
+                          attempts:
+                              attemptsByKey[wodComparisonKey(group.best)]!,
+                          dateFormat: dateFormat,
+                        ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 24),
               if (items.isEmpty)
@@ -143,56 +152,73 @@ class ProgressScreen extends ConsumerWidget {
 }
 
 String wodPersonalRecordsLabel(AppLocalizations l10n) =>
-    l10n.localeName.startsWith('ko') ? 'WOD 개인 기록' : 'WOD personal records';
+    l10n.wodPersonalRecords;
+
+final _wodAttemptsProvider = StreamProvider.autoDispose(
+  (ref) => ref.watch(wodRepositoryProvider).watchCompletedRecords(),
+);
 
 class _WodPersonalRecordCard extends ConsumerWidget {
-  const _WodPersonalRecordCard({required this.group, required this.dateFormat});
+  const _WodPersonalRecordCard({
+    required this.group,
+    required this.attempts,
+    required this.dateFormat,
+  });
 
   final WodPersonalBest group;
+  final List<WodRecord> attempts;
   final DateFormat dateFormat;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final korean = l10n.localeName.startsWith('ko');
     final best = group.best;
     return Card(
       child: ExpansionTile(
         title: Text(best.prescription.title),
         subtitle: Text(
           [
-            korean ? '현재 최고' : 'Current best',
+            l10n.wodCurrentBest,
             best.prescription.version.name,
-            wodScoreLabel(context, ref, best.result) ?? '',
+            ?wodScoreLabel(context, ref, best.result),
           ].join(' · '),
         ),
         children: [
-          ListTile(
-            title: Text(l10n.openSession),
-            onTap: () => _openSession(context, best),
-          ),
+          _attemptTile(context, ref, best),
           if (group.improvements.isNotEmpty) ...[
-            ListTile(title: Text(korean ? '갱신 이력' : 'Record improvements')),
+            ListTile(title: Text(l10n.wodRecordImprovements)),
             for (final attempt in group.improvements.reversed)
-              ListTile(
-                title: Text(wodScoreLabel(context, ref, attempt.result) ?? ''),
-                subtitle: Text(
-                  dateFormat.format(
-                    DateTime.fromMillisecondsSinceEpoch(
-                      attempt.result!.createdAt,
-                    ),
-                  ),
-                ),
-                onTap: () => _openSession(context, attempt),
-              ),
+              _attemptTile(context, ref, attempt),
           ],
+          ListTile(title: Text(l10n.wodScoreHistory)),
+          for (final attempt in attempts.reversed)
+            _attemptTile(context, ref, attempt),
         ],
       ),
     );
   }
 
-  void _openSession(BuildContext context, WodRecord attempt) {
-    context.push('/sessions/${attempt.block.sessionId}');
+  Widget _attemptTile(BuildContext context, WidgetRef ref, WodRecord attempt) {
+    final workoutDate = ref
+        .watch(workoutSessionProvider(attempt.block.sessionId))
+        .value
+        ?.workoutDate;
+    final date = DateTime.tryParse(workoutDate ?? '');
+    final dateLabel = date == null ? workoutDate : dateFormat.format(date);
+    return ListTile(
+      title: Text(wodScoreLabel(context, ref, attempt.result) ?? ''),
+      subtitle: Text(
+        [?dateLabel, attempt.prescription.version.name].join(' · '),
+      ),
+      onTap: () => showWodRecordDetail(
+        context,
+        blockId: attempt.block.id,
+        sessionId: attempt.block.sessionId,
+        title: attempt.prescription.title,
+        notes: attempt.block.notes,
+        date: dateLabel,
+      ),
+    );
   }
 }
 
@@ -426,6 +452,41 @@ class _MovementProgressCard extends StatelessWidget {
           children: [
             Text(progress.name, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text(l10n.strengthPersonalRecords),
+              children: [
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    for (final reps in [1, 3, 5])
+                      _strengthRecord(
+                        context,
+                        '${number.format(reps)}RM',
+                        progress.actualRepMaxKg(reps),
+                        (workout) => workout.actualRepMaxesKg[reps],
+                      ),
+                    _strengthRecord(
+                      context,
+                      l10n.strengthEstimatedOneRepMax,
+                      progress.estimatedOneRepMaxKg,
+                      (workout) => workout.estimatedOneRepMaxKg,
+                    ),
+                  ],
+                ),
+                ListTile(title: Text(l10n.strengthRecordMethod)),
+                ListTile(title: Text(l10n.strengthDailyBest)),
+                if (progress.dailyBestWeightKg.isEmpty)
+                  Text(l10n.noProgressYet),
+                for (final entry
+                    in progress.dailyBestWeightKg.entries.toList().reversed)
+                  ListTile(
+                    title: Text(_dateLabel(entry.key)),
+                    trailing: Text(_weightOrEmpty(entry.value)),
+                  ),
+              ],
+            ),
             _snapshot(latest, l10n.lastWorkout, l10n),
             if (previous != null) ...[
               const Divider(height: 24),
@@ -455,6 +516,31 @@ class _MovementProgressCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _strengthRecord(
+    BuildContext context,
+    String label,
+    double? weight,
+    double? Function(ExerciseWorkoutSnapshot) readWeight,
+  ) {
+    final metric = _SummaryMetric(label: label, value: _weightOrEmpty(weight));
+    if (weight == null) return metric;
+    final source = progress.workouts.reversed.firstWhere(
+      (workout) => readWeight(workout) == weight,
+    );
+    return TextButton(
+      onPressed: () => context.push('/sessions/${source.sessionId}'),
+      child: metric,
+    );
+  }
+
+  String _weightOrEmpty(double? weight) =>
+      weight == null ? '—' : unit.format(weight, number);
+
+  String _dateLabel(String value) {
+    final date = DateTime.tryParse(value);
+    return date == null ? value : dateFormat.format(date);
   }
 
   Widget _snapshot(

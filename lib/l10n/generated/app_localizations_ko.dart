@@ -442,4 +442,146 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get wodInvalidScore => '운동 유형에 맞는 결과를 입력해 주세요.';
+
+  @override
+  String get wodPersonalRecords => 'WOD 개인 기록';
+
+  @override
+  String get wodNoComparableRecords => '비교 조건이 확인된 WOD 기록이 없습니다.';
+
+  @override
+  String get wodCurrentBest => '현재 최고';
+
+  @override
+  String get wodRecordImprovements => '갱신 이력';
+
+  @override
+  String get wodScoreHistory => '점수 추이';
+
+  @override
+  String get strengthPersonalRecords => '근력 개인 기록';
+
+  @override
+  String get strengthEstimatedOneRepMax => '추정 1RM';
+
+  @override
+  String get strengthRecordMethod =>
+      '실측은 해당 반복 수의 성공 세트 · 추정은 Epley 공식 (2–10회)';
+
+  @override
+  String get strengthDailyBest => '날짜별 최고 중량';
+
+  @override
+  String get wodRecentRecords => '최근 WOD';
+
+  @override
+  String get wodViewAll => '전체 보기';
+
+  @override
+  String get wodRecordAgain => '다시 기록';
+
+  @override
+  String get wodNewPersonalRecord => '개인 기록 갱신';
+
+  @override
+  String get wodWorkoutStandard => '수행 기준';
+
+  @override
+  String get wodUnconfirmedStandard => '미확인';
+
+  @override
+  String get wodCustomStandard => '직접 설정';
+
+  @override
+  String get wodTimeCapSeconds => '타임캡 (초)';
+
+  @override
+  String get wodTotalRounds => '전체 라운드';
+
+  @override
+  String get wodDurationSeconds => '처방 시간 (초)';
+
+  @override
+  String get wodTotalIntervals => '전체 구간 수';
+
+  @override
+  String get wodIntervalLengthSeconds => '구간 길이 (초)';
+
+  @override
+  String get wodIntervals => '구간';
+
+  @override
+  String get wodTiebreak => '타이브레이크 (분:초)';
+
+  @override
+  String get wodUnreadLinesConfirmed => '미해석 내용을 검토하고 처방을 수정했습니다';
+
+  @override
+  String get wodMovementQuantities => '구간별 수량 (/로 구분)';
+
+  @override
+  String get wodMovementEquipment => '장비';
+
+  @override
+  String get wodMovementStandard => '타깃 높이 및 수행 기준';
+
+  @override
+  String get wodMoveUp => '위로 이동';
+
+  @override
+  String get wodMoveDown => '아래로 이동';
+
+  @override
+  String get wodDeleteRecord => 'WOD 삭제';
+
+  @override
+  String get glossaryWodMetcon => '오늘의 운동 / 대사 컨디셔닝 운동';
+
+  @override
+  String get glossaryRft => '정해진 라운드를 끝낼 때까지 걸린 시간';
+
+  @override
+  String get glossaryE2Mom => '2분마다 지정된 운동 시작';
+
+  @override
+  String get glossaryIntervals => '수행과 휴식을 정해진 구간마다 반복';
+
+  @override
+  String get glossaryTabata => '20초 운동과 10초 휴식을 반복';
+
+  @override
+  String get glossaryMaxLoadReps => '성공한 최대 중량 / 최대 반복 수';
+
+  @override
+  String get glossaryDistanceCalories => '장비에 표시된 거리 또는 칼로리 점수';
+
+  @override
+  String get glossaryFoundations => '기초 단계에 맞춘 처방';
+
+  @override
+  String get glossaryTimeCap => '운동에 주어진 제한 시간';
+
+  @override
+  String get glossaryTiebreak => '동점일 때 비교하는 지정 구간의 완료 시간';
+
+  @override
+  String get glossaryChipper => '여러 동작을 정해진 순서로 한 번씩 수행';
+
+  @override
+  String get glossaryCoupletTriplet => '두 가지 / 세 가지 동작을 묶은 운동';
+
+  @override
+  String get glossaryLadder => '세트마다 반복 수나 중량이 단계적으로 바뀌는 방식';
+
+  @override
+  String get glossaryBuyInCashOut => '본 운동 전 / 후에 수행할 과제';
+
+  @override
+  String get glossaryUnbroken => '쉬거나 장비를 내려놓지 않고 한 세트 완료';
+
+  @override
+  String get glossaryNoRep => '수행 기준을 충족하지 못해 집계하지 않는 반복';
+
+  @override
+  String get glossaryPr => '비교 가능한 조건에서 세운 개인 최고 기록';
 }

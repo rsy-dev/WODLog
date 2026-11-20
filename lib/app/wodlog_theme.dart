@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
 abstract final class WodLogColors {
-  static const ink = Color(0xFF292B2D);
+  static const ink = Color(0xFF1C2431);
   static const secondaryText = Color(0xFF515F71);
-  static const accent = Color(0xFFC8451C);
+  static const accent = Color(0xFFC43C12);
   static const accentSoft = Color(0xFFE7EFFF);
   static const blueSurface = Color(0xFFEDF3FF);
   static const navy = Color(0xFF243552);
   static const prSurface = Color(0xFFFFEFBB);
   static const prText = Color(0xFF683B00);
-  static const background = Color(0xFFF4F3F0);
+  static const background = Color(0xFFF9FBFF);
   static const surface = Colors.white;
   static const line = Color(0xFFE2E8F1);
   static const success = Color(0xFF15966A);
-  static const negative = Color(0xFFE5484D);
+  static const negative = Color(0xFFAD2026);
 }
 
 abstract final class WodLogTheme {
@@ -23,9 +23,11 @@ abstract final class WodLogTheme {
           seedColor: WodLogColors.accent,
           brightness: Brightness.light,
         ).copyWith(
-          primary: const Color(0xFFA82E10),
+          primary: const Color(0xFFA82B0A),
           primaryContainer: WodLogColors.accentSoft,
           onPrimary: Colors.white,
+          onPrimaryContainer: WodLogColors.navy,
+          onSurfaceVariant: WodLogColors.secondaryText,
           secondary: WodLogColors.success,
           error: WodLogColors.negative,
           surface: WodLogColors.surface,
@@ -150,7 +152,7 @@ abstract final class WodLogTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFF2F4F7),
+        fillColor: WodLogColors.blueSurface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 15,

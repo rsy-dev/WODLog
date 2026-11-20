@@ -2,10 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/wodlog_sheet.dart';
+import '../../../app/wodlog_theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/wod_providers.dart';
+import '../data/crossfit_catalog.dart';
 import 'wod_blocks_section.dart';
+
+Future<void> showPastWods(
+  BuildContext context,
+  List<WorkoutSession> sessions,
+) => showWodLogSheet<void>(
+  context: context,
+  title: AppLocalizations.of(context)!.pastWods,
+  builder: (_) => ListView(
+    padding: const EdgeInsets.all(16),
+    children: [WodRecordList(sessions: sessions, repeat: true)],
+  ),
+);
 
 class WodRecordList extends ConsumerWidget {
   const WodRecordList({
@@ -13,6 +28,7 @@ class WodRecordList extends ConsumerWidget {
     this.query = '',
     this.showEmpty = true,
     this.limit,
+    this.repeat = false,
     super.key,
   });
 
@@ -20,6 +36,7 @@ class WodRecordList extends ConsumerWidget {
   final String query;
   final bool showEmpty;
   final int? limit;
+  final bool repeat;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,16 +52,34 @@ class WodRecordList extends ConsumerWidget {
           blocks: ref.watch(wodBlocksForSessionProvider(session.id)),
         ),
     ];
-    final records = [
+    final blocks = [
       for (final entry in results)
         for (final block in entry.blocks.value ?? const <WorkoutBlock>[])
-          if ('${block.title ?? ''} ${block.notes ?? ''} ${entry.session.workoutDate} ${entry.dateLabel}'
-              .toLowerCase()
-              .contains(query))
-            (session: entry.session, block: block, dateLabel: entry.dateLabel),
+          (session: entry.session, block: block, dateLabel: entry.dateLabel),
     ];
-    final loading = results.any((entry) => entry.blocks.isLoading);
-    final failed = results.any((entry) => entry.blocks.hasError);
+    final search = query.isEmpty
+        ? null
+        : ref.watch(
+            _searchableWodsProvider((
+              sessions: sessions.map((session) => session.id).join(','),
+              query: query,
+            )),
+          );
+    final records = blocks
+        .where(
+          (entry) =>
+              query.isEmpty ||
+              entry.session.workoutDate.contains(query) ||
+              entry.dateLabel.toLowerCase().contains(query) ||
+              (search?.value?.contains(entry.block.id) ?? false),
+        )
+        .toList();
+    final loading =
+        results.any((entry) => entry.blocks.isLoading) ||
+        (search?.isLoading ?? false);
+    final failed =
+        results.any((entry) => entry.blocks.hasError) ||
+        (search?.hasError ?? false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -54,7 +89,7 @@ class WodRecordList extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              query.isEmpty ? l10n.emptyHistory : l10n.noMatchingWorkouts,
+              query.isEmpty ? l10n.emptyWodBlocks : l10n.noMatchingWorkouts,
             ),
           ),
         for (final (:session, :block, :dateLabel) in records.take(
@@ -66,6 +101,7 @@ class WodRecordList extends ConsumerWidget {
               session: session,
               block: block,
               dateLabel: dateLabel,
+              repeat: repeat,
             ),
           ),
       ],
@@ -78,16 +114,50 @@ class WodRecordList extends ConsumerWidget {
   }
 }
 
+final _searchableWodsProvider = FutureProvider.autoDispose.family((
+  ref,
+  ({String sessions, String query}) key,
+) async {
+  for (final id in key.sessions.split(',')) {
+    if (id.isNotEmpty) ref.watch(wodBlocksForSessionProvider(id));
+  }
+  final repository = ref.watch(wodRepositoryProvider);
+  final aliases = {
+    for (final entry in CrossFitCatalog.entries)
+      entry.id: entry.searchableNames,
+  };
+  final records = await repository.searchRecords('');
+  return {
+    for (final record in records)
+      if ([
+        record.block.title,
+        record.block.notes,
+        record.prescription.title,
+        record.prescription.rawText,
+        record.result?.notes,
+        for (final movement in record.prescription.movements) ...[
+          movement.name,
+          ...aliases[movement.movementId] ?? const <String>[],
+        ],
+      ].whereType<String>().any(
+        (value) => value.toLowerCase().contains(key.query),
+      ))
+        record.block.id,
+  };
+});
+
 class _WodRecordTile extends ConsumerWidget {
   const _WodRecordTile({
     required this.session,
     required this.block,
     required this.dateLabel,
+    required this.repeat,
   });
 
   final WorkoutSession session;
   final WorkoutBlock block;
   final String dateLabel;
+  final bool repeat;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,19 +176,48 @@ class _WodRecordTile extends ConsumerWidget {
         subtitle: Text(
           [
             dateLabel,
-            ?wodScoreLabel(context, ref, score),
-            if (isPr) 'PR',
+            TimeOfDay.fromDateTime(
+              DateTime.fromMillisecondsSinceEpoch(
+                score?.createdAt ?? session.createdAt,
+              ),
+            ).format(context),
           ].join(' · '),
         ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => showWodRecordDetail(
-          context,
-          blockId: block.id,
-          sessionId: session.id,
-          title: title,
-          date: dateLabel,
-          notes: block.notes,
+        trailing: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 116),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (wodScoreLabel(context, ref, score) case final label?)
+                Text(label),
+              if (isPr)
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: WodLogColors.prSurface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    child: Text(
+                      'PR',
+                      style: TextStyle(color: WodLogColors.prText),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
+        onTap: repeat
+            ? () => showWodResultEditor(context, ref, block.id, repeat: true)
+            : () => showWodRecordDetail(
+                context,
+                blockId: block.id,
+                sessionId: session.id,
+                title: title,
+                date: dateLabel,
+                notes: block.notes,
+              ),
       ),
     );
   }

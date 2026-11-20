@@ -144,6 +144,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ('For Time', l10n.glossaryForTime),
                           ('Rx', l10n.glossaryRx),
                           ('Scaled', l10n.glossaryScaled),
+                          ('WOD / Metcon', l10n.glossaryWodMetcon),
+                          ('RFT', l10n.glossaryRft),
+                          ('E2MOM', l10n.glossaryE2Mom),
+                          ('Intervals', l10n.glossaryIntervals),
+                          ('Tabata', l10n.glossaryTabata),
+                          ('Max Load / Reps', l10n.glossaryMaxLoadReps),
+                          (
+                            'Distance / Calories',
+                            l10n.glossaryDistanceCalories,
+                          ),
+                          ('Foundations', l10n.glossaryFoundations),
+                          ('Time Cap', l10n.glossaryTimeCap),
+                          ('Tiebreak', l10n.glossaryTiebreak),
+                          ('Chipper', l10n.glossaryChipper),
+                          ('Couplet / Triplet', l10n.glossaryCoupletTriplet),
+                          ('Ladder', l10n.glossaryLadder),
+                          ('Buy-in / Cash-out', l10n.glossaryBuyInCashOut),
+                          ('Unbroken', l10n.glossaryUnbroken),
+                          ('No Rep', l10n.glossaryNoRep),
+                          ('PR', l10n.glossaryPr),
                         ])
                           ListTile(
                             title: Text(name),
@@ -193,7 +213,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final goal = await showWodLogSheet<int>(
       context: context,
       title: AppLocalizations.of(context)!.weeklyGoal,
+      fitContent: true,
       builder: (context) => ListView(
+        shrinkWrap: true,
         children: [
           for (var value = 1; value <= 7; value++)
             ListTile(
@@ -310,12 +332,15 @@ class _MovementLibrary extends StatefulWidget {
 
 class _MovementLibraryState extends State<_MovementLibrary> {
   String _query = '';
+  CrossFitCategory? _category;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final entries = CrossFitCatalog.search(_query)
-        .where((entry) => entry.category != CrossFitCategory.benchmarkWod);
+    final entries = CrossFitCatalog.search(
+      _query,
+      category: _category,
+    ).where((entry) => entry.category != CrossFitCategory.benchmarkWod);
     return Column(
       children: [
         Padding(
@@ -323,6 +348,27 @@ class _MovementLibraryState extends State<_MovementLibrary> {
           child: TextField(
             decoration: InputDecoration(labelText: l10n.searchMovements),
             onChanged: (value) => setState(() => _query = value),
+          ),
+        ),
+        SizedBox(
+          height: 46,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            children: [
+              for (final category in CrossFitCategory.values)
+                if (category != CrossFitCategory.benchmarkWod)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 6),
+                    child: FilterChip(
+                      label: Text(movementCategoryLabel(l10n, category)),
+                      selected: _category == category,
+                      onSelected: (selected) => setState(
+                        () => _category = selected ? category : null,
+                      ),
+                    ),
+                  ),
+            ],
           ),
         ),
         Expanded(
