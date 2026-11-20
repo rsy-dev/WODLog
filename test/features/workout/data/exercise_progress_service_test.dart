@@ -41,7 +41,7 @@ void main() {
         movementName: 'Back-squat',
         exerciseNormalizedName: 'back-squat',
         workoutExerciseId: 'workout-exercise-2',
-      blockId: 'block-2',
+        blockId: 'block-2',
         sets: const [
           (number: 1, weight: 65.0, reps: 5, success: true),
           (number: 2, weight: 75.0, reps: 3, success: true),
@@ -65,6 +65,28 @@ void main() {
       expect(squats.volumeChangePercent, closeTo(7.843, 0.001));
       expect(squats.bestWeightChangeKg, 5);
       expect(squats.repChange, 0);
+      expect(squats.actualRepMaxKg(1), isNull);
+      expect(squats.actualRepMaxKg(3), 75);
+      expect(squats.actualRepMaxKg(5), 65);
+      expect(squats.estimatedOneRepMaxKg, closeTo(82.5, 0.001));
+      expect(squats.dailyBestWeightKg, {'2026-11-01': 70, '2026-11-02': 75});
+
+      await (database.update(database.performedSets)
+            ..where((table) => table.id.equals('workout-exercise-2-3')))
+          .write(const PerformedSetsCompanion(isSuccessful: Value(true)));
+      var updated = (await service.getAllProgress()).single;
+      expect(updated.actualRepMaxKg(1), 110);
+      expect(updated.estimatedOneRepMaxKg, closeTo(82.5, 0.001));
+      expect(updated.dailyBestWeightKg['2026-11-02'], 110);
+
+      await (database.delete(database.performedSets)..where(
+            (table) => table.workoutExerciseId.equals('workout-exercise-2'),
+          ))
+          .go();
+      updated = (await service.getAllProgress()).single;
+      expect(updated.actualRepMaxKg(1), isNull);
+      expect(updated.actualRepMaxKg(3), 70);
+      expect(updated.dailyBestWeightKg, {'2026-11-01': 70});
     },
   );
 
@@ -118,6 +140,9 @@ void main() {
     expect(progress.latest?.repCount, 8);
     expect(progress.latest?.volumeKg, isNull);
     expect(progress.latest?.bestWeightKg, isNull);
+    expect(progress.actualRepMaxKg(5), isNull);
+    expect(progress.estimatedOneRepMaxKg, isNull);
+    expect(progress.dailyBestWeightKg, isEmpty);
   });
 }
 

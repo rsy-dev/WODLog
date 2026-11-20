@@ -1,24 +1,49 @@
-name: Android test APK release
+name: Mobile release
 
 on:
   push:
     tags:
       - "android-v*"
+  workflow_dispatch:
+    inputs:
+      publish_play:
+        description: "Upload the signed AAB to Google Play internal testing"
+        type: boolean
+        default: false
+      publish_testflight:
+        description: "Upload the signed IPA to TestFlight"
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: android-release-${{ github.ref }}
+  group: mobile-release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build-and-release:
-    name: Build signed APK and attach to GitHub Release
+    name: Verify and build signed Android files
+    if: github.ref_type == 'tag' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+
+      - name: Read release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(awk '$1 == "version:" { print $2 }' pubspec.yaml)"
+          if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)\+([1-9][0-9]*)$ ]]; then
+            echo "Expected a version in the form x.y.z+build in pubspec.yaml." >&2
+            exit 1
+          fi
+          if [[ "$GITHUB_REF_TYPE" == tag && "$GITHUB_REF_NAME" != "android-v${BASH_REMATCH[1]}" ]]; then
+            echo "The release tag must match pubspec.yaml." >&2
+            exit 1
+          fi
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -56,6 +81,7 @@ jobs:
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         run: |
           set -euo pipefail
+          umask 077
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/wodlog-upload.jks
           {
             printf 'storePassword=%s\n' "$ANDROID_STORE_PASSWORD"
@@ -67,8 +93,15 @@ jobs:
       - name: Get Flutter packages
         run: flutter pub get
 
-      - name: Build release APK
-        run: flutter build apk --release --build-number "${GITHUB_RUN_NUMBER}"
+      - name: Analyze and test
+        run: |
+          flutter analyze --no-pub
+          flutter test --no-pub
+
+      - name: Build APK and AAB
+        run: |
+          flutter build apk --release --no-pub
+          flutter build appbundle --release --no-pub
 
       - name: Verify APK signature
         run: |
@@ -78,14 +111,44 @@ jobs:
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
           test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose "$APK"
-          cp "$APK" "WODLog-${GITHUB_REF_NAME}-android.apk"
+          AAB="build/app/outputs/bundle/release/app-release.aab"
+          jarsigner -verify "$AAB" | tee "$RUNNER_TEMP/wodlog-aab-signature"
+          grep -Fq 'jar verified.' "$RUNNER_TEMP/wodlog-aab-signature"
+          mkdir -p release
+          cp "$APK" release/WODLog.apk
+          cp "$AAB" release/WODLog.aab
+
+      - name: Upload signed files to the Actions run
+        uses: actions/upload-artifact@v4
+        with:
+          name: WODLog-Android
+          path: release/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Remove temporary signing files
+        if: always()
+        run: rm -f android/key.properties android/wodlog-upload.jks
+
+  github-release:
+    needs: build-and-release
+    if: github.ref_type == 'tag'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: WODLog-Android
 
       - name: Create or update GitHub Release asset
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           APK="WODLog-${GITHUB_REF_NAME}-android.apk"
+          mv WODLog.apk "$APK"
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release upload "$GITHUB_REF_NAME" "$APK" --clobber
           else
@@ -94,6 +157,156 @@ jobs:
               --generate-notes
           fi
 
-      - name: Remove temporary signing files
-        if: always()
-        run: rm -f android/key.properties android/wodlog-upload.jks
+  play-internal:
+    name: Upload to Google Play internal testing
+    needs: build-and-release
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_play
+    runs-on: ubuntu-latest
+    environment: google-play-internal
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: WODLog-Android
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Publish the signed bundle to internal testing
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          : "${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON:?Configure the Play service account secret}"
+          python -m pip install google-auth requests
+          python - <<'PY'
+          import json
+          import os
+
+          from google.auth.transport.requests import AuthorizedSession
+          from google.oauth2.service_account import Credentials
+
+          credentials = Credentials.from_service_account_info(
+              json.loads(os.environ["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"]),
+              scopes=["https://www.googleapis.com/auth/androidpublisher"],
+          )
+          client = AuthorizedSession(credentials)
+          package = "dev.rsy.wodlog"
+          api = f"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/{package}"
+          upload = f"https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/{package}"
+
+          def request(method, url, **kwargs):
+              response = client.request(method, url, timeout=300, **kwargs)
+              response.raise_for_status()
+              return response.json()
+
+          edit = request("POST", f"{api}/edits", json={})["id"]
+          with open("WODLog.aab", "rb") as bundle:
+              version = request(
+                  "POST", f"{upload}/edits/{edit}/bundles",
+                  params={"uploadType": "media"},
+                  headers={"Content-Type": "application/octet-stream"},
+                  data=bundle,
+              )["versionCode"]
+          track = "qa"
+          request(
+              "PUT", f"{api}/edits/{edit}/tracks/{track}",
+              json={
+                  "track": track,
+                  "releases": [{"versionCodes": [str(version)], "status": "completed"}],
+              },
+          )
+          request("POST", f"{api}/edits/{edit}:commit")
+          print(f"Submitted build {version} to Google Play internal testing.")
+          PY
+
+  testflight:
+    name: Sign and upload iOS build to TestFlight
+    needs: build-and-release
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_testflight
+    runs-on: macos-26
+    environment: testflight
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+
+      - name: Prepare Flutter project
+        run: flutter build ios --release --config-only --no-codesign
+
+      - name: Sign and export IPA
+        env:
+          IOS_DISTRIBUTION_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
+          IOS_DISTRIBUTION_P12_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_P12_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${IOS_DISTRIBUTION_P12_BASE64:?Configure an Apple Distribution certificate}"
+          : "${IOS_DISTRIBUTION_P12_PASSWORD:?Configure the certificate password}"
+          : "${IOS_PROVISIONING_PROFILE_BASE64:?Configure an App Store provisioning profile}"
+          keychain="$RUNNER_TEMP/wodlog-signing.keychain-db"
+          password="$(openssl rand -hex 32)"
+          cert="$RUNNER_TEMP/wodlog-signing.p12"
+          profile="$RUNNER_TEMP/wodlog.mobileprovision"
+          printf '%s' "$IOS_DISTRIBUTION_P12_BASE64" | base64 -D > "$cert"
+          printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 -D > "$profile"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$cert" -k "$keychain" -P "$IOS_DISTRIBUTION_P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$password" "$keychain"
+          security list-keychains -d user -s "$keychain"
+          security cms -D -i "$profile" > "$RUNNER_TEMP/wodlog-profile.plist"
+          plist="$RUNNER_TEMP/wodlog-profile.plist"
+          uuid="$(plutil -extract UUID raw "$plist")"
+          team="$(plutil -extract TeamIdentifier.0 raw "$plist")"
+          mkdir -p "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"
+          cp "$profile" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/$uuid.mobileprovision"
+          cat > "$RUNNER_TEMP/wodlog-export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>teamID</key><string>$team</string>
+            <key>provisioningProfiles</key><dict><key>dev.rsy.wodlog</key><string>$uuid</string></dict>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          PLIST
+          cat > "$RUNNER_TEMP/wodlog-signing.xcconfig" <<CONFIG
+          DEVELOPMENT_TEAM = $team
+          CODE_SIGN_STYLE = Manual
+          CODE_SIGN_IDENTITY[sdk=iphoneos*] = Apple Distribution
+          PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*] = $uuid
+          CONFIG
+          xcodebuild archive -workspace ios/Runner.xcworkspace -scheme Runner \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/WODLog.xcarchive" \
+            -xcconfig "$RUNNER_TEMP/wodlog-signing.xcconfig"
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/WODLog.xcarchive" \
+            -exportPath "$RUNNER_TEMP/wodlog-ipa" \
+            -exportOptionsPlist "$RUNNER_TEMP/wodlog-export.plist"
+
+      - name: Upload IPA to App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${ASC_KEY_ID:?Configure the App Store Connect key ID}"
+          : "${ASC_ISSUER_ID:?Configure the App Store Connect issuer ID}"
+          : "${ASC_KEY_P8_BASE64:?Configure the App Store Connect API key}"
+          export API_PRIVATE_KEYS_DIR="$RUNNER_TEMP/wodlog-api-keys"
+          mkdir -p "$API_PRIVATE_KEYS_DIR"
+          printf '%s' "$ASC_KEY_P8_BASE64" | base64 -D > "$API_PRIVATE_KEYS_DIR/AuthKey_$ASC_KEY_ID.p8"
+          set -- "$RUNNER_TEMP/wodlog-ipa/"*.ipa
+          test "$#" -eq 1 && test -f "$1"
+          xcrun altool --upload-app -t ios -f "$1" --api-key "$ASC_KEY_ID" --api-issuer "$ASC_ISSUER_ID"

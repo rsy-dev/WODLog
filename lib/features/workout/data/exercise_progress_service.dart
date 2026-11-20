@@ -161,6 +161,36 @@ class ExerciseProgress {
   ExerciseWorkoutSnapshot? get previous =>
       workouts.length < 2 ? null : workouts[workouts.length - 2];
 
+  /// Highest verified weight for a set of exactly 1, 3, or 5 reps.
+  double? actualRepMaxKg(int reps) =>
+      _maximum(workouts.map((workout) => workout.actualRepMaxesKg[reps]));
+
+  /// Highest Epley estimate from a successful weighted set of 2–10 reps.
+  double? get estimatedOneRepMaxKg =>
+      _maximum(workouts.map((workout) => workout.estimatedOneRepMaxKg));
+
+  /// Highest successful weight on each recorded date, in ascending order.
+  Map<String, double> get dailyBestWeightKg {
+    final weights = <String, double>{};
+    for (final workout in workouts) {
+      final weight = workout.bestWeightKg;
+      if (weight == null || !weight.isFinite || weight <= 0) continue;
+      final date = workout.workoutDate;
+      if (weight > (weights[date] ?? 0)) weights[date] = weight;
+    }
+    return Map.unmodifiable(weights);
+  }
+
+  double? _maximum(Iterable<double?> weights) {
+    double? maximum;
+    for (final weight in weights) {
+      if (weight != null && (maximum == null || weight > maximum)) {
+        maximum = weight;
+      }
+    }
+    return maximum;
+  }
+
   double? get volumeChangeKg {
     final current = latest?.volumeKg;
     final before = previous?.volumeKg;
@@ -200,6 +230,8 @@ class ExerciseWorkoutSnapshot {
     required this.repCount,
     required this.volumeKg,
     required this.bestWeightKg,
+    this.actualRepMaxesKg = const {},
+    this.estimatedOneRepMaxKg,
   });
 
   final String sessionId;
@@ -212,6 +244,8 @@ class ExerciseWorkoutSnapshot {
   /// Sum of successful weighted reps. Null means no complete weight/reps pair.
   final double? volumeKg;
   final double? bestWeightKg;
+  final Map<int, double> actualRepMaxesKg;
+  final double? estimatedOneRepMaxKg;
 }
 
 class _MovementHistory {
@@ -243,6 +277,8 @@ class _WorkoutBuilder {
     var volume = 0.0;
     var hasWeightedReps = false;
     double? bestWeight;
+    final actualRepMaxes = <int, double>{};
+    double? estimatedOneRepMax;
 
     for (final set in _sets) {
       final weight = set.weightKg;
@@ -252,8 +288,27 @@ class _WorkoutBuilder {
         volume += weight * setReps;
         hasWeightedReps = true;
       }
-      if (weight != null && (bestWeight == null || weight > bestWeight)) {
+      if (weight != null &&
+          weight.isFinite &&
+          (bestWeight == null || weight > bestWeight)) {
         bestWeight = weight;
+      }
+
+      if (weight == null ||
+          !weight.isFinite ||
+          weight <= 0 ||
+          setReps == null) {
+        continue;
+      }
+      if ((setReps == 1 || setReps == 3 || setReps == 5) &&
+          weight > (actualRepMaxes[setReps] ?? 0)) {
+        actualRepMaxes[setReps] = weight;
+      }
+      if (setReps >= 2 && setReps <= 10) {
+        final estimate = weight * (1 + setReps / 30);
+        if (estimate.isFinite && estimate > (estimatedOneRepMax ?? 0)) {
+          estimatedOneRepMax = estimate;
+        }
       }
     }
 
@@ -266,6 +321,8 @@ class _WorkoutBuilder {
       repCount: reps,
       volumeKg: hasWeightedReps ? volume : null,
       bestWeightKg: bestWeight,
+      actualRepMaxesKg: Map.unmodifiable(actualRepMaxes),
+      estimatedOneRepMaxKg: estimatedOneRepMax,
     );
   }
 }

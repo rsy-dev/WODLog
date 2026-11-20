@@ -4,6 +4,7 @@ import 'package:wodlog/core/database/app_database.dart';
 import 'package:wodlog/features/workout/data/wod_repository.dart';
 import 'package:wodlog/features/workout/data/wod_comparison.dart';
 import 'package:wodlog/features/workout/data/wod_prescription.dart';
+import 'package:wodlog/features/workout/data/wod_parser.dart';
 
 void main() {
   late AppDatabase database;
@@ -243,6 +244,28 @@ void main() {
       );
     },
   );
+
+  test('persists the chosen prescription and score as a WOD', () async {
+    final draft = const WodTextParser().parse(
+      '12 min AMRAP\nRx: 10 Thrusters 95 lb\nScaled: 8 Thrusters 65 lb',
+    );
+    await repository.createImportedWod(
+      sessionId: 'session-1',
+      title: 'Lunch WOD',
+      draft: draft,
+      levelIndex: 1,
+      score: '5+3',
+    );
+
+    final block = (await repository.watchWodBlocks('session-1').first).single;
+    expect(block.title, 'Lunch WOD · Scaled');
+    expect(block.notes, contains('AMRAP · 12 min'));
+    expect(block.notes, contains('8 Thrusters 65 lb'));
+    expect(block.notes, isNot(contains('95 lb')));
+    final result = await repository.watchResult(block.id).first;
+    expect(result?.resultType, 'amrap');
+    expect(result?.resultText, '5+3');
+  });
 
   test('saves and updates a WOD result without duplicating it', () async {
     await repository.createWodBlock(
