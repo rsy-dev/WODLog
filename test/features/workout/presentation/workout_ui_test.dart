@@ -135,6 +135,11 @@ void main() {
         final top = tester.getTopLeft(shortcuts.first).dy;
         for (final shortcut in shortcuts) {
           expect(tester.getTopLeft(shortcut).dy, top);
+          expect(
+            tester.getSize(shortcut).width,
+            tester.getSize(shortcuts.first).width,
+          );
+          expect(tester.getSize(shortcut).height, greaterThanOrEqualTo(48));
         }
         textScale = 2;
         await show(const TodayScreen());
@@ -249,6 +254,15 @@ void main() {
       final trailing = tester.getCenter(scoreLabel);
       expect(leading.dx > trailing.dx, isRtl);
 
+      if (const {'ko', 'en'}.contains(locale.languageCode)) {
+        await tester.tap(scoreLabel);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.wodUnconfirmedStandard), findsOneWidget);
+        expect(find.text('unknown'), findsNothing);
+        await tester.tap(find.byTooltip(l10n.closeSheet));
+        await tester.pumpAndSettle();
+      }
+
       if (locale.languageCode == 'en') {
         wodWriter.savedRepeatScore = null;
         await tester.tap(scoreLabel);
@@ -299,14 +313,21 @@ void main() {
         await tester.pumpAndSettle();
 
         final save = find.widgetWithText(FilledButton, l10n.save);
-        await tester.scrollUntilVisible(save, 100, scrollable: editor);
+        final cap = find.widgetWithText(TextFormField, l10n.wodTimeCapSeconds);
+        final notes = find.widgetWithText(TextFormField, l10n.wodNotes);
+        tester.view.viewInsets = const FakeViewPadding(bottom: 240);
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(notes);
+        await tester.pumpAndSettle();
+        expect(cap.hitTestable(), findsNothing);
         await tester.tap(save);
         await tester.pumpAndSettle();
         expect(find.text(l10n.wodMissingTimeCap), findsOneWidget);
         expect(wodWriter.savedRepeatScore, isNull);
 
-        final cap = find.widgetWithText(TextFormField, l10n.wodTimeCapSeconds);
-        await tester.scrollUntilVisible(cap, -100, scrollable: editor);
+        expect(cap.hitTestable(), findsOneWidget);
+        tester.view.resetViewInsets();
+        await tester.pumpAndSettle();
         await tester.enterText(cap, '600');
         final tiebreak = find.widgetWithText(TextFormField, l10n.wodTiebreak);
         await tester.scrollUntilVisible(tiebreak, 100, scrollable: editor);
@@ -507,7 +528,7 @@ void main() {
           find.widgetWithText(OutlinedButton, 'WOD personal records'),
         );
         await tester.pumpAndSettle();
-        expect(find.text('Current best · rx · 07:45'), findsOneWidget);
+        expect(find.text('Current best · Rx · 07:45'), findsOneWidget);
         await tester.tap(find.text('Fran'));
         await tester.pumpAndSettle();
         expect(find.text('Score history'), findsOneWidget);

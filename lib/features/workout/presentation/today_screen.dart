@@ -66,7 +66,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     };
     final number = NumberFormat.decimalPattern(locale);
     final shortcutStyle = OutlinedButton.styleFrom(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      minimumSize: const Size(48, 48),
     );
 
     return Scaffold(
@@ -128,31 +129,67 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                       label: Text(l10n.recordWod),
                     ),
                     const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        OutlinedButton(
-                          style: shortcutStyle,
-                          onPressed: () async {
-                            final template = await showWodLibrary(context);
-                            if (template != null && mounted) {
-                              await _startWorkout(template.name);
-                            }
-                          },
-                          child: Text(l10n.benchmarkWorkouts),
-                        ),
-                        OutlinedButton(
-                          style: shortcutStyle,
-                          onPressed: () => showPastWods(context, recent ?? []),
-                          child: Text(l10n.pastWods),
-                        ),
-                        OutlinedButton(
-                          style: shortcutStyle,
-                          onPressed: () => context.go('/progress'),
-                          child: Text(wodPersonalRecordsLabel(l10n)),
-                        ),
-                      ],
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        const spacing = 6.0;
+                        final shortcuts = <(String, VoidCallback)>[
+                          (
+                            l10n.benchmarkWorkouts,
+                            () async {
+                              final template = await showWodLibrary(context);
+                              if (template != null && mounted) {
+                                await _startWorkout(template.name);
+                              }
+                            },
+                          ),
+                          (
+                            l10n.pastWods,
+                            () => showPastWods(context, recent ?? []),
+                          ),
+                          (
+                            wodPersonalRecordsLabel(l10n),
+                            () => context.go('/progress'),
+                          ),
+                        ];
+                        final width = (constraints.maxWidth - 2 * spacing) / 3;
+                        final painter = TextPainter(
+                          textDirection: Directionality.of(context),
+                          textScaler: MediaQuery.textScalerOf(context),
+                        );
+                        final labelStyle = Theme.of(context)
+                            .textTheme
+                            .labelLarge;
+                        final equalWidths = shortcuts.every((shortcut) {
+                          painter.text = TextSpan(
+                            text: shortcut.$1,
+                            style: labelStyle,
+                          );
+                          painter.layout();
+                          return painter.width + 16 <= width.floorToDouble();
+                        });
+                        painter.dispose();
+
+                        return Wrap(
+                          spacing: spacing,
+                          runSpacing: 4,
+                          children: [
+                            for (final (label, onPressed) in shortcuts)
+                              SizedBox(
+                                width: equalWidths
+                                    ? width.floorToDouble()
+                                    : null,
+                                child: OutlinedButton(
+                                  style: shortcutStyle,
+                                  onPressed: onPressed,
+                                  child: Text(
+                                    label,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
