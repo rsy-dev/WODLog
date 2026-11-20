@@ -216,7 +216,7 @@ class _WodPersonalRecordCard extends ConsumerWidget {
         sessionId: attempt.block.sessionId,
         title: attempt.prescription.title,
         notes: attempt.block.notes,
-        date: dateLabel,
+        workoutDate: workoutDate,
       ),
     );
   }

@@ -817,6 +817,7 @@ Future<void> showWodResultEditor(
     blockId: attemptId,
     sessionId: sessionId,
     title: repeat ? prescription.title : title.trim(),
+    workoutDate: newSessionId == null ? newWorkoutDate ?? workoutDate : null,
     showSessionLink: newSessionId == null,
   );
 }
@@ -826,7 +827,7 @@ Future<void> showWodRecordDetail(
   required String blockId,
   required String sessionId,
   required String title,
-  String? date,
+  String? workoutDate,
   String? notes,
   bool showSessionLink = true,
 }) async {
@@ -836,6 +837,14 @@ Future<void> showWodRecordDetail(
     title: title,
     builder: (_) => Consumer(
       builder: (context, ref, _) {
+        final sessionDate =
+            workoutDate ??
+            ref.watch(workoutSessionProvider(sessionId)).value?.workoutDate;
+        final parsedDate = DateTime.tryParse(sessionDate ?? '');
+        final dateLabel = parsedDate == null
+            ? sessionDate
+            : DateFormat.yMMMd(Localizations.localeOf(context).toString())
+                  .format(parsedDate);
         final score = ref.watch(wodResultProvider(blockId));
         final blocks = ref.watch(wodBlocksForSessionProvider(sessionId));
         final record = ref.watch(
@@ -850,7 +859,7 @@ Future<void> showWodRecordDetail(
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            if (date != null) Text(date),
+            if (dateLabel != null) Text(dateLabel),
             if (prescription != null) ...[
               Text(prescription.version.name),
               for (final movement in prescription.movements)

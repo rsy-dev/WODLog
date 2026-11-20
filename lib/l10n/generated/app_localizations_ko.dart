@@ -39,7 +39,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get loadBlocksError => '운동 블록을 불러오지 못했어요.';
 
   @override
-  String get addStrengthBlock => 'Strength 블록 추가';
+  String get addStrengthBlock => '근력 블록 추가';
 
   @override
   String get addBlockTitle => '운동 블록 추가';
@@ -48,7 +48,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get blockName => '블록 이름';
 
   @override
-  String get strength => 'Strength';
+  String get strength => '근력';
 
   @override
   String get add => '추가';
@@ -108,7 +108,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get bodyweight => '맨몸';
 
   @override
-  String get emptyBlocks => '아직 운동 블록이 없어요.\nStrength 블록을 추가해 운동을 기록하세요.';
+  String get emptyBlocks => '아직 운동 블록이 없어요.\n근력 블록을 추가해 운동을 기록하세요.';
 
   @override
   String get history => '운동 이력';
@@ -279,7 +279,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchMovements => '운동 검색';
 
   @override
-  String get benchmarkWorkouts => '벤치마크 WOD';
+  String get benchmarkWorkouts => '벤치마크';
 
   @override
   String get movementTypes => '유사한 움직임 그룹';
@@ -444,7 +444,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get wodInvalidScore => '운동 유형에 맞는 결과를 입력해 주세요.';
 
   @override
-  String get wodPersonalRecords => 'WOD 개인 기록';
+  String get wodPersonalRecords => 'WOD PR';
 
   @override
   String get wodNoComparableRecords => '비교 조건이 확인된 WOD 기록이 없습니다.';

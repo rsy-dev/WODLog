@@ -96,6 +96,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => showWodLogSheet<void>(
                     context: context,
                     title: l10n.weightCalculator,
+                    fitContent: true,
                     builder: (_) => const _Calculator(),
                   ),
                 ),
@@ -294,6 +295,7 @@ class _CalculatorState extends State<_Calculator> {
     final value = parseLocalizedDecimal(_input, number);
     final target = _source == WeightUnit.kg ? WeightUnit.lb : WeightUnit.kg;
     return ListView(
+      shrinkWrap: true,
       padding: const EdgeInsets.all(16),
       children: [
         SegmentedButton<WeightUnit>(
