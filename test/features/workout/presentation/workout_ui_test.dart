@@ -56,6 +56,12 @@ void main() {
             overrides: [
               weightUnitProvider.overrideWith(_PoundsPreference.new),
               wodRepositoryProvider.overrideWithValue(wodWriter),
+              if (locale.languageCode == 'en')
+                wodPersonalBestsProvider.overrideWith(
+                  (ref) => Stream.value([
+                    (best: _personalBest, improvements: [_personalBest]),
+                  ]),
+                ),
               displayPreferencesProvider.overrideWith(
                 _TestDisplayPreference.new,
               ),
@@ -84,7 +90,8 @@ void main() {
                 (ref, id) => Stream.value([_wod]),
               ),
               wodResultProvider.overrideWith(
-                (ref, id) => Stream.value(_result),
+                (ref, id) =>
+                    Stream.value(id == _wod.id ? _result : wodWriter.created),
               ),
             ],
             child: MaterialApp(
@@ -153,35 +160,105 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       if (locale.languageCode == 'en') {
+        final addWod = find.byTooltip(l10n.addWodBlock);
+        await tester.scrollUntilVisible(addWod, -100);
+        await tester.tap(addWod);
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextFormField, l10n.wodName),
+          'Saved workout',
+        );
+        await tester.tap(find.widgetWithText(OutlinedButton, l10n.addExercise));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n.searchMovements),
+          '더블언더',
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Double-Unders'));
+        await tester.pumpAndSettle();
+        expect(find.text('Double-Unders'), findsOneWidget);
+        await tester.tap(find.byType(DropdownButtonFormField<String>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.resultLoad).last);
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextFormField, l10n.setWeight('lb')),
+          '100.125',
+        );
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+        final saveNew = find.widgetWithText(FilledButton, l10n.save);
+        final editorScroll = find
+            .descendant(
+              of: find.byType(ListView).last,
+              matching: find.byType(Scrollable),
+            )
+            .first;
+        await tester.scrollUntilVisible(saveNew, 100, scrollable: editorScroll);
+        await tester.drag(editorScroll, const Offset(0, -200));
+        await tester.pumpAndSettle();
+        await tester.tap(saveNew);
+        await tester.pumpAndSettle();
+        expect(find.text('Saved workout'), findsOneWidget);
+        expect(find.text(displayedWeight), findsOneWidget);
+        expect(
+          find.widgetWithText(FilledButton, l10n.editWodResult),
+          findsOneWidget,
+        );
+        await tester.tap(find.byTooltip(l10n.closeSheet));
+        await tester.pumpAndSettle();
+
         await show(const WorkoutHistoryScreen());
+        final search = find.widgetWithText(TextField, l10n.searchWorkouts);
+        await tester.enterText(search, '1900-01-01');
+        await tester.pumpAndSettle();
+        expect(find.text('Fran'), findsNothing);
+        await tester.enterText(search, _session.workoutDate);
+        await tester.pumpAndSettle();
+        expect(find.text('Fran'), findsOneWidget);
+        await tester.enterText(
+          search,
+          DateFormat.yMMMd(locale.toString())
+              .format(DateTime.parse(_session.workoutDate)),
+        );
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Fran'));
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.editWodResult));
         await tester.pumpAndSettle();
-        await tester.tap(find.text(l10n.wodEnterNewScore));
+        final resultType = find.byType(DropdownButtonFormField<String>);
+        await tester.tap(resultType);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.resultEmom).last);
+        await tester.pumpAndSettle();
+        final intervals = find.widgetWithText(
+          TextFormField,
+          l10n.wodCompletedIntervals,
+        );
+        final intervalInput = find.descendant(
+          of: intervals,
+          matching: find.byType(EditableText),
+        );
+        expect(tester.widget<EditableText>(intervalInput).controller.text, '');
+        await tester.tap(resultType);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.resultForTime).last);
         await tester.pumpAndSettle();
         final time = find.widgetWithText(TextFormField, l10n.wodFinishTime);
         await tester.enterText(time, '12:42');
         final save = find.widgetWithText(FilledButton, l10n.save);
-        await tester.scrollUntilVisible(
-          save,
-          100,
-          scrollable: find.byType(Scrollable).last,
-        );
+        await tester.scrollUntilVisible(save, 100, scrollable: editorScroll);
+        await tester.drag(editorScroll, const Offset(0, -200));
+        await tester.pumpAndSettle();
         await tester.tap(save);
         await tester.pumpAndSettle();
         expect(find.text(l10n.wodSaveError), findsOneWidget);
-        await tester.scrollUntilVisible(
-          time,
-          -100,
-          scrollable: find.byType(Scrollable).last,
-        );
+        await tester.scrollUntilVisible(time, -100, scrollable: editorScroll);
         expect(find.text('12:42'), findsOneWidget);
-        await tester.scrollUntilVisible(
-          save,
-          100,
-          scrollable: find.byType(Scrollable).last,
-        );
+        await tester.scrollUntilVisible(save, 100, scrollable: editorScroll);
+        await tester.drag(editorScroll, const Offset(0, -200));
+        await tester.pumpAndSettle();
         await tester.tap(save);
         await tester.pumpAndSettle();
         expect(wodWriter.scores, ['12:42', '12:42']);
@@ -190,6 +267,19 @@ void main() {
       }
       if (locale.languageCode == 'en') {
         await show(const WodLogApp());
+        await tester.tap(
+          find.widgetWithText(OutlinedButton, 'WOD personal records'),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Current best · rx · 07:45'), findsOneWidget);
+        await tester.tap(find.text('Fran'));
+        await tester.pumpAndSettle();
+        expect(find.text('Record improvements'), findsOneWidget);
+        await tester.tap(find.text('07:45'));
+        await tester.pumpAndSettle();
+        expect(find.text(_session.title!), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
         await tester.tap(find.byIcon(Icons.receipt_long_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.searchWorkouts), findsOneWidget);
@@ -202,8 +292,45 @@ void main() {
   }
 }
 
+const WodRecord _personalBest = (
+  block: _wod,
+  prescription: WodPrescription(title: 'Fran', version: WodVersion.rx),
+  result: _result,
+  outcome: WodOutcome.completed,
+);
+
 class _RetryWodWriter implements WodRepository {
   final scores = <String>[];
+
+  WodResult? created;
+
+  @override
+  Future<int> nextWodSortOrder(String sessionId) async => 2;
+
+  @override
+  Future<String> saveConfirmed({
+    required String attemptId,
+    required String sessionId,
+    required int sortOrder,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
+  }) async {
+    expect(sessionId, _session.id);
+    expect(prescription.title, 'Saved workout');
+    expect(prescription.movements.single.movementId, 'double_unders');
+    expect(score.value, closeTo(100.125 * 0.45359237, 1e-9));
+    created = WodResult(
+      id: attemptId,
+      blockId: attemptId,
+      resultType: prescription.scoreKind.name,
+      outcome: score.outcome.name,
+      scoreValue: score.value,
+      resultText: score.text,
+      createdAt: 0,
+      updatedAt: 0,
+    );
+    return attemptId;
+  }
 
   @override
   Stream<List<WodRecord>> watchCompletedRecords() => Stream.value([]);

@@ -9,6 +9,7 @@ import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/display_preferences.dart';
 import '../../settings/weight_unit.dart';
+import 'progress_screen.dart';
 import 'wod_library_sheet.dart';
 import 'wod_record_list.dart';
 import '../data/exercise_progress_service.dart';
@@ -110,6 +111,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 OutlinedButton(
                   onPressed: () => context.go('/history'),
                   child: Text(l10n.pastWods),
+                ),
+                OutlinedButton(
+                  onPressed: () => context.go('/progress'),
+                  child: Text(wodPersonalRecordsLabel(l10n)),
                 ),
               ],
             ),

@@ -73,6 +73,7 @@ abstract final class WodLogTheme {
         bodyLarge: baseText.bodyLarge?.copyWith(
           color: WodLogColors.ink,
           fontSize: 16,
+          fontFeatures: const [FontFeature.tabularFigures()],
           height: 1.45,
         ),
         bodyMedium: baseText.bodyMedium?.copyWith(
