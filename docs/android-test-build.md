@@ -39,3 +39,31 @@ When the workflow finishes, the APK is attached to the GitHub Release for that t
 ## Signing key and Play Store
 
 This workflow uses a dedicated test certificate. Before a Play Store release, decide whether the Play signing setup can continue with this certificate or whether testers will need to uninstall the test build before installing the Play-distributed build. Store enrollment and public publishing remain a separate task.
+
+## Mobile release workflow
+
+After reviewing the app on iPhone, set a new version and a strictly increasing
+build number in `pubspec.yaml` and merge the version bump to `main`. From the
+**Mobile release** workflow, use **Run workflow** on `main` with both store options
+off to verify the source and download the signed APK and AAB under
+**WODLog-Android**. Push the matching `android-vX.Y.Z` tag to publish the APK to
+GitHub Releases. The build number must be greater than the version code already
+installed or uploaded to the store.
+
+Use Play Console for the first AAB upload to the WODLog internal test track. For
+later releases, enable the Google Play Developer API and grant a service account
+access to release to testing tracks for WODLog. Put its JSON key in the
+`google-play-internal` GitHub environment secret `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`.
+In **Run workflow**, select **Upload the signed AAB to Google Play internal
+testing** to publish the build to those testers.
+
+For TestFlight, create the WODLog App Store Connect record for `dev.rsy.wodlog`.
+Configure the `testflight` GitHub environment with
+`IOS_DISTRIBUTION_P12_BASE64`, `IOS_DISTRIBUTION_P12_PASSWORD`,
+`IOS_PROVISIONING_PROFILE_BASE64`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, and
+`ASC_KEY_P8_BASE64`. The provisioning profile must be an App Store distribution
+profile for WODLog. Set up an internal tester group in App Store Connect and
+enable automatic distribution if builds should go to that group after processing.
+Select **Upload the signed IPA to TestFlight** in **Run workflow** to upload
+the build. The connected iPhone can still be updated locally from Xcode for
+review before running either store upload.
