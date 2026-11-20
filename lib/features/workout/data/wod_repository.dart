@@ -195,6 +195,16 @@ class WodRepository {
     return query.watch().map((rows) => rows.map(_readRecord).toList());
   }
 
+  Future<int> nextWodSortOrder(String sessionId) async {
+    final blocks =
+        await (_database.select(_database.workoutBlocks)
+              ..where((block) => block.sessionId.equals(sessionId))
+              ..orderBy([(block) => OrderingTerm.desc(block.sortOrder)])
+              ..limit(1))
+            .getSingleOrNull();
+    return blocks == null ? 0 : blocks.sortOrder + 1;
+  }
+
   Future<WodRecord?> getRecord(String attemptId) async {
     final query = _recordsQuery();
     query.where(_database.workoutBlocks.id.equals(attemptId));

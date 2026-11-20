@@ -10,11 +10,9 @@ import '../data/named_wod_catalog.dart';
 import '../data/wod_parser.dart';
 import '../data/wod_prescription.dart';
 import 'localized_decimal.dart';
-import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
 import 'wod_library_sheet.dart';
 import 'wod_source_review_sheet.dart';
-import 'workout_dialog.dart';
 
 class WodBlocksSection extends ConsumerWidget {
   const WodBlocksSection({
@@ -75,59 +73,14 @@ class WodBlocksSection extends ConsumerWidget {
     );
   }
 
-  Future<void> _addBlock(BuildContext context, WidgetRef ref) async {
-    final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController(text: initialBenchmark);
-    final title = await showWorkoutDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        scrollable: true,
-        title: Text(l10n.addWodBlock),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(labelText: l10n.wodName),
-          textCapitalization: TextCapitalization.sentences,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              final template = await showWodLibrary(context);
-              if (template != null && context.mounted) {
-                controller.text = template.name;
-              }
-            },
-            child: Text(l10n.chooseBenchmark),
-          ),
-          FilledButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) Navigator.pop(context, name);
-            },
-            child: Text(l10n.add),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (!context.mounted || title == null) return;
-    final count =
-        ref.read(blocksForSessionProvider(sessionId)).asData?.value.length ?? 0;
-    final repository = ref.read(wodRepositoryProvider);
-    final template = NamedWodCatalog.find(title);
-    if (template != null) {
-      await repository.createNamedWod(
-        sessionId: sessionId,
-        template: template,
-        sortOrder: count,
+  Future<void> _addBlock(BuildContext context, WidgetRef ref) =>
+      showWodResultEditor(
+        context,
+        ref,
+        const Uuid().v4(),
+        newSessionId: sessionId,
+        initialBenchmark: initialBenchmark,
       );
-    } else {
-      await repository.createWodBlock(
-        sessionId: sessionId,
-        title: title,
-        sortOrder: count,
-      );
-    }
-  }
 }
 
 const _types = <String>[
@@ -161,6 +114,8 @@ Future<void> showWodResultEditor(
   WidgetRef ref,
   String blockId, {
   bool repeat = false,
+  String? newSessionId,
+  String? initialBenchmark,
 }) async {
   final repository = ref.read(wodRepositoryProvider);
   final l10n = AppLocalizations.of(context)!;
@@ -168,12 +123,41 @@ Future<void> showWodResultEditor(
     Localizations.localeOf(context).toString(),
   );
   final unit = ref.read(weightUnitProvider).value ?? WeightUnit.kg;
-  final record = await repository.getRecord(blockId);
-  if (record == null) return;
-  final result = repeat ? null : record.result;
+  final isNew = newSessionId != null;
+  final record = isNew ? null : await repository.getRecord(blockId);
+  if ((!isNew && record == null) || !context.mounted) return;
+  final result = repeat ? null : record?.result;
   final attemptId = repeat ? const Uuid().v4() : blockId;
   final workoutDate = DateFormat('yyyy-MM-dd', 'en').format(DateTime.now());
-  if (!context.mounted) return;
+
+  WodPrescription benchmarkDraft(String title) {
+    for (final benchmark in NamedWodCatalog.prescriptions()) {
+      if (benchmark.draft.title == title) return benchmark.draft;
+    }
+    return WodPrescription(title: title);
+  }
+
+  String typeFor(WodScoreKind kind) => switch (kind) {
+    WodScoreKind.roundsAndReps => 'amrap',
+    WodScoreKind.intervals => 'emom',
+    WodScoreKind.weight => 'load',
+    WodScoreKind.unknown || WodScoreKind.time => 'for_time',
+    WodScoreKind.reps => 'reps',
+    WodScoreKind.distance => 'distance',
+    WodScoreKind.calories => 'calories',
+    WodScoreKind.points => 'points',
+  };
+
+  var title = record?.block.title ?? initialBenchmark ?? '';
+  var prescription = record?.prescription ?? benchmarkDraft(title);
+  if (repeat) prescription = NamedWodCatalog.repeatDraft(prescription);
+  final template = NamedWodCatalog.find(title);
+  if (template != null &&
+      record?.block.notes == '${template.format} · ${template.prescription}' &&
+      prescription.structure == WodStructure.unknown &&
+      prescription.scoreKind == WodScoreKind.unknown) {
+    prescription = benchmarkDraft(title);
+  }
   final originalType = switch (result?.resultType) {
     'time' => 'for_time',
     'roundsAndReps' => 'amrap',
@@ -182,50 +166,12 @@ Future<void> showWodResultEditor(
     final type => type,
   };
   final availableTypes = [
-    ..._types.where((type) => !repeat || type != 'other'),
+    ..._types.where((type) => (!repeat && !isNew) || type != 'other'),
     if (originalType != null && !_types.contains(originalType)) originalType,
   ];
-  var type =
-      originalType ??
-      switch (record.prescription.scoreKind) {
-        WodScoreKind.roundsAndReps => 'amrap',
-        WodScoreKind.intervals => 'emom',
-        WodScoreKind.weight => 'load',
-        WodScoreKind.unknown || WodScoreKind.time => _types.first,
-        WodScoreKind.reps => 'reps',
-        WodScoreKind.distance => 'distance',
-        WodScoreKind.calories => 'calories',
-        WodScoreKind.points => 'points',
-      };
-  final title = record.block.title ?? '';
-  var prescription = repeat
-      ? NamedWodCatalog.repeatDraft(record.prescription)
-      : record.prescription;
-  final template = NamedWodCatalog.find(title);
-  if (template != null &&
-      record.block.notes == '${template.format} · ${template.prescription}' &&
-      prescription.structure == WodStructure.unknown &&
-      prescription.scoreKind == WodScoreKind.unknown) {
-    for (final benchmark in NamedWodCatalog.prescriptions()) {
-      if (benchmark.draft.title == title) {
-        prescription = benchmark.draft;
-        if (result == null) {
-          type = switch (prescription.scoreKind) {
-            WodScoreKind.roundsAndReps => 'amrap',
-            WodScoreKind.intervals => 'emom',
-            WodScoreKind.weight => 'load',
-            WodScoreKind.time => 'for_time',
-            WodScoreKind.reps => 'reps',
-            WodScoreKind.distance => 'distance',
-            WodScoreKind.calories => 'calories',
-            WodScoreKind.points => 'points',
-            _ => 'other',
-          };
-        }
-        break;
-      }
-    }
-  }
+  var type = originalType ?? typeFor(prescription.scoreKind);
+  var titleRevision = 0;
+  var typeRevision = 0;
   final korean = l10n.localeName.startsWith('ko');
   var version = prescription.version;
   var score = result?.resultText ?? '';
@@ -292,7 +238,38 @@ Future<void> showWodResultEditor(
       builder: (context, setState) => ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (isNew) ...[
+            TextFormField(
+              key: ValueKey(('title', titleRevision)),
+              initialValue: title,
+              enabled: !saving,
+              decoration: InputDecoration(labelText: l10n.wodName),
+              onChanged: (value) => title = value,
+            ),
+            OutlinedButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      final template = await showWodLibrary(context);
+                      if (template == null || !context.mounted) return;
+                      setState(() {
+                        title = template.name;
+                        titleRevision++;
+                        prescription = benchmarkDraft(title);
+                        version = prescription.version;
+                        type = typeFor(prescription.scoreKind);
+                        typeRevision++;
+                        score = '';
+                        secondScore = '';
+                        ending = _WodEnding.finished;
+                        invalid = false;
+                      });
+                    },
+              child: Text(l10n.chooseBenchmark),
+            ),
+          ],
           DropdownButtonFormField<String>(
+            key: ValueKey(typeRevision),
             initialValue: type,
             isExpanded: true,
             decoration: InputDecoration(labelText: l10n.wodResultType),
@@ -372,7 +349,7 @@ Future<void> showWodResultEditor(
               type != 'for_time' ||
               ending != _WodEnding.stopped)
             TextFormField(
-              key: ValueKey((type, ending, usePreviousScore)),
+              key: ValueKey((typeRevision, type, ending, usePreviousScore)),
               initialValue: score,
               enabled: !saving,
               keyboardType: switch ((type, usePreviousScore, ending)) {
@@ -441,6 +418,15 @@ Future<void> showWodResultEditor(
                         title: title,
                       );
                       version = prescription.version;
+                      if (isNew &&
+                          prescription.scoreKind != WodScoreKind.unknown) {
+                        type = typeFor(prescription.scoreKind);
+                        typeRevision++;
+                        score = '';
+                        secondScore = '';
+                        ending = _WodEnding.finished;
+                        invalid = false;
+                      }
                       notes = [
                         if (notes.trim().isNotEmpty) notes.trim(),
                         source,
@@ -466,7 +452,8 @@ Future<void> showWodResultEditor(
                 ? null
                 : () async {
                     final confirmedScore = validatedScore();
-                    if (confirmedScore == null) {
+                    if (confirmedScore == null ||
+                        (isNew && title.trim().isEmpty)) {
                       setState(() => invalid = true);
                       return;
                     }
@@ -489,6 +476,7 @@ Future<void> showWodResultEditor(
                       };
                       final definition = WodPrescription.fromJson({
                         ...prescription.toJson(),
+                        if (isNew) 'title': title.trim(),
                         'scoreKind': kind.name,
                         'version': version.name,
                       });
@@ -550,7 +538,17 @@ Future<void> showWodResultEditor(
                           text: confirmedScore,
                           notes: notes.trim(),
                         );
-                        if (repeat) {
+                        if (newSessionId != null) {
+                          await repository.saveConfirmed(
+                            attemptId: attemptId,
+                            sessionId: newSessionId,
+                            sortOrder: await repository.nextWodSortOrder(
+                              newSessionId,
+                            ),
+                            prescription: definition,
+                            score: attemptScore,
+                          );
+                        } else if (repeat) {
                           await repository.saveRepeat(
                             attemptId: attemptId,
                             workoutDate: workoutDate,

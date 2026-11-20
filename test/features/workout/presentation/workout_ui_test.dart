@@ -56,6 +56,12 @@ void main() {
             overrides: [
               weightUnitProvider.overrideWith(_PoundsPreference.new),
               wodRepositoryProvider.overrideWithValue(wodWriter),
+              if (locale.languageCode == 'en')
+                wodPersonalBestsProvider.overrideWith(
+                  (ref) => Stream.value([
+                    (best: _personalBest, improvements: [_personalBest]),
+                  ]),
+                ),
               displayPreferencesProvider.overrideWith(
                 _TestDisplayPreference.new,
               ),
@@ -219,6 +225,19 @@ void main() {
       }
       if (locale.languageCode == 'en') {
         await show(const WodLogApp());
+        await tester.tap(
+          find.widgetWithText(OutlinedButton, 'WOD personal records'),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Current best · rx · 07:45'), findsOneWidget);
+        await tester.tap(find.text('Fran'));
+        await tester.pumpAndSettle();
+        expect(find.text('Record improvements'), findsOneWidget);
+        await tester.tap(find.text('07:45'));
+        await tester.pumpAndSettle();
+        expect(find.text(_session.title!), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
         await tester.tap(find.byIcon(Icons.receipt_long_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.searchWorkouts), findsOneWidget);
@@ -230,6 +249,13 @@ void main() {
     });
   }
 }
+
+const WodRecord _personalBest = (
+  block: _wod,
+  prescription: WodPrescription(title: 'Fran', version: WodVersion.rx),
+  result: _result,
+  outcome: WodOutcome.completed,
+);
 
 class _RetryWodWriter implements WodRepository {
   final scores = <String>[];

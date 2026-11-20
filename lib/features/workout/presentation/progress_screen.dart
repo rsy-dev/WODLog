@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/weight_unit.dart';
 import '../data/crossfit_catalog.dart';
+import '../data/wod_comparison.dart';
+import '../data/wod_repository.dart';
 import 'movement_category_label.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
@@ -17,8 +20,7 @@ class ProgressScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final progress = ref.watch(exerciseProgressProvider);
-    final wodBests = ref.watch(wodPersonalBestsProvider).value ?? [];
-    final korean = l10n.localeName.startsWith('ko');
+    final wodBests = ref.watch(wodPersonalBestsProvider);
     final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
     final locale = Localizations.localeOf(context).toString();
     final number = NumberFormat.decimalPattern(locale);
@@ -35,26 +37,6 @@ class ProgressScreen extends ConsumerWidget {
           ),
         ),
         data: (items) {
-          if (items.isEmpty && wodBests.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.trending_up, size: 40),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.noProgressYet,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
           final totalSessions = <String>{};
           var totalSets = 0;
           var totalReps = 0;
@@ -74,91 +56,142 @@ class ProgressScreen extends ConsumerWidget {
               28 + MediaQuery.paddingOf(context).bottom,
             ),
             children: [
-              if (wodBests.isNotEmpty) ...[
+              Text(
+                wodPersonalRecordsLabel(l10n),
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              wodBests.when(
+                loading: () => const LinearProgressIndicator(),
+                error: (_, _) => Text(l10n.loadWorkoutError),
+                data: (groups) => groups.isEmpty
+                    ? Text(
+                        l10n.localeName.startsWith('ko')
+                            ? '비교 조건이 확인된 WOD 기록이 없습니다.'
+                            : 'No WOD results with confirmed comparison conditions.',
+                      )
+                    : Column(
+                        children: [
+                          for (final group in groups)
+                            _WodPersonalRecordCard(
+                              group: group,
+                              dateFormat: dateFormat,
+                            ),
+                        ],
+                      ),
+              ),
+              const SizedBox(height: 24),
+              if (items.isEmpty)
+                Text(l10n.noProgressYet)
+              else ...[
                 Text(
-                  korean ? 'WOD 개인 기록' : 'WOD personal records',
+                  l10n.trainingOverview,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                for (final group in wodBests)
-                  Card(
-                    child: ExpansionTile(
-                      title: Text(group.best.prescription.title),
-                      subtitle: Text(
-                        [
-                          group.best.prescription.version.name,
-                          group.best.result!.resultText ?? '',
-                        ].join(' · '),
-                      ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Wrap(
+                      spacing: 20,
+                      runSpacing: 12,
                       children: [
-                        for (final attempt in group.improvements.reversed)
-                          ListTile(
-                            title: Text(attempt.result!.resultText ?? ''),
-                            subtitle: Text(
-                              dateFormat.format(
-                                DateTime.fromMillisecondsSinceEpoch(
-                                  attempt.result!.createdAt,
-                                ),
-                              ),
-                            ),
-                          ),
+                        _SummaryMetric(
+                          value: number.format(totalSessions.length),
+                          label: l10n.sessionsLabel,
+                        ),
+                        _SummaryMetric(
+                          value: number.format(totalSets),
+                          label: l10n.setsLabel,
+                        ),
+                        _SummaryMetric(
+                          value: number.format(totalReps),
+                          label: l10n.reps,
+                        ),
                       ],
                     ),
                   ),
+                ),
                 const SizedBox(height: 24),
-              ],
-              Text(
-                l10n.trainingOverview,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Wrap(
-                    spacing: 20,
-                    runSpacing: 12,
-                    children: [
-                      _SummaryMetric(
-                        value: number.format(totalSessions.length),
-                        label: l10n.sessionsLabel,
-                      ),
-                      _SummaryMetric(
-                        value: number.format(totalSets),
-                        label: l10n.setsLabel,
-                      ),
-                      _SummaryMetric(
-                        value: number.format(totalReps),
-                        label: l10n.reps,
-                      ),
-                    ],
-                  ),
+                Text(
+                  l10n.progress,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                l10n.progress,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              _MovementTypeTrends(
-                progress: items,
-                unit: unit,
-                locale: locale,
-                number: number,
-              ),
-              const SizedBox(height: 12),
-              for (final movement in items)
-                _MovementProgressCard(
-                  progress: movement,
+                const SizedBox(height: 16),
+                _MovementTypeTrends(
+                  progress: items,
                   unit: unit,
+                  locale: locale,
                   number: number,
-                  dateFormat: dateFormat,
                 ),
+                const SizedBox(height: 12),
+                for (final movement in items)
+                  _MovementProgressCard(
+                    progress: movement,
+                    unit: unit,
+                    number: number,
+                    dateFormat: dateFormat,
+                  ),
+              ],
             ],
           );
         },
       ),
     );
+  }
+}
+
+String wodPersonalRecordsLabel(AppLocalizations l10n) =>
+    l10n.localeName.startsWith('ko') ? 'WOD 개인 기록' : 'WOD personal records';
+
+class _WodPersonalRecordCard extends StatelessWidget {
+  const _WodPersonalRecordCard({required this.group, required this.dateFormat});
+
+  final WodPersonalBest group;
+  final DateFormat dateFormat;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final korean = l10n.localeName.startsWith('ko');
+    final best = group.best;
+    return Card(
+      child: ExpansionTile(
+        title: Text(best.prescription.title),
+        subtitle: Text(
+          [
+            korean ? '현재 최고' : 'Current best',
+            best.prescription.version.name,
+            best.result!.resultText ?? '',
+          ].join(' · '),
+        ),
+        children: [
+          ListTile(
+            title: Text(l10n.openSession),
+            onTap: () => _openSession(context, best),
+          ),
+          if (group.improvements.isNotEmpty) ...[
+            ListTile(title: Text(korean ? '갱신 이력' : 'Record improvements')),
+            for (final attempt in group.improvements.reversed)
+              ListTile(
+                title: Text(attempt.result!.resultText ?? ''),
+                subtitle: Text(
+                  dateFormat.format(
+                    DateTime.fromMillisecondsSinceEpoch(
+                      attempt.result!.createdAt,
+                    ),
+                  ),
+                ),
+                onTap: () => _openSession(context, attempt),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _openSession(BuildContext context, WodRecord attempt) {
+    context.push('/sessions/${attempt.block.sessionId}');
   }
 }
 
