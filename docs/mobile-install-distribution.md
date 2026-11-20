@@ -12,7 +12,7 @@ The no-cost preview is a static Flutter web app hosted on GitHub Pages. It has n
 
 Workout records are stored in the Safari browser database on that iPhone. They are separate from the native iOS/Android app and do not sync. Clearing Safari site data can remove them. The app needs internet to load or update the web files.
 
-GitHub Actions builds and deploys the web preview on pushes to `main`, `develop`, or `master`. Each of these branches must contain the workflow and be allowed by the `github-pages` environment. The branches share one URL, so the last successful deployment supplies the preview. After the workflow succeeds, reload Safari or close and reopen the Home Screen app. The same HTTPS address works over Wi-Fi or mobile data and preserves the site's local records.
+Run **Deploy web preview** manually from GitHub Actions when a web deployment is requested. Select `main`, `develop`, or `master`. The selected branch must contain the workflow and be allowed by the `github-pages` environment. The branches share one URL, so the last successful deployment supplies the preview. After the workflow succeeds, reload Safari or close and reopen the Home Screen app. The same HTTPS address works over Wi-Fi or mobile data and preserves the site's local records.
 
 ## Native iPhone testing
 
