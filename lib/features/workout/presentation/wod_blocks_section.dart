@@ -18,6 +18,15 @@ import 'wod_library_sheet.dart';
 import 'wod_source_review_sheet.dart';
 import 'workout_date_sheet.dart';
 
+String wodVersionLabel(AppLocalizations l10n, WodVersion version) =>
+    switch (version) {
+      WodVersion.unknown => l10n.wodUnconfirmedStandard,
+      WodVersion.rx => 'Rx',
+      WodVersion.scaled => 'Scaled',
+      WodVersion.foundations => 'Foundations',
+      WodVersion.custom => l10n.wodCustomStandard,
+    };
+
 class WodBlocksSection extends ConsumerWidget {
   const WodBlocksSection({
     super.key,
@@ -322,6 +331,27 @@ Future<void> showWodResultEditor(
   final appliedSources = <String>{};
   var saving = false;
   var failed = false;
+  final fieldKeys = <String, (Object?, GlobalKey)>{};
+  var prescriptionExpanded = false;
+  GlobalKey fieldKey(String field, [Object? revision]) {
+    final existing = fieldKeys[field];
+    if (existing != null && existing.$1 == revision) return existing.$2;
+    final key = GlobalKey();
+    fieldKeys[field] = (revision, key);
+    return key;
+  }
+
+  void revealField(String field) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final fieldContext =
+          fieldKeys[field]?.$2.currentContext ??
+          fieldKeys['prescriptionFields']?.$2.currentContext;
+      if (fieldContext != null) {
+        Scrollable.ensureVisible(fieldContext, alignment: 0.2);
+      }
+    });
+  }
+
   final saved = await showWodLogSheet<bool>(
     context: context,
     title: repeat
@@ -330,9 +360,8 @@ Future<void> showWodResultEditor(
         ? l10n.addWodResult
         : l10n.editWodResult,
     builder: (_) => StatefulBuilder(
-      builder: (context, setState) => ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      builder: (context, setState) => _WodEditorLayout(
+        fields: [
           if (repeat)
             OutlinedButton.icon(
               icon: const Icon(Icons.calendar_today_outlined),
@@ -351,7 +380,7 @@ Future<void> showWodResultEditor(
             ),
           if (isNew) ...[
             TextFormField(
-              key: ValueKey(('title', titleRevision)),
+              key: fieldKey('titleField', titleRevision),
               initialValue: title,
               enabled: !saving,
               decoration: InputDecoration(labelText: l10n.wodName),
@@ -368,6 +397,7 @@ Future<void> showWodResultEditor(
                         titleRevision++;
                         prescription = benchmarkDraft(title);
                         invalidPrescriptionFields.clear();
+                        prescriptionExpanded = false;
                         version = prescription.version;
                         type = typeFor(prescription.scoreKind);
                         typeRevision++;
@@ -380,8 +410,47 @@ Future<void> showWodResultEditor(
               child: Text(l10n.chooseBenchmark),
             ),
           ],
+          OutlinedButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    final draft = await showWodSourceReview(
+                      context,
+                      title: title,
+                    );
+                    final source = draft?.rawText;
+                    if (!context.mounted ||
+                        draft == null ||
+                        source == null ||
+                        source == prescription.rawText ||
+                        !appliedSources.add(source)) {
+                      return;
+                    }
+                    setState(() {
+                      prescription = draft;
+                      invalidPrescriptionFields.clear();
+                      version = prescription.version;
+                      if (prescription.scoreKind != WodScoreKind.unknown) {
+                        usePreviousScore = false;
+                        type = typeFor(prescription.scoreKind);
+                        typeRevision++;
+                        score = '';
+                        secondScore = '';
+                        ending = _WodEnding.finished;
+                        invalid = false;
+                      }
+                      notes = [
+                        if (notes.trim().isNotEmpty) notes.trim(),
+                        source,
+                      ].join('\n\n');
+                      notesRevision++;
+                      prescriptionExpanded = false;
+                    });
+                  },
+            child: Text(l10n.reviewWodText),
+          ),
           DropdownButtonFormField<String>(
-            key: ValueKey(typeRevision),
+            key: ValueKey(('type', typeRevision)),
             initialValue: type,
             isExpanded: true,
             decoration: InputDecoration(labelText: l10n.wodResultType),
@@ -471,13 +540,7 @@ Future<void> showWodResultEditor(
                 for (final item in WodVersion.values)
                   DropdownMenuItem(
                     value: item,
-                    child: Text(switch (item) {
-                      WodVersion.unknown => l10n.wodUnconfirmedStandard,
-                      WodVersion.rx => 'Rx',
-                      WodVersion.scaled => 'Scaled',
-                      WodVersion.foundations => 'Foundations',
-                      WodVersion.custom => l10n.wodCustomStandard,
-                    }),
+                    child: Text(wodVersionLabel(l10n, item)),
                   ),
               ],
               onChanged: saving
@@ -518,7 +581,12 @@ Future<void> showWodResultEditor(
               type != 'for_time' ||
               ending != _WodEnding.stopped)
             TextFormField(
-              key: ValueKey((typeRevision, type, ending, usePreviousScore)),
+              key: fieldKey('scoreField', (
+                typeRevision,
+                type,
+                ending,
+                usePreviousScore,
+              )),
               initialValue: score,
               enabled: !saving,
               keyboardType: switch ((type, usePreviousScore, ending)) {
@@ -551,7 +619,7 @@ Future<void> showWodResultEditor(
             ),
           if (isCapped())
             TextFormField(
-              key: ValueKey(('cap', titleRevision, notesRevision)),
+              key: fieldKey('capField', (titleRevision, notesRevision)),
               initialValue: prescription.timeCapSeconds == null
                   ? ''
                   : number.format(prescription.timeCapSeconds),
@@ -564,6 +632,7 @@ Future<void> showWodResultEditor(
               type == 'for_time' &&
               ending == _WodEnding.capped)
             TextFormField(
+              key: fieldKey('tieBreakField'),
               initialValue: tieBreak,
               enabled: !saving,
               decoration: InputDecoration(labelText: l10n.wodTiebreak),
@@ -571,7 +640,7 @@ Future<void> showWodResultEditor(
             ),
           if (!usePreviousScore && (type == 'amrap' || type == 'rounds_reps'))
             TextFormField(
-              key: ValueKey(type),
+              key: fieldKey('roundsField', type),
               initialValue: secondScore,
               enabled: !saving,
               keyboardType: TextInputType.number,
@@ -579,8 +648,10 @@ Future<void> showWodResultEditor(
               onChanged: (value) => secondScore = value,
             ),
           ExpansionTile(
-            key: ValueKey(('prescription', titleRevision, notesRevision)),
+            key: fieldKey('prescriptionFields', (titleRevision, notesRevision)),
             title: Text(l10n.wodPrescription),
+            maintainState: true,
+            onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
             children: [
               DropdownButtonFormField<WodStructure>(
                 initialValue: prescription.structure,
@@ -632,7 +703,7 @@ Future<void> showWodResultEditor(
                 ),
               ])
                 TextFormField(
-                  key: ValueKey(field),
+                  key: fieldKey(field, (titleRevision, notesRevision)),
                   initialValue: value == null ? '' : number.format(value),
                   enabled: !saving,
                   decoration: InputDecoration(labelText: label),
@@ -676,53 +747,16 @@ Future<void> showWodResultEditor(
               child: Text(l10n.wodEnterNewScore),
             ),
           const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: saving
-                ? null
-                : () async {
-                    final draft = await showWodSourceReview(
-                      context,
-                      title: title,
-                    );
-                    final source = draft?.rawText;
-                    if (!context.mounted ||
-                        draft == null ||
-                        source == null ||
-                        source == prescription.rawText ||
-                        !appliedSources.add(source)) {
-                      return;
-                    }
-                    setState(() {
-                      prescription = draft;
-                      invalidPrescriptionFields.clear();
-                      version = prescription.version;
-                      if (prescription.scoreKind != WodScoreKind.unknown) {
-                        usePreviousScore = false;
-                        type = typeFor(prescription.scoreKind);
-                        typeRevision++;
-                        score = '';
-                        secondScore = '';
-                        ending = _WodEnding.finished;
-                        invalid = false;
-                      }
-                      notes = [
-                        if (notes.trim().isNotEmpty) notes.trim(),
-                        source,
-                      ].join('\n\n');
-                      notesRevision++;
-                    });
-                  },
-            child: Text(l10n.reviewWodText),
-          ),
           TextFormField(
-            key: ValueKey(notesRevision),
+            key: ValueKey(('notes', notesRevision)),
             initialValue: notes,
             enabled: !saving,
             decoration: InputDecoration(labelText: l10n.wodNotes),
             maxLines: 3,
             onChanged: (value) => notes = value,
           ),
-          const SizedBox(height: 12),
+        ],
+        actions: [
           if (invalidCap && hasMissingCap()) Text(l10n.wodMissingTimeCap),
           if (invalid) Text(l10n.wodInvalidScore),
           if (failed) Text(l10n.wodSaveError),
@@ -730,18 +764,54 @@ Future<void> showWodResultEditor(
             onPressed: saving
                 ? null
                 : () async {
-                    final confirmedScore = validatedScore();
+                    if (isNew && title.trim().isEmpty) {
+                      setState(() {
+                        invalid = true;
+                        invalidCap = false;
+                      });
+                      revealField('titleField');
+                      return;
+                    }
                     if (hasMissingCap()) {
                       setState(() {
                         invalid = false;
                         invalidCap = true;
                       });
+                      revealField('capField');
                       return;
                     }
+                    final confirmedScore = validatedScore();
                     if (confirmedScore == null ||
-                        invalidPrescriptionFields.isNotEmpty ||
-                        (isNew && title.trim().isEmpty)) {
-                      setState(() => invalid = true);
+                        invalidPrescriptionFields.isNotEmpty) {
+                      setState(() {
+                        invalid = true;
+                        invalidCap = false;
+                      });
+                      final capMs = (prescription.timeCapSeconds ?? 0) * 1000;
+                      final tieBreakMs = durationMs(tieBreak);
+                      final target = switch (type) {
+                        _
+                            when invalidPrescriptionFields.contains(
+                                  'timeCapSeconds',
+                                ) &&
+                                isCapped() =>
+                          'capField',
+                        _ when invalidPrescriptionFields.isNotEmpty =>
+                          prescriptionExpanded
+                              ? invalidPrescriptionFields.first
+                              : 'prescriptionFields',
+                        'for_time'
+                            when isCapped() &&
+                                tieBreak.trim().isNotEmpty &&
+                                (tieBreakMs == null ||
+                                    (capMs > 0 && tieBreakMs > capMs)) =>
+                          'tieBreakField',
+                        'amrap' || 'rounds_reps'
+                            when !usePreviousScore && whole(score) != null =>
+                          'roundsField',
+                        _ => 'scoreField',
+                      };
+                      revealField(target);
                       return;
                     }
                     setState(() {
@@ -892,6 +962,40 @@ Future<void> showWodResultEditor(
   );
 }
 
+class _WodEditorLayout extends StatelessWidget {
+  const _WodEditorLayout({required this.fields, required this.actions});
+
+  final List<Widget> fields;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Expanded(
+        child: ListView(
+          key: const ValueKey('wod-editor-fields'),
+          padding: const EdgeInsets.all(16),
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: fields,
+            ),
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: actions,
+        ),
+      ),
+    ],
+  );
+}
+
 Future<void> showWodRecordDetail(
   BuildContext thisContext, {
   required String blockId,
@@ -931,7 +1035,7 @@ Future<void> showWodRecordDetail(
           children: [
             if (dateLabel != null) Text(dateLabel),
             if (prescription != null) ...[
-              Text(prescription.version.name),
+              Text(wodVersionLabel(l10n, prescription.version)),
               for (final movement in prescription.movements)
                 Text(
                   [

@@ -113,6 +113,13 @@ void main() {
         expect(tester.takeException(), isNull);
       }
 
+      final editorFields = find
+          .descendant(
+            of: find.byKey(const ValueKey('wod-editor-fields')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+
       if (locale.languageCode == 'ko') {
         tester.view.physicalSize = const Size(390, 844);
         final shortcuts = [
@@ -128,6 +135,11 @@ void main() {
         final top = tester.getTopLeft(shortcuts.first).dy;
         for (final shortcut in shortcuts) {
           expect(tester.getTopLeft(shortcut).dy, top);
+          expect(
+            tester.getSize(shortcut).width,
+            tester.getSize(shortcuts.first).width,
+          );
+          expect(tester.getSize(shortcut).height, greaterThanOrEqualTo(48));
         }
         textScale = 2;
         await show(const TodayScreen());
@@ -156,6 +168,19 @@ void main() {
           find.widgetWithText(TextFormField, l10n.wodName),
           findsOneWidget,
         );
+        expect(find.text(l10n.reviewWodText).hitTestable(), findsOneWidget);
+        expect(
+          find.widgetWithText(FilledButton, l10n.save).hitTestable(),
+          findsOneWidget,
+        );
+        await tester.tap(find.text(l10n.reviewWodText).hitTestable());
+        await tester.pumpAndSettle();
+        expect(
+          find.widgetWithText(TextField, l10n.wodSourceText),
+          findsOneWidget,
+        );
+        await tester.tap(find.byTooltip(l10n.closeSheet).hitTestable());
+        await tester.pumpAndSettle();
         await tester.tap(find.byTooltip(l10n.closeSheet));
         await tester.pumpAndSettle();
       }
@@ -180,20 +205,20 @@ void main() {
         await tester.scrollUntilVisible(
           find.widgetWithText(TextFormField, l10n.wodFinishTime),
           100,
-          scrollable: find.byType(Scrollable).last,
+          scrollable: editorFields,
         );
         await tester.enterText(
           find.widgetWithText(TextFormField, l10n.wodFinishTime),
           '5:00',
         );
-        FocusManager.instance.primaryFocus?.unfocus();
+        tester.view.viewInsets = const FakeViewPadding(bottom: 240);
+        addTearDown(tester.view.resetViewInsets);
         await tester.pumpAndSettle();
         final save = find.widgetWithText(FilledButton, l10n.save);
-        final editor = find.byType(Scrollable).last;
-        await tester.scrollUntilVisible(save, 100, scrollable: editor);
-        await tester.drag(editor, const Offset(0, -200));
-        await tester.pumpAndSettle();
+        expect(save.hitTestable(), findsOneWidget);
+        expect(tester.getRect(save).bottom, lessThanOrEqualTo(400));
         await tester.tap(save);
+        tester.view.resetViewInsets();
         await tester.pumpAndSettle();
         final now = DateTime.now();
         final date = DateTime(now.year, now.month - 1, 15);
@@ -228,6 +253,15 @@ void main() {
       final leading = tester.getCenter(find.byIcon(Icons.fitness_center));
       final trailing = tester.getCenter(scoreLabel);
       expect(leading.dx > trailing.dx, isRtl);
+
+      if (const {'ko', 'en'}.contains(locale.languageCode)) {
+        await tester.tap(scoreLabel);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.wodUnconfirmedStandard), findsOneWidget);
+        expect(find.text('unknown'), findsNothing);
+        await tester.tap(find.byTooltip(l10n.closeSheet));
+        await tester.pumpAndSettle();
+      }
 
       if (locale.languageCode == 'en') {
         wodWriter.savedRepeatScore = null;
@@ -265,7 +299,7 @@ void main() {
           findsOneWidget,
         );
 
-        final editor = find.byType(Scrollable).last;
+        final editor = editorFields;
         final ending = find.text(l10n.wodFinished);
         await tester.scrollUntilVisible(ending, 100, scrollable: editor);
         await tester.tap(ending);
@@ -279,14 +313,21 @@ void main() {
         await tester.pumpAndSettle();
 
         final save = find.widgetWithText(FilledButton, l10n.save);
-        await tester.scrollUntilVisible(save, 100, scrollable: editor);
+        final cap = find.widgetWithText(TextFormField, l10n.wodTimeCapSeconds);
+        final notes = find.widgetWithText(TextFormField, l10n.wodNotes);
+        tester.view.viewInsets = const FakeViewPadding(bottom: 240);
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(notes);
+        await tester.pumpAndSettle();
+        expect(cap.hitTestable(), findsNothing);
         await tester.tap(save);
         await tester.pumpAndSettle();
         expect(find.text(l10n.wodMissingTimeCap), findsOneWidget);
         expect(wodWriter.savedRepeatScore, isNull);
 
-        final cap = find.widgetWithText(TextFormField, l10n.wodTimeCapSeconds);
-        await tester.scrollUntilVisible(cap, -100, scrollable: editor);
+        expect(cap.hitTestable(), findsOneWidget);
+        tester.view.resetViewInsets();
+        await tester.pumpAndSettle();
         await tester.enterText(cap, '600');
         final tiebreak = find.widgetWithText(TextFormField, l10n.wodTiebreak);
         await tester.scrollUntilVisible(tiebreak, 100, scrollable: editor);
@@ -387,6 +428,11 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.resultLoad).last);
         await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.widgetWithText(TextFormField, l10n.setWeight('lb')),
+          100,
+          scrollable: editorFields,
+        );
         await tester.enterText(
           find.widgetWithText(TextFormField, l10n.setWeight('lb')),
           '100.125',
@@ -482,7 +528,7 @@ void main() {
           find.widgetWithText(OutlinedButton, 'WOD personal records'),
         );
         await tester.pumpAndSettle();
-        expect(find.text('Current best · rx · 07:45'), findsOneWidget);
+        expect(find.text('Current best · Rx · 07:45'), findsOneWidget);
         await tester.tap(find.text('Fran'));
         await tester.pumpAndSettle();
         expect(find.text('Score history'), findsOneWidget);

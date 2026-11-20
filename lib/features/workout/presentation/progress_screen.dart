@@ -179,7 +179,7 @@ class _WodPersonalRecordCard extends ConsumerWidget {
         subtitle: Text(
           [
             l10n.wodCurrentBest,
-            best.prescription.version.name,
+            wodVersionLabel(l10n, best.prescription.version),
             ?wodScoreLabel(context, ref, best.result),
           ].join(' · '),
         ),
@@ -199,6 +199,7 @@ class _WodPersonalRecordCard extends ConsumerWidget {
   }
 
   Widget _attemptTile(BuildContext context, WidgetRef ref, WodRecord attempt) {
+    final l10n = AppLocalizations.of(context)!;
     final workoutDate = ref
         .watch(workoutSessionProvider(attempt.block.sessionId))
         .value
@@ -208,7 +209,10 @@ class _WodPersonalRecordCard extends ConsumerWidget {
     return ListTile(
       title: Text(wodScoreLabel(context, ref, attempt.result) ?? ''),
       subtitle: Text(
-        [?dateLabel, attempt.prescription.version.name].join(' · '),
+        [
+          ?dateLabel,
+          wodVersionLabel(l10n, attempt.prescription.version),
+        ].join(' · '),
       ),
       onTap: () => showWodRecordDetail(
         context,
