@@ -364,14 +364,14 @@ class _DailySummary extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Container(height: 1, color: const Color(0xFFE9EDF2)),
+            Container(height: 1, color: WodLogColors.line),
             const SizedBox(height: 12),
             Row(
               children: [
                 const Icon(
                   Icons.bolt_rounded,
                   size: 17,
-                  color: Color(0xFF3182F6),
+                  color: WodLogColors.navy,
                 ),
                 const SizedBox(width: 7),
                 Expanded(

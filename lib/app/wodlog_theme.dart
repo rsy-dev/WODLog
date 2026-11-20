@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 
 abstract final class WodLogColors {
   static const ink = Color(0xFF292B2D);
-  static const secondaryText = Color(0xFF6B7684);
+  static const secondaryText = Color(0xFF515F71);
   static const accent = Color(0xFFC8451C);
-  static const accentSoft = Color(0xFFF9E5DC);
+  static const accentSoft = Color(0xFFE7EFFF);
+  static const blueSurface = Color(0xFFEDF3FF);
+  static const navy = Color(0xFF243552);
+  static const prSurface = Color(0xFFFFEFBB);
+  static const prText = Color(0xFF683B00);
   static const background = Color(0xFFF4F3F0);
   static const surface = Colors.white;
-  static const line = Color(0xFFE9EDF2);
+  static const line = Color(0xFFE2E8F1);
   static const success = Color(0xFF15966A);
   static const negative = Color(0xFFE5484D);
 }
@@ -170,7 +174,7 @@ abstract final class WodLogTheme {
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: const Color(0xFFF0F2F5),
+        backgroundColor: WodLogColors.blueSurface,
         selectedColor: WodLogColors.accentSoft,
         side: BorderSide.none,
         shape: const StadiumBorder(),
@@ -190,7 +194,7 @@ abstract final class WodLogTheme {
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: WodLogColors.accent,
-        linearTrackColor: Color(0xFFE7EEF9),
+        linearTrackColor: WodLogColors.blueSurface,
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: WodLogColors.surface,
