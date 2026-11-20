@@ -9,6 +9,7 @@ import '../data/crossfit_catalog.dart';
 import '../data/wod_comparison.dart';
 import '../data/wod_repository.dart';
 import 'movement_category_label.dart';
+import 'wod_blocks_section.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
@@ -144,14 +145,14 @@ class ProgressScreen extends ConsumerWidget {
 String wodPersonalRecordsLabel(AppLocalizations l10n) =>
     l10n.localeName.startsWith('ko') ? 'WOD 개인 기록' : 'WOD personal records';
 
-class _WodPersonalRecordCard extends StatelessWidget {
+class _WodPersonalRecordCard extends ConsumerWidget {
   const _WodPersonalRecordCard({required this.group, required this.dateFormat});
 
   final WodPersonalBest group;
   final DateFormat dateFormat;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final korean = l10n.localeName.startsWith('ko');
     final best = group.best;
@@ -162,7 +163,7 @@ class _WodPersonalRecordCard extends StatelessWidget {
           [
             korean ? '현재 최고' : 'Current best',
             best.prescription.version.name,
-            best.result!.resultText ?? '',
+            wodScoreLabel(context, ref, best.result) ?? '',
           ].join(' · '),
         ),
         children: [
@@ -174,7 +175,7 @@ class _WodPersonalRecordCard extends StatelessWidget {
             ListTile(title: Text(korean ? '갱신 이력' : 'Record improvements')),
             for (final attempt in group.improvements.reversed)
               ListTile(
-                title: Text(attempt.result!.resultText ?? ''),
+                title: Text(wodScoreLabel(context, ref, attempt.result) ?? ''),
                 subtitle: Text(
                   dateFormat.format(
                     DateTime.fromMillisecondsSinceEpoch(

@@ -7,9 +7,8 @@ import '../../../app/wodlog_sheet.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/weight_unit.dart';
-import '../data/crossfit_catalog.dart';
 import 'localized_decimal.dart';
-import 'movement_category_label.dart';
+import 'movement_picker_sheet.dart';
 import 'wod_blocks_section.dart';
 import '../providers/workout_providers.dart';
 import 'workout_dialog.dart';
@@ -302,10 +301,11 @@ class _WorkoutBlockCard extends ConsumerWidget {
     final selection = await showWodLogSheet<_ExerciseSelection>(
       context: context,
       title: l10n.addExercise,
-      builder: (sheetContext) => _MovementPickerSheet(
-        onSelected: (name) =>
-            Navigator.of(sheetContext).pop(_ExerciseSelection(name: name)),
-        onCustom: () =>
+      builder: (sheetContext) => MovementPickerSheet(
+        onSelected: (movement) =>
+            Navigator.of(sheetContext)
+                .pop(_ExerciseSelection(name: movement.name)),
+        onCustom: (_) =>
             Navigator.of(sheetContext)
                 .pop(const _ExerciseSelection(custom: true)),
       ),
@@ -359,123 +359,6 @@ class _ExerciseSelection {
 
   final String name;
   final bool custom;
-}
-
-class _MovementPickerSheet extends StatefulWidget {
-  const _MovementPickerSheet({
-    required this.onSelected,
-    required this.onCustom,
-  });
-
-  final ValueChanged<String> onSelected;
-  final VoidCallback onCustom;
-
-  @override
-  State<_MovementPickerSheet> createState() => _MovementPickerSheetState();
-}
-
-class _MovementPickerSheetState extends State<_MovementPickerSheet> {
-  final _searchController = TextEditingController();
-  CrossFitCategory? _category;
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final categories = CrossFitCategory.values
-        .where((category) => category != CrossFitCategory.benchmarkWod)
-        .toList();
-    final movements = CrossFitCatalog.search(
-      _searchController.text,
-      category: _category,
-    ).where((entry) => entry.category != CrossFitCategory.benchmarkWod);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextField(
-            controller: _searchController,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: l10n.searchMovements,
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                tooltip: l10n.cancel,
-                onPressed: () {
-                  _searchController.clear();
-                  setState(() {});
-                },
-                icon: const Icon(Icons.close),
-              ),
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 42,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 8),
-                  child: ChoiceChip(
-                    label: Text(l10n.allMovements),
-                    selected: _category == null,
-                    onSelected: (_) => setState(() => _category = null),
-                  ),
-                ),
-                for (final category in categories)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 8),
-                    child: ChoiceChip(
-                      label: Text(movementCategoryLabel(l10n, category)),
-                      selected: _category == category,
-                      onSelected: (_) => setState(() => _category = category),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const Divider(height: 16),
-          Expanded(
-            child: movements.isEmpty
-                ? Center(child: Text(l10n.noMovementsFound))
-                : ListView.builder(
-                    itemCount: movements.length,
-                    itemBuilder: (context, index) {
-                      final movement = movements.elementAt(index);
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(movement.name),
-                        subtitle: Text(
-                          movementCategoryLabel(l10n, movement.category),
-                        ),
-                        trailing: const Icon(Icons.add),
-                        onTap: () => widget.onSelected(movement.name),
-                      );
-                    },
-                  ),
-          ),
-          const Divider(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: widget.onCustom,
-              icon: const Icon(Icons.edit_outlined),
-              label: Text(l10n.customExercise),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _ExerciseCard extends ConsumerWidget {

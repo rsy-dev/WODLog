@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../app/wodlog_sheet.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/wod_providers.dart';
@@ -106,78 +104,21 @@ class _WodRecordTile extends ConsumerWidget {
         leading: const Icon(Icons.fitness_center),
         title: Text(title),
         subtitle: Text(
-          [dateLabel, ?score?.resultText, if (isPr) 'PR'].join(' · '),
+          [
+            dateLabel,
+            ?wodScoreLabel(context, ref, score),
+            if (isPr) 'PR',
+          ].join(' · '),
         ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => _showDetail(context, title, dateLabel),
-      ),
-    );
-  }
-
-  void _showDetail(BuildContext thisContext, String title, String date) {
-    final l10n = AppLocalizations.of(thisContext)!;
-    showWodLogSheet<void>(
-      context: thisContext,
-      title: title,
-      builder: (_) => Consumer(
-        builder: (context, ref, _) {
-          final score = ref.watch(wodResultProvider(block.id));
-          final bests = ref.watch(wodPersonalBestsProvider).value ?? [];
-          final isPr = bests.any(
-            (group) =>
-                group.improvements.any((record) => record.block.id == block.id),
-          );
-          final korean = l10n.localeName.startsWith('ko');
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Text(date),
-              if (isPr) Text(korean ? '개인 기록 갱신' : 'Personal record'),
-              if (block.notes case final notes?)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(notes),
-                ),
-              score.when(
-                loading: () => const LinearProgressIndicator(),
-                error: (_, _) => Text(l10n.loadWorkoutError),
-                data: (result) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (result != null) ...[
-                      Text(wodTypeLabel(l10n, result.resultType)),
-                      Text(
-                        result.resultText ?? l10n.emptyWodResult,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      if (result.notes case final notes?) Text(notes),
-                    ] else
-                      Text(l10n.emptyWodResult),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => showWodResultEditor(context, ref, block.id),
-                child: Text(l10n.editWodResult),
-              ),
-              OutlinedButton(
-                onPressed: () =>
-                    showWodResultEditor(context, ref, block.id, repeat: true),
-                child: Text(korean ? '다시 기록' : 'Record again'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  if (thisContext.mounted) {
-                    thisContext.push('/sessions/${session.id}');
-                  }
-                },
-                child: Text(l10n.openSession),
-              ),
-            ],
-          );
-        },
+        onTap: () => showWodRecordDetail(
+          context,
+          blockId: block.id,
+          sessionId: session.id,
+          title: title,
+          date: dateLabel,
+          notes: block.notes,
+        ),
       ),
     );
   }

@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:uuid/uuid.dart';
 
 import '../../../app/wodlog_sheet.dart';
+import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/weight_unit.dart';
 import '../data/named_wod_catalog.dart';
 import '../data/wod_parser.dart';
 import '../data/wod_prescription.dart';
 import 'localized_decimal.dart';
+import 'movement_picker_sheet.dart';
 import '../providers/wod_providers.dart';
 import 'wod_library_sheet.dart';
 import 'wod_source_review_sheet.dart';
@@ -108,6 +111,19 @@ String wodTypeLabel(AppLocalizations l10n, String type) => switch (type) {
   'points' => l10n.localeName.startsWith('ko') ? '점수' : 'Points',
   _ => l10n.resultOther,
 };
+
+String? wodScoreLabel(BuildContext context, WidgetRef ref, WodResult? result) {
+  if (result == null) return null;
+  final kg = result.scoreValue;
+  if (result.outcome != null &&
+      (result.resultType == 'weight' || result.resultType == 'load') &&
+      kg != null) {
+    final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
+    final locale = Localizations.localeOf(context).toString();
+    return unit.format(kg, NumberFormat.decimalPattern(locale));
+  }
+  return result.resultText;
+}
 
 Future<void> showWodResultEditor(
   BuildContext context,
@@ -227,7 +243,7 @@ Future<void> showWodResultEditor(
   final appliedSources = <String>{};
   var saving = false;
   var failed = false;
-  await showWodLogSheet<void>(
+  final saved = await showWodLogSheet<bool>(
     context: context,
     title: repeat
         ? (korean ? '다시 기록' : 'Record again')
@@ -292,7 +308,68 @@ Future<void> showWodResultEditor(
                     secondScore = '';
                   }),
           ),
-          if (prescription.movements.isNotEmpty)
+          for (final (index, movement) in prescription.movements.indexed)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(movement.name),
+              subtitle: movement.quantities.isEmpty
+                  ? null
+                  : Text(movement.quantities.map(number.format).join(' / ')),
+              trailing: IconButton(
+                tooltip: l10n.deleteExercise,
+                onPressed: saving
+                    ? null
+                    : () => setState(() {
+                        final movements = [...prescription.movements]
+                          ..removeAt(index);
+                        prescription = WodPrescription.fromJson({
+                          ...prescription.toJson(),
+                          'movements': movements
+                              .map((item) => item.toJson())
+                              .toList(),
+                        });
+                      }),
+                icon: const Icon(Icons.remove_circle_outline),
+              ),
+            ),
+          OutlinedButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    final movement =
+                        await showWodLogSheet<WodMovementPrescription>(
+                          context: context,
+                          title: l10n.addExercise,
+                          builder: (sheetContext) => MovementPickerSheet(
+                            useSearchAsCustom: true,
+                            onSelected: (entry) => Navigator.pop(
+                              sheetContext,
+                              WodMovementPrescription(
+                                name: entry.name,
+                                movementId: entry.id,
+                              ),
+                            ),
+                            onCustom: (name) => Navigator.pop(
+                              sheetContext,
+                              WodMovementPrescription(name: name),
+                            ),
+                          ),
+                        );
+                    if (movement == null || !context.mounted) return;
+                    setState(() {
+                      prescription = WodPrescription.fromJson({
+                        ...prescription.toJson(),
+                        'movements': [
+                          for (final item in prescription.movements)
+                            item.toJson(),
+                          movement.toJson(),
+                        ],
+                      });
+                    });
+                  },
+            child: Text(l10n.addExercise),
+          ),
+          if (isNew || repeat || prescription.movements.isNotEmpty)
             DropdownButtonFormField<WodVersion>(
               initialValue: version,
               decoration: InputDecoration(
@@ -570,7 +647,7 @@ Future<void> showWodResultEditor(
                           notes: notes,
                         );
                       }
-                      if (context.mounted) Navigator.pop(context);
+                      if (context.mounted) Navigator.pop(context, true);
                     } catch (_) {
                       if (context.mounted) {
                         setState(() {
@@ -584,6 +661,93 @@ Future<void> showWodResultEditor(
           ),
         ],
       ),
+    ),
+  );
+  if (saved != true || !context.mounted || (!isNew && !repeat)) return;
+  final sessionId = newSessionId ?? attemptId;
+  await showWodRecordDetail(
+    context,
+    blockId: attemptId,
+    sessionId: sessionId,
+    title: repeat ? prescription.title : title.trim(),
+    showSessionLink: repeat,
+  );
+}
+
+Future<void> showWodRecordDetail(
+  BuildContext thisContext, {
+  required String blockId,
+  required String sessionId,
+  required String title,
+  String? date,
+  String? notes,
+  bool showSessionLink = true,
+}) async {
+  final l10n = AppLocalizations.of(thisContext)!;
+  await showWodLogSheet<void>(
+    context: thisContext,
+    title: title,
+    builder: (_) => Consumer(
+      builder: (context, ref, _) {
+        final score = ref.watch(wodResultProvider(blockId));
+        final bests = ref.watch(wodPersonalBestsProvider).value ?? [];
+        final isPr = bests.any(
+          (group) =>
+              group.improvements.any((record) => record.block.id == blockId),
+        );
+        final korean = l10n.localeName.startsWith('ko');
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (date != null) Text(date),
+            if (isPr) Text(korean ? '개인 기록 갱신' : 'Personal record'),
+            if (notes case final blockNotes?)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(blockNotes),
+              ),
+            score.when(
+              loading: () => const LinearProgressIndicator(),
+              error: (_, _) => Text(l10n.loadWorkoutError),
+              data: (result) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (result != null) ...[
+                    Text(wodTypeLabel(l10n, result.resultType)),
+                    Text(
+                      wodScoreLabel(context, ref, result) ??
+                          l10n.emptyWodResult,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    if (result.notes case final notes?) Text(notes),
+                  ] else
+                    Text(l10n.emptyWodResult),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () => showWodResultEditor(context, ref, blockId),
+              child: Text(l10n.editWodResult),
+            ),
+            OutlinedButton(
+              onPressed: () =>
+                  showWodResultEditor(context, ref, blockId, repeat: true),
+              child: Text(korean ? '다시 기록' : 'Record again'),
+            ),
+            if (showSessionLink)
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  if (thisContext.mounted) {
+                    thisContext.push('/sessions/$sessionId');
+                  }
+                },
+                child: Text(l10n.openSession),
+              ),
+          ],
+        );
+      },
     ),
   );
 }
@@ -620,7 +784,7 @@ class _WodBlockTile extends ConsumerWidget {
             : Text(
                 [
                   notes,
-                  '${labelFor(value.resultType)} · ${value.resultText ?? ''}',
+                  '${labelFor(value.resultType)} · ${wodScoreLabel(context, ref, value) ?? ''}',
                   if (value.notes?.isNotEmpty == true) value.notes!,
                 ].whereType<String>().where((line) => line.isNotEmpty).join('\n'),
               ),
