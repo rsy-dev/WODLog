@@ -6,6 +6,7 @@ Future<T?> showWodLogSheet<T>({
   required BuildContext context,
   required String title,
   required WidgetBuilder builder,
+  bool fitContent = false,
 }) => showModalBottomSheet<T>(
   context: context,
   useRootNavigator: true,
@@ -21,8 +22,9 @@ Future<T?> showWodLogSheet<T>({
       child: SafeArea(
         top: false,
         child: FractionallySizedBox(
-          heightFactor: .9,
+          heightFactor: fitContent ? null : .9,
           child: Column(
+            mainAxisSize: fitContent ? MainAxisSize.min : MainAxisSize.max,
             children: [
               ListTile(
                 title: Text(
@@ -35,7 +37,10 @@ Future<T?> showWodLogSheet<T>({
                   icon: const Icon(Icons.close),
                 ),
               ),
-              Expanded(child: builder(context)),
+              if (fitContent)
+                Flexible(child: builder(context))
+              else
+                Expanded(child: builder(context)),
             ],
           ),
         ),

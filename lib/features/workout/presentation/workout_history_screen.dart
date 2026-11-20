@@ -71,9 +71,13 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                     setState(() => _query = value.trim().toLowerCase()),
               ),
               const SizedBox(height: 12),
-              if (_showWods)
-                WodRecordList(sessions: sessions, query: _query)
-              else ...[
+              if (_showWods) ...[
+                OutlinedButton(
+                  onPressed: () => showPastWods(context, sessions),
+                  child: Text(l10n.pastWods),
+                ),
+                WodRecordList(sessions: sessions, query: _query),
+              ] else ...[
                 if (items.isEmpty) Text(l10n.noMatchingWorkouts),
                 for (final session in items)
                   Builder(

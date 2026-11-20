@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../app/wodlog_sheet.dart';
 import '../../../app/wodlog_theme.dart';
@@ -11,6 +12,8 @@ import '../../settings/display_preferences.dart';
 import '../../settings/weight_unit.dart';
 import 'progress_screen.dart';
 import 'wod_library_sheet.dart';
+import 'wod_blocks_section.dart';
+import '../providers/wod_providers.dart';
 import 'wod_record_list.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
@@ -38,15 +41,29 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
 
     final recent = ref.watch(recentSessionsProvider).value;
     final goal = ref.watch(displayPreferencesProvider).value?.weeklyGoal;
+    final dates = [
+      for (var offset = -6; offset <= 0; offset++)
+        DateUtils.addDaysToDate(today, offset),
+    ];
+    final activitySessions = [
+      for (final date in dates)
+        ref.watch(sessionsForDateProvider(_formatDate(date))),
+    ];
+    final activity = [
+      for (final day in activitySessions)
+        for (final session in day.value ?? const <WorkoutSession>[])
+          (
+            date: session.workoutDate,
+            blocks: ref.watch(wodBlocksForSessionProvider(session.id)),
+          ),
+    ];
+    final activityReady =
+        activitySessions.every((day) => day.hasValue) &&
+        activity.every((item) => item.blocks.hasValue);
     final days = {
-      for (final session in recent ?? const <WorkoutSession>[])
-        session.workoutDate,
+      for (final item in activity)
+        if (item.blocks.value?.isNotEmpty ?? false) item.date,
     };
-    final weekStart = DateUtils.addDaysToDate(today, 1 - today.weekday);
-    final weeklyCount = List.generate(
-      today.weekday,
-      (index) => _formatDate(DateUtils.addDaysToDate(weekStart, index)),
-    ).where(days.contains).length;
     final number = NumberFormat.decimalPattern(locale);
 
     return Scaffold(
@@ -90,70 +107,89 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _startWorkout,
-              icon: const Icon(Icons.add),
-              label: Text(l10n.recordWod),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              children: [
-                OutlinedButton(
-                  onPressed: () async {
-                    final template = await showWodLibrary(context);
-                    if (template != null && mounted) {
-                      await _startWorkout(template.name);
-                    }
-                  },
-                  child: Text(l10n.benchmarkWorkouts),
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: _startWorkout,
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.recordWod),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () async {
+                            final template = await showWodLibrary(context);
+                            if (template != null && mounted) {
+                              await _startWorkout(template.name);
+                            }
+                          },
+                          child: Text(l10n.benchmarkWorkouts),
+                        ),
+                        OutlinedButton(
+                          onPressed: () => showPastWods(context, recent ?? []),
+                          child: Text(l10n.pastWods),
+                        ),
+                        OutlinedButton(
+                          onPressed: () => context.go('/progress'),
+                          child: Text(wodPersonalRecordsLabel(l10n)),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                OutlinedButton(
-                  onPressed: () => context.go('/history'),
-                  child: Text(l10n.pastWods),
-                ),
-                OutlinedButton(
-                  onPressed: () => context.go('/progress'),
-                  child: Text(wodPersonalRecordsLabel(l10n)),
-                ),
-              ],
+              ),
             ),
             const SizedBox(height: 14),
             Text(
               l10n.lastSevenDays,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            Wrap(
-              spacing: 4,
+            Row(
               children: [
-                for (var offset = -6; offset <= 0; offset++)
-                  _dayChip(
-                    context,
-                    DateUtils.addDaysToDate(today, offset),
-                    days,
-                    locale,
-                  ),
+                for (final date in dates)
+                  Expanded(child: _dayChip(context, date, days, locale)),
               ],
             ),
             Text(
               [
                 l10n.weeklyGoal,
-                if (recent != null && goal != null)
-                  '${number.format(weeklyCount)} / ${number.format(goal)}',
+                if (activityReady && goal != null)
+                  '${number.format(days.length)} / ${number.format(goal)}',
               ].join(' · '),
             ),
             const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    isToday
+                        ? l10n.wodRecentRecords
+                        : _formatDisplayDate(_selectedDate, context),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => context.go('/history'),
+                  child: Text(l10n.wodViewAll),
+                ),
+              ],
+            ),
             if (sessions.value case final currentSessions?)
               WodRecordList(
                 sessions: isToday
                     ? [
                         ...currentSessions,
-                        for (final item
-                            in (recent ?? const <WorkoutSession>[]).take(7))
+                        for (final item in (recent ?? const <WorkoutSession>[]))
                           if (item.workoutDate != _formatDate(today)) item,
                       ]
                     : currentSessions,
-                showEmpty: false,
                 limit: isToday ? 3 : null,
               ),
             const SizedBox(height: 20),
@@ -166,6 +202,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 date: _formatDate(_selectedDate),
                 locale: locale,
               ),
+            ),
+            OutlinedButton.icon(
+              onPressed: _startStrengthSession,
+              icon: const Icon(Icons.fitness_center),
+              label: Text(l10n.addStrengthBlock),
             ),
             const SizedBox(height: 22),
             ...sessions.when<List<Widget>>(
@@ -194,19 +235,32 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     if (_starting) return;
     _starting = true;
     try {
+      await showWodResultEditor(
+        context,
+        ref,
+        const Uuid().v4(),
+        newWorkoutDate: _formatDate(_selectedDate),
+        initialBenchmark: benchmark,
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.wodSaveError)),
+        );
+      }
+    } finally {
+      _starting = false;
+    }
+  }
+
+  Future<void> _startStrengthSession() async {
+    if (_starting) return;
+    _starting = true;
+    try {
       final sessionId = await ref
           .read(workoutRepositoryProvider)
           .createSession(workoutDate: _formatDate(_selectedDate));
-      if (mounted) {
-        context.push(
-          Uri(
-            path: '/sessions/$sessionId',
-            queryParameters: benchmark == null
-                ? null
-                : {'benchmark': benchmark},
-          ).toString(),
-        );
-      }
+      if (mounted) context.push('/sessions/$sessionId');
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -226,12 +280,37 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   ) {
     final selected = DateUtils.isSameDay(date, _selectedDate);
     final recorded = dates.contains(_formatDate(date));
-    return ChoiceChip(
-      tooltip: _formatDisplayDate(date, context),
+    return Semantics(
       selected: selected,
-      avatar: recorded ? const Icon(Icons.check, size: 14) : null,
-      label: Text(DateFormat.d(locale).format(date)),
-      onSelected: (_) => setState(() => _selectedDate = date),
+      child: Tooltip(
+        message: _formatDisplayDate(date, context),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => setState(() => _selectedDate = date),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: selected
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Column(
+                children: [
+                  Text(
+                    DateFormat.E(locale).format(date),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(DateFormat.d(locale).format(date)),
+                  Icon(recorded ? Icons.check : Icons.remove, size: 14),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -240,6 +319,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final selected = await showWodLogSheet<DateTime>(
       context: context,
       title: AppLocalizations.of(context)!.chooseDate,
+      fitContent: true,
       builder: (context) => SingleChildScrollView(
         child: CalendarDatePicker(
           initialDate: _selectedDate,
