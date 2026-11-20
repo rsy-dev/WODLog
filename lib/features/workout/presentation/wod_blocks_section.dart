@@ -330,9 +330,8 @@ Future<void> showWodResultEditor(
         ? l10n.addWodResult
         : l10n.editWodResult,
     builder: (_) => StatefulBuilder(
-      builder: (context, setState) => ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      builder: (context, setState) => _WodEditorLayout(
+        fields: [
           if (repeat)
             OutlinedButton.icon(
               icon: const Icon(Icons.calendar_today_outlined),
@@ -380,6 +379,44 @@ Future<void> showWodResultEditor(
               child: Text(l10n.chooseBenchmark),
             ),
           ],
+          OutlinedButton(
+            onPressed: saving
+                ? null
+                : () async {
+                    final draft = await showWodSourceReview(
+                      context,
+                      title: title,
+                    );
+                    final source = draft?.rawText;
+                    if (!context.mounted ||
+                        draft == null ||
+                        source == null ||
+                        source == prescription.rawText ||
+                        !appliedSources.add(source)) {
+                      return;
+                    }
+                    setState(() {
+                      prescription = draft;
+                      invalidPrescriptionFields.clear();
+                      version = prescription.version;
+                      if (prescription.scoreKind != WodScoreKind.unknown) {
+                        usePreviousScore = false;
+                        type = typeFor(prescription.scoreKind);
+                        typeRevision++;
+                        score = '';
+                        secondScore = '';
+                        ending = _WodEnding.finished;
+                        invalid = false;
+                      }
+                      notes = [
+                        if (notes.trim().isNotEmpty) notes.trim(),
+                        source,
+                      ].join('\n\n');
+                      notesRevision++;
+                    });
+                  },
+            child: Text(l10n.reviewWodText),
+          ),
           DropdownButtonFormField<String>(
             key: ValueKey(typeRevision),
             initialValue: type,
@@ -676,44 +713,6 @@ Future<void> showWodResultEditor(
               child: Text(l10n.wodEnterNewScore),
             ),
           const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: saving
-                ? null
-                : () async {
-                    final draft = await showWodSourceReview(
-                      context,
-                      title: title,
-                    );
-                    final source = draft?.rawText;
-                    if (!context.mounted ||
-                        draft == null ||
-                        source == null ||
-                        source == prescription.rawText ||
-                        !appliedSources.add(source)) {
-                      return;
-                    }
-                    setState(() {
-                      prescription = draft;
-                      invalidPrescriptionFields.clear();
-                      version = prescription.version;
-                      if (prescription.scoreKind != WodScoreKind.unknown) {
-                        usePreviousScore = false;
-                        type = typeFor(prescription.scoreKind);
-                        typeRevision++;
-                        score = '';
-                        secondScore = '';
-                        ending = _WodEnding.finished;
-                        invalid = false;
-                      }
-                      notes = [
-                        if (notes.trim().isNotEmpty) notes.trim(),
-                        source,
-                      ].join('\n\n');
-                      notesRevision++;
-                    });
-                  },
-            child: Text(l10n.reviewWodText),
-          ),
           TextFormField(
             key: ValueKey(notesRevision),
             initialValue: notes,
@@ -722,7 +721,8 @@ Future<void> showWodResultEditor(
             maxLines: 3,
             onChanged: (value) => notes = value,
           ),
-          const SizedBox(height: 12),
+        ],
+        actions: [
           if (invalidCap && hasMissingCap()) Text(l10n.wodMissingTimeCap),
           if (invalid) Text(l10n.wodInvalidScore),
           if (failed) Text(l10n.wodSaveError),
@@ -889,6 +889,35 @@ Future<void> showWodResultEditor(
     title: repeat ? prescription.title : title.trim(),
     workoutDate: savedWorkoutDate,
     showSessionLink: newSessionId == null,
+  );
+}
+
+class _WodEditorLayout extends StatelessWidget {
+  const _WodEditorLayout({required this.fields, required this.actions});
+
+  final List<Widget> fields;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Expanded(
+        child: ListView(
+          key: const ValueKey('wod-editor-fields'),
+          padding: const EdgeInsets.all(16),
+          children: fields,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: actions,
+        ),
+      ),
+    ],
   );
 }
 
