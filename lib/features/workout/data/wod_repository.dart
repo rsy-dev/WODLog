@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
 import 'named_wod_catalog.dart';
+import 'wod_parser.dart';
 
 class WodRepository {
   WodRepository(this._database);
@@ -42,6 +43,74 @@ class WodRepository {
             sortOrder: Value(sortOrder),
           ),
         );
+  }
+
+  Future<void> createImportedWod({
+    required String sessionId,
+    required String title,
+    required WodDraft draft,
+    required int? levelIndex,
+    required String score,
+  }) async {
+    if (draft.levels.isNotEmpty && levelIndex == null) {
+      throw ArgumentError('Select a WOD level before saving.');
+    }
+    final level = levelIndex == null ? null : draft.levels[levelIndex];
+    final prescription = level?.prescription ?? draft;
+    final resultType = switch (prescription.format) {
+      WodFormat.amrap => 'amrap',
+      WodFormat.forTime => 'for_time',
+      WodFormat.emom => 'emom',
+      WodFormat.unknown => 'other',
+    };
+    final heading = [
+      if (resultType != 'other') resultType.replaceAll('_', ' ').toUpperCase(),
+      if (prescription.durationMinutes case final minutes?) '$minutes min',
+      if (prescription.rounds case final rounds?) '$rounds rounds',
+      if (prescription.timeCapMinutes case final cap?) '$cap min cap',
+    ].join(' · ');
+    final notes = [
+      heading,
+      if (level != null) ...draft.unknownLines,
+      if (level != null && draft.movements.isNotEmpty)
+        ...draft.movements.map((movement) => movement.rawLine),
+      prescription.rawText.trim(),
+    ].where((line) => line.isNotEmpty).join('\n');
+    final blockId = _uuid.v4();
+    await _database.transaction(() async {
+      final blocks = _database.workoutBlocks;
+      final last =
+          await (_database.select(blocks)
+                ..where((block) => block.sessionId.equals(sessionId))
+                ..orderBy([(block) => OrderingTerm.desc(block.sortOrder)])
+                ..limit(1))
+              .getSingleOrNull();
+      await _database
+          .into(blocks)
+          .insert(
+            WorkoutBlocksCompanion.insert(
+              id: blockId,
+              sessionId: sessionId,
+              type: 'wod',
+              title: Value(
+                [
+                  title.trim(),
+                  ?level?.label,
+                ].where((part) => part.isNotEmpty).join(' · '),
+              ),
+              notes: Value(notes),
+              sortOrder: Value((last?.sortOrder ?? -1) + 1),
+            ),
+          );
+      if (score.trim().isNotEmpty) {
+        await saveResult(
+          blockId: blockId,
+          resultType: resultType,
+          resultText: score,
+          notes: '',
+        );
+      }
+    });
   }
 
   /// Creates the WOD result card and its prescribed movements in one write.

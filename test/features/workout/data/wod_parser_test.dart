@@ -101,5 +101,70 @@ Max effort
       expect(draft.confidence, 0);
       expect(draft.requiresReview, isTrue);
     });
+
+    test('keeps separate prescriptions under a common format', () {
+      final draft = parser.parse('''
+12분 AMRAP
+[Rx’d]
+400-meter Run
+10 Thrusters 95 lb
+Scaled: 8 Thrusters 65 lb
+Foundations
+20-calorie Row
+''');
+
+      expect(draft.levels.map((level) => level.label), [
+        'Rx’d',
+        'Scaled',
+        'Foundations',
+      ]);
+      expect(draft.movements, isEmpty);
+      final rx = draft.levels[0].prescription;
+      expect(rx.durationMinutes, 12);
+      expect(rx.movements.first.quantity, 400);
+      expect(rx.movements.first.quantityUnit, 'm');
+      expect(rx.movements.last.weight, 95);
+      expect(draft.levels[1].prescription.movements.single.weight, 65);
+      expect(draft.levels[2].prescription.movements.single.quantityUnit, 'cal');
+    });
+
+    test('keeps gym labels and respects level-specific settings', () {
+      final draft = parser.parse('''
+Performance - Level 4
+5 RFT
+Time cap: 15 min
+10 Pull-ups
+Fitness "Rx"
+8 min AMRAP
+8 Ring Rows
+레벨 2: 20/14 lb
+''');
+
+      expect(draft.levels.map((level) => level.label), [
+        'Performance - Level 4',
+        'Fitness "Rx"',
+        '레벨 2',
+      ]);
+      expect(draft.levels[0].prescription.rounds, 5);
+      expect(draft.levels[0].prescription.timeCapMinutes, 15);
+      expect(draft.levels[1].prescription.durationMinutes, 8);
+      expect(draft.levels[1].prescription.timeCapMinutes, isNull);
+      expect(draft.levels[2].prescription.unknownLines, ['20/14 lb']);
+    });
+
+    test('does not assign shared movements to lettered variation notes', () {
+      final draft = parser.parse('''
+AMRAP 10 min
+15 Wall Balls
+A: 20/14 lb
+B: 14/10 lb
+''');
+
+      expect(draft.movements.single.name, 'Wall Balls');
+      expect(draft.levels.map((level) => level.label), ['A', 'B']);
+      expect(draft.levels.first.prescription.movements, isEmpty);
+      expect(draft.levels.first.prescription.unknownLines, ['20/14 lb']);
+      expect(parser.parse('A: Warm-up').levels, isEmpty);
+    });
   });
 }

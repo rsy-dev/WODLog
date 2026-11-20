@@ -6,6 +6,7 @@ import '../data/crossfit_catalog.dart';
 import '../data/named_wod_catalog.dart';
 import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
+import 'wod_text_preview_dialog.dart';
 
 class WodBlocksSection extends ConsumerWidget {
   const WodBlocksSection({super.key, required this.sessionId});
@@ -40,22 +41,40 @@ class WodBlocksSection extends ConsumerWidget {
       data: (items) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (items.isNotEmpty)
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.wodSectionTitle,
-                    style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.wodSectionTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              IconButton(
+                tooltip: wodTextPreviewLabel(context),
+                onPressed: () => showDialog<void>(
+                  context: context,
+                  builder: (_) => WodTextPreviewDialog(
+                    onSave: (title, draft, levelIndex, score) => ref
+                        .read(wodRepositoryProvider)
+                        .createImportedWod(
+                          sessionId: sessionId,
+                          title: title,
+                          draft: draft,
+                          levelIndex: levelIndex,
+                          score: score,
+                        ),
                   ),
                 ),
+                icon: const Icon(Icons.content_paste),
+              ),
+              if (items.isNotEmpty)
                 IconButton(
                   tooltip: l10n.addWodBlock,
                   onPressed: () => _addBlock(context, ref),
                   icon: const Icon(Icons.add),
                 ),
-              ],
-            ),
+            ],
+          ),
           if (items.isEmpty)
             Align(
               alignment: AlignmentDirectional.centerStart,

@@ -10,6 +10,8 @@ class WodMovementDraft {
     this.repScheme,
     this.weight,
     this.weightUnit,
+    this.quantity,
+    this.quantityUnit,
   });
 
   final String name;
@@ -17,6 +19,8 @@ class WodMovementDraft {
   final List<int>? repScheme;
   final double? weight;
   final String? weightUnit;
+  final double? quantity;
+  final String? quantityUnit;
 
   /// A heuristic confidence score from 0 to 1. It is not a probability.
   final double confidence;
@@ -32,12 +36,16 @@ class WodDraft {
     required this.confidence,
     this.durationMinutes,
     this.timeCapMinutes,
+    this.rounds,
+    this.levels = const [],
   });
 
   final String rawText;
   final WodFormat format;
   final int? durationMinutes;
   final int? timeCapMinutes;
+  final int? rounds;
+  final List<WodLevelDraft> levels;
   final List<WodMovementDraft> movements;
   final List<String> unknownLines;
 
@@ -48,6 +56,14 @@ class WodDraft {
   bool get requiresReview => true;
 }
 
+/// A box's original label and the prescription written for that level.
+class WodLevelDraft {
+  const WodLevelDraft({required this.label, required this.prescription});
+
+  final String label;
+  final WodDraft prescription;
+}
+
 /// Parses common WOD headings and explicit movement lines from OCR text.
 ///
 /// The parser intentionally preserves lines it cannot interpret. It never
@@ -55,6 +71,25 @@ class WodDraft {
 class WodTextParser {
   const WodTextParser();
 
+  static const _levelName =
+      r"(?:Rx(?:['’]d)?(?:\s*\+)?|Scaled|Foundations?|"
+      r"Beginner|Intermediate|Advanced|Performance|Fitness|Wellness|"
+      r"입문|초급|중급|상급|스케일(?:드)?|(?:Lv\.?|Level|레벨)\s*[1-9]\d*)";
+  static final _levelHeading = _heading(
+    _levelName +
+        r"""(?:\s*[-–—·]\s*(?:Level|Lv\.?|레벨)\s*[1-9]\d*|\s+['“"]Rx['”"])?""",
+    caseSensitive: false,
+  );
+  static final _letterLevel = _heading(r'[ABC](?:\s*(?:Level|레벨))?');
+
+  static RegExp _heading(String label, {bool caseSensitive = true}) => RegExp(
+    r'^(?:#{1,6}\s+)?(\[' + label + r'\]|' + label + r')(?:\s*[:：]\s*(.*))?$',
+    caseSensitive: caseSensitive,
+  );
+  static final _roundsPattern = RegExp(
+    r'^(\d+)\s*(?:rounds?|라운드)\s+(?:for\s+time|RFT)\b|^(\d+)\s*RFT\b',
+    caseSensitive: false,
+  );
   static final _amrapPattern = RegExp(
     r'(?:(\d+)\s*(?:min(?:ute)?s?|분)\s*)?\bAMRAP\b(?:\s*(\d+)\s*(?:min(?:ute)?s?|분)?)?',
     caseSensitive: false,
@@ -89,6 +124,10 @@ class WodTextParser {
     r'^\s*(\d+)\s+(?:reps?\s+of\s+)?(.+)$',
     caseSensitive: false,
   );
+  static final _measuredMovement = RegExp(
+    r'^(\d+(?:[.,]\d+)?)\s*[-–]?\s*(km|m|meters?|metres?|mi|miles?|cal(?:orie)?s?)\s+(.+)$',
+    caseSensitive: false,
+  );
 
   WodDraft parse(String rawText) {
     final lines = rawText
@@ -99,9 +138,76 @@ class WodTextParser {
         .where((line) => line.isNotEmpty)
         .toList(growable: false);
 
+    final commonLines = <String>[];
+    final sections = <({String label, List<String> lines})>[];
+    final letterLabels = lines
+        .map(_letterLevel.firstMatch)
+        .whereType<RegExpMatch>()
+        .map((match) => match.group(1)!.replaceFirst('[', '').substring(0, 1))
+        .toSet();
+    for (final line in lines) {
+      final heading =
+          _levelHeading.firstMatch(line) ??
+          (letterLabels.length > 1 ? _letterLevel.firstMatch(line) : null);
+      if (heading != null) {
+        final label = heading.group(1)!.replaceAll(RegExp(r'[\[\]]'), '');
+        final inline = heading.group(2)?.trim();
+        sections.add((
+          label: label,
+          lines: [if (inline != null && inline.isNotEmpty) inline],
+        ));
+      } else {
+        (sections.isEmpty ? commonLines : sections.last.lines).add(line);
+      }
+    }
+    final common = _parsePrescription(rawText, commonLines);
+    if (sections.isEmpty) return common;
+
+    final levels = <WodLevelDraft>[];
+    for (final section in sections) {
+      final prescription = _parsePrescription(
+        section.lines.join('\n'),
+        section.lines,
+      );
+      final inheritsHeader = prescription.format == WodFormat.unknown;
+      levels.add(
+        WodLevelDraft(
+          label: section.label,
+          prescription: WodDraft(
+            rawText: prescription.rawText,
+            format: inheritsHeader ? common.format : prescription.format,
+            durationMinutes: inheritsHeader
+                ? common.durationMinutes
+                : prescription.durationMinutes,
+            timeCapMinutes:
+                prescription.timeCapMinutes ??
+                (inheritsHeader ? common.timeCapMinutes : null),
+            rounds: inheritsHeader ? common.rounds : prescription.rounds,
+            movements: prescription.movements,
+            unknownLines: prescription.unknownLines,
+            confidence: prescription.confidence,
+          ),
+        ),
+      );
+    }
+    return WodDraft(
+      rawText: rawText,
+      format: common.format,
+      durationMinutes: common.durationMinutes,
+      timeCapMinutes: common.timeCapMinutes,
+      rounds: common.rounds,
+      movements: common.movements,
+      unknownLines: common.unknownLines,
+      confidence: common.confidence,
+      levels: List.unmodifiable(levels),
+    );
+  }
+
+  WodDraft _parsePrescription(String rawText, List<String> lines) {
     var format = WodFormat.unknown;
     int? durationMinutes;
     int? timeCapMinutes;
+    int? rounds;
     final movements = <WodMovementDraft>[];
     final unknownLines = <String>[];
     var recognizedHeader = false;
@@ -133,14 +239,25 @@ class WodTextParser {
         continue;
       }
 
-      if (_forTimePattern.hasMatch(line)) {
+      final roundMatch = _roundsPattern.firstMatch(line);
+      if (roundMatch != null || _forTimePattern.hasMatch(line)) {
         if (format != WodFormat.unknown && format != WodFormat.forTime) {
           unknownLines.add(line);
           continue;
         }
         format = WodFormat.forTime;
+        rounds =
+            int.tryParse(roundMatch?.group(1) ?? roundMatch?.group(2) ?? '') ??
+            rounds;
         final cap = _timeCapPattern.firstMatch(line);
-        timeCapMinutes = int.tryParse(cap?.group(1) ?? '');
+        timeCapMinutes = int.tryParse(cap?.group(1) ?? '') ?? timeCapMinutes;
+        recognizedHeader = true;
+        continue;
+      }
+
+      final cap = _timeCapPattern.matchAsPrefix(line);
+      if (cap != null) {
+        timeCapMinutes = int.tryParse(cap.group(1)!);
         recognizedHeader = true;
         continue;
       }
@@ -166,6 +283,7 @@ class WodTextParser {
       format: format,
       durationMinutes: durationMinutes,
       timeCapMinutes: timeCapMinutes,
+      rounds: rounds,
       movements: List.unmodifiable(movements),
       unknownLines: List.unmodifiable(unknownLines),
       confidence: _overallConfidence(
@@ -181,6 +299,23 @@ class WodTextParser {
     // A ratio such as `20/14` can describe different loads for different
     // athletes. Keep it for review instead of guessing which number applies.
     if (_ambiguousLoadPattern.hasMatch(line)) return null;
+
+    final measured = _measuredMovement.firstMatch(line);
+    if (measured != null) {
+      final unit = measured.group(2)!.toLowerCase();
+      return WodMovementDraft(
+        name: measured.group(3)!.trim(),
+        rawLine: line,
+        quantity: double.tryParse(measured.group(1)!.replaceAll(',', '.')),
+        quantityUnit: switch (unit) {
+          'km' => 'km',
+          'mi' || 'mile' || 'miles' => 'mi',
+          _ when unit.startsWith('cal') => 'cal',
+          _ => 'm',
+        },
+        confidence: 0.9,
+      );
+    }
 
     List<int>? repScheme;
     String remainder;
