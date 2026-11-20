@@ -215,7 +215,7 @@ class _WodRecordTile extends ConsumerWidget {
                 blockId: block.id,
                 sessionId: session.id,
                 title: title,
-                date: dateLabel,
+                workoutDate: session.workoutDate,
                 notes: block.notes,
               ),
       ),

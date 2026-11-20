@@ -50,6 +50,7 @@ void main() {
       final displayedWeight = '\u2066${number.format(100.125)}\u00a0lb\u2069';
 
       final wodWriter = _RetryWodWriter();
+      var textScale = 1.3;
       Future<void> show(Widget screen) async {
         await tester.pumpWidget(
           ProviderScope(
@@ -100,8 +101,8 @@ void main() {
               supportedLocales: AppLocalizations.supportedLocales,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               builder: (context, child) => MediaQuery.withClampedTextScaling(
-                minScaleFactor: 1.3,
-                maxScaleFactor: 1.3,
+                minScaleFactor: textScale,
+                maxScaleFactor: textScale,
                 child: child!,
               ),
               home: screen,
@@ -110,6 +111,36 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
+      }
+
+      if (locale.languageCode == 'ko') {
+        tester.view.physicalSize = const Size(390, 844);
+        final shortcuts = [
+          for (final label in [
+            l10n.benchmarkWorkouts,
+            l10n.pastWods,
+            l10n.wodPersonalRecords,
+          ])
+            find.widgetWithText(OutlinedButton, label),
+        ];
+        textScale = 1;
+        await show(const TodayScreen());
+        final top = tester.getTopLeft(shortcuts.first).dy;
+        for (final shortcut in shortcuts) {
+          expect(tester.getTopLeft(shortcut).dy, top);
+        }
+        textScale = 2;
+        await show(const TodayScreen());
+        expect(
+          tester.getTopLeft(shortcuts.last).dy,
+          greaterThan(tester.getTopLeft(shortcuts.first).dy),
+        );
+        for (final shortcut in shortcuts) {
+          expect(tester.getRect(shortcut).right, lessThanOrEqualTo(390));
+        }
+        expect(l10n.addStrengthBlock, '근력 블록 추가');
+        tester.view.physicalSize = const Size(320, 640);
+        textScale = 1.3;
       }
 
       await show(const TodayScreen());
@@ -127,6 +158,54 @@ void main() {
         );
         await tester.tap(find.byTooltip(l10n.closeSheet));
         await tester.pumpAndSettle();
+      }
+      if (locale.languageCode == 'en') {
+        await tester.tap(find.byTooltip(l10n.chooseDate));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Previous month'));
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.descendant(
+            of: find.byType(CalendarDatePicker),
+            matching: find.text('15'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.recordWod));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextFormField, l10n.wodName),
+          'Past workout',
+        );
+        await tester.scrollUntilVisible(
+          find.widgetWithText(TextFormField, l10n.wodFinishTime),
+          100,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.enterText(
+          find.widgetWithText(TextFormField, l10n.wodFinishTime),
+          '5:00',
+        );
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+        final save = find.widgetWithText(FilledButton, l10n.save);
+        final editor = find.byType(Scrollable).last;
+        await tester.scrollUntilVisible(save, 100, scrollable: editor);
+        await tester.drag(editor, const Offset(0, -200));
+        await tester.pumpAndSettle();
+        await tester.tap(save);
+        await tester.pumpAndSettle();
+        final now = DateTime.now();
+        final date = DateTime(now.year, now.month - 1, 15);
+        expect(
+          wodWriter.savedWorkoutDate,
+          DateFormat('yyyy-MM-dd').format(date),
+        );
+        expect(find.text(DateFormat.yMMMd('en').format(date)), findsOneWidget);
+        await tester.tap(find.byTooltip(l10n.closeSheet));
+        await tester.pumpAndSettle();
+        await show(const SizedBox.shrink());
+        await show(const TodayScreen());
       }
       final todayVolume = find.text(
         '\u2066${number.format(500.625)}\u00a0lb\u2069·${l10n.reps}',
@@ -158,6 +237,20 @@ void main() {
 
       await show(const SettingsScreen());
       expect(find.text(l10n.weightUnit), findsOneWidget);
+      if (locale.languageCode == 'en') {
+        await tester.tap(find.text(l10n.weightCalculator));
+        await tester.pumpAndSettle();
+        final close = find.byTooltip(l10n.closeSheet);
+        expect(tester.getTopLeft(close).dy, greaterThan(320));
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n.setWeight('kg')),
+          '100',
+        );
+        await tester.pump();
+        expect(find.text(WeightUnit.lb.format(100, number)), findsOneWidget);
+        await tester.tap(close);
+        await tester.pumpAndSettle();
+      }
 
       await show(const WorkoutSessionScreen(sessionId: 'session'));
       expect(find.textContaining('07:45'), findsOneWidget);
@@ -217,6 +310,9 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Saved workout'), findsWidgets);
         expect(find.text(displayedWeight), findsOneWidget);
+        final savedDate = DateFormat.yMMMd(locale.toString())
+            .format(DateTime.parse(_session.workoutDate));
+        expect(find.text(savedDate), findsOneWidget);
         expect(
           find.widgetWithText(FilledButton, l10n.editWodResult),
           findsOneWidget,
@@ -344,6 +440,17 @@ class _RetryWodWriter implements WodRepository {
   final scores = <String>[];
 
   WodResult? created;
+  String? savedWorkoutDate;
+
+  @override
+  Future<void> saveRepeat({
+    required String attemptId,
+    required String workoutDate,
+    required WodPrescription prescription,
+    required WodAttemptScore score,
+  }) async {
+    savedWorkoutDate = workoutDate;
+  }
 
   @override
   Future<int> nextWodSortOrder(String sessionId) async => 2;

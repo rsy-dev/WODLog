@@ -130,7 +130,8 @@ class WodLogShell extends StatelessWidget {
                                                       color:
                                                           index ==
                                                               shell.currentIndex
-                                                          ? colors.primary
+                                                          ? colors
+                                                                .onPrimaryContainer
                                                           : colors.onSurface,
                                                     ),
                                                     Text(

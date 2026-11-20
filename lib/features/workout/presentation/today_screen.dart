@@ -65,6 +65,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         if (item.blocks.value?.isNotEmpty ?? false) item.date,
     };
     final number = NumberFormat.decimalPattern(locale);
+    final shortcutStyle = OutlinedButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('WODLog')),
@@ -99,7 +102,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     ],
                   ),
                 ),
-                IconButton.filledTonal(
+                IconButton.outlined(
+                  style: IconButton.styleFrom(
+                    backgroundColor: WodLogColors.surface,
+                    foregroundColor: WodLogColors.navy,
+                    minimumSize: const Size(48, 48),
+                  ),
                   tooltip: l10n.chooseDate,
                   onPressed: _chooseDate,
                   icon: const Icon(Icons.calendar_month_outlined),
@@ -121,9 +129,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     ),
                     const SizedBox(height: 10),
                     Wrap(
-                      spacing: 8,
+                      spacing: 6,
+                      runSpacing: 4,
                       children: [
                         OutlinedButton(
+                          style: shortcutStyle,
                           onPressed: () async {
                             final template = await showWodLibrary(context);
                             if (template != null && mounted) {
@@ -133,10 +143,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                           child: Text(l10n.benchmarkWorkouts),
                         ),
                         OutlinedButton(
+                          style: shortcutStyle,
                           onPressed: () => showPastWods(context, recent ?? []),
                           child: Text(l10n.pastWods),
                         ),
                         OutlinedButton(
+                          style: shortcutStyle,
                           onPressed: () => context.go('/progress'),
                           child: Text(wodPersonalRecordsLabel(l10n)),
                         ),
