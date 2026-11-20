@@ -151,6 +151,27 @@ void main() {
           expect(tester.getRect(shortcut).right, lessThanOrEqualTo(390));
         }
         expect(l10n.addStrengthBlock, '근력 블록 추가');
+        tester.view.physicalSize = const Size(393, 852);
+        await tester.tap(find.text(l10n.recordWod));
+        await tester.pumpAndSettle();
+        tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+        addTearDown(tester.view.resetViewInsets);
+        await tester.pumpAndSettle();
+
+        final standard = find.text(l10n.wodUnconfirmedStandard);
+        await tester.scrollUntilVisible(
+          standard,
+          100,
+          scrollable: editorFields,
+        );
+        await tester.tap(standard);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.wodCustomStandard).last);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.byTooltip(l10n.closeSheet).hitTestable());
+        tester.view.resetViewInsets();
+        await tester.pumpAndSettle();
         tester.view.physicalSize = const Size(320, 640);
         textScale = 1.3;
       }
@@ -332,10 +353,20 @@ void main() {
         final tiebreak = find.widgetWithText(TextFormField, l10n.wodTiebreak);
         await tester.scrollUntilVisible(tiebreak, 100, scrollable: editor);
         await tester.enterText(tiebreak, '8:40');
-        FocusManager.instance.primaryFocus?.unfocus();
+        tester.view.physicalSize = const Size(852, 393);
+        tester.view.viewInsets = const FakeViewPadding(bottom: 174);
         await tester.pumpAndSettle();
-        await tester.scrollUntilVisible(save, 100, scrollable: editor);
+        final viewport = tester.getRect(
+          find.byKey(const ValueKey('wod-editor-fields')),
+        );
+        final input = tester.getRect(tiebreak);
+        expect(input.top, greaterThanOrEqualTo(viewport.top));
+        expect(input.bottom, lessThanOrEqualTo(viewport.bottom));
+        expect(save.hitTestable(), findsOneWidget);
+        expect(tester.getRect(save).bottom, lessThanOrEqualTo(219));
         await tester.tap(save);
+        tester.view.resetViewInsets();
+        tester.view.physicalSize = const Size(320, 640);
         await tester.pumpAndSettle();
         expect(
           wodWriter.savedWorkoutDate,
