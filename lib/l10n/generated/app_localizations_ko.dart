@@ -339,6 +339,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get weeklyGoal => '주간 목표';
 
   @override
+  String weightConversionDirection(String source, String target) {
+    return '$source에서 $target(으)로 변환';
+  }
+
+  @override
   String get weightCalculator => '중량 계산기';
 
   @override
@@ -491,6 +496,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get wodCustomStandard => '직접 설정';
+
+  @override
+  String get wodMissingTimeCap => '타임캡에 도달한 기록의 제한시간을 입력하세요.';
 
   @override
   String get wodTimeCapSeconds => '타임캡 (초)';

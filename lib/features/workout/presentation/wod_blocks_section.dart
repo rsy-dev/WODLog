@@ -16,6 +16,7 @@ import '../providers/wod_providers.dart';
 import '../providers/workout_providers.dart';
 import 'wod_library_sheet.dart';
 import 'wod_source_review_sheet.dart';
+import 'workout_date_sheet.dart';
 
 class WodBlocksSection extends ConsumerWidget {
   const WodBlocksSection({
@@ -161,7 +162,9 @@ Future<void> showWodResultEditor(
   if ((!isNew && record == null) || !context.mounted) return;
   final result = repeat ? null : record?.result;
   final attemptId = repeat ? const Uuid().v4() : blockId;
-  final workoutDate = DateFormat('yyyy-MM-dd', 'en').format(DateTime.now());
+  var repeatDate = DateUtils.dateOnly(DateTime.now());
+  final dateLabel = DateFormat.yMMMd(l10n.localeName);
+  String? savedWorkoutDate;
 
   WodPrescription benchmarkDraft(String title) {
     for (final benchmark in NamedWodCatalog.prescriptions()) {
@@ -235,7 +238,14 @@ Future<void> showWodResultEditor(
   var tieBreak = '';
   var ending = _WodEnding.finished;
   var invalid = false;
+  var invalidCap = false;
   final invalidPrescriptionFields = <String>{};
+
+  bool isCapped() =>
+      type == 'for_time' &&
+      (usePreviousScore
+          ? result?.outcome == WodOutcome.capped.name
+          : ending == _WodEnding.capped);
 
   int? whole(String text) {
     final value = parseLocalizedDecimal(text, number);
@@ -254,11 +264,29 @@ Future<void> showWodResultEditor(
     return elapsed > 0 ? elapsed : null;
   }
 
+  bool hasMissingCap() => isCapped() && (prescription.timeCapSeconds ?? 0) <= 0;
+
+  void updateTimeCap(String text) {
+    final seconds = whole(text);
+    if (text.trim().isNotEmpty && (seconds == null || seconds == 0)) {
+      invalidPrescriptionFields.add('timeCapSeconds');
+    } else {
+      invalidPrescriptionFields.remove('timeCapSeconds');
+      updatePrescription({'timeCapSeconds': seconds});
+    }
+  }
+
   String? validatedScore() {
+    final capMs = (prescription.timeCapSeconds ?? 0) * 1000;
+    if (usePreviousScore &&
+        capMs > 0 &&
+        ((result?.durationMs ?? 0) > capMs ||
+            (result?.tieBreakMs ?? 0) > capMs)) {
+      return null;
+    }
     if (usePreviousScore || type == 'other' || !_types.contains(type)) {
       return score.trim().isEmpty ? null : score.trim();
     }
-    final capMs = (prescription.timeCapSeconds ?? 0) * 1000;
     if (type == 'for_time' && ending == _WodEnding.stopped) return 'DNF';
     if (type == 'for_time' && ending == _WodEnding.finished) {
       final elapsed = durationMs(score);
@@ -305,6 +333,22 @@ Future<void> showWodResultEditor(
       builder: (context, setState) => ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (repeat)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.calendar_today_outlined),
+              label: Text(dateLabel.format(repeatDate)),
+              onPressed: saving
+                  ? null
+                  : () async {
+                      final date = await showWorkoutDateSheet(
+                        context,
+                        repeatDate,
+                      );
+                      if (date != null && context.mounted) {
+                        setState(() => repeatDate = date);
+                      }
+                    },
+            ),
           if (isNew) ...[
             TextFormField(
               key: ValueKey(('title', titleRevision)),
@@ -505,6 +549,17 @@ Future<void> showWodResultEditor(
               ),
               onChanged: (value) => score = value,
             ),
+          if (isCapped())
+            TextFormField(
+              key: ValueKey(('cap', titleRevision, notesRevision)),
+              initialValue: prescription.timeCapSeconds == null
+                  ? ''
+                  : number.format(prescription.timeCapSeconds),
+              enabled: !saving,
+              decoration: InputDecoration(labelText: l10n.wodTimeCapSeconds),
+              keyboardType: TextInputType.number,
+              onChanged: (text) => setState(() => updateTimeCap(text)),
+            ),
           if (!usePreviousScore &&
               type == 'for_time' &&
               ending == _WodEnding.capped)
@@ -554,11 +609,12 @@ Future<void> showWodResultEditor(
               ),
               for (final (field, label, value) in [
                 ('rounds', l10n.wodTotalRounds, prescription.rounds),
-                (
-                  'timeCapSeconds',
-                  l10n.wodTimeCapSeconds,
-                  prescription.timeCapSeconds,
-                ),
+                if (!isCapped())
+                  (
+                    'timeCapSeconds',
+                    l10n.wodTimeCapSeconds,
+                    prescription.timeCapSeconds,
+                  ),
                 (
                   'durationSeconds',
                   l10n.wodDurationSeconds,
@@ -576,6 +632,7 @@ Future<void> showWodResultEditor(
                 ),
               ])
                 TextFormField(
+                  key: ValueKey(field),
                   initialValue: value == null ? '' : number.format(value),
                   enabled: !saving,
                   decoration: InputDecoration(labelText: label),
@@ -666,6 +723,7 @@ Future<void> showWodResultEditor(
             onChanged: (value) => notes = value,
           ),
           const SizedBox(height: 12),
+          if (invalidCap && hasMissingCap()) Text(l10n.wodMissingTimeCap),
           if (invalid) Text(l10n.wodInvalidScore),
           if (failed) Text(l10n.wodSaveError),
           FilledButton(
@@ -673,6 +731,13 @@ Future<void> showWodResultEditor(
                 ? null
                 : () async {
                     final confirmedScore = validatedScore();
+                    if (hasMissingCap()) {
+                      setState(() {
+                        invalid = false;
+                        invalidCap = true;
+                      });
+                      return;
+                    }
                     if (confirmedScore == null ||
                         invalidPrescriptionFields.isNotEmpty ||
                         (isNew && title.trim().isEmpty)) {
@@ -681,6 +746,7 @@ Future<void> showWodResultEditor(
                     }
                     setState(() {
                       invalid = false;
+                      invalidCap = false;
                       saving = true;
                       failed = false;
                     });
@@ -773,12 +839,16 @@ Future<void> showWodResultEditor(
                             score: attemptScore,
                           );
                         } else if (repeat || newWorkoutDate != null) {
+                          final workoutDate =
+                              newWorkoutDate ??
+                              DateFormat('yyyy-MM-dd', 'en').format(repeatDate);
                           await repository.saveRepeat(
                             attemptId: attemptId,
-                            workoutDate: newWorkoutDate ?? workoutDate,
+                            workoutDate: workoutDate,
                             prescription: definition,
                             score: attemptScore,
                           );
+                          savedWorkoutDate = workoutDate;
                         } else {
                           await repository.saveStructuredResult(
                             blockId: blockId,
@@ -817,7 +887,7 @@ Future<void> showWodResultEditor(
     blockId: attemptId,
     sessionId: sessionId,
     title: repeat ? prescription.title : title.trim(),
-    workoutDate: newSessionId == null ? newWorkoutDate ?? workoutDate : null,
+    workoutDate: savedWorkoutDate,
     showSessionLink: newSessionId == null,
   );
 }
@@ -848,7 +918,7 @@ Future<void> showWodRecordDetail(
         final score = ref.watch(wodResultProvider(blockId));
         final blocks = ref.watch(wodBlocksForSessionProvider(sessionId));
         final record = ref.watch(
-          _detailRecordProvider((blockId, blocks.value)),
+          _detailRecordProvider((blockId, blocks.value, score.value)),
         );
         final prescription = record.value?.prescription;
         final bests = ref.watch(wodPersonalBestsProvider).value ?? [];
@@ -897,6 +967,10 @@ Future<void> showWodRecordDetail(
                           l10n.emptyWodResult,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
+                    if (result.outcome == WodOutcome.capped.name &&
+                        prescription != null &&
+                        (prescription.timeCapSeconds ?? 0) <= 0)
+                      Text(l10n.wodMissingTimeCap),
                     if (result.notes case final notes?) Text(notes),
                   ] else
                     Text(l10n.emptyWodResult),
@@ -965,7 +1039,7 @@ Future<void> showWodRecordDetail(
 }
 
 final _detailRecordProvider = FutureProvider.autoDispose.family(
-  (ref, (String, List<WorkoutBlock>?) key) =>
+  (ref, (String, List<WorkoutBlock>?, WodResult?) key) =>
       ref.watch(wodRepositoryProvider).getRecord(key.$1),
 );
 
