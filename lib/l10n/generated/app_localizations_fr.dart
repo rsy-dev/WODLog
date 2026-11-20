@@ -345,6 +345,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get weeklyGoal => 'Weekly goal';
 
   @override
+  String weightConversionDirection(String source, String target) {
+    return '$source to $target';
+  }
+
+  @override
   String get weightCalculator => 'Weight calculator';
 
   @override
@@ -501,6 +506,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wodCustomStandard => 'Custom';
+
+  @override
+  String get wodMissingTimeCap => 'Enter the time cap for a capped result.';
 
   @override
   String get wodTimeCapSeconds => 'Time cap (seconds)';

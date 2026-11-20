@@ -290,10 +290,11 @@ class _CalculatorState extends State<_Calculator> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final number = NumberFormat.decimalPattern(locale);
     final value = parseLocalizedDecimal(_input, number);
-    final target = _source == WeightUnit.kg ? WeightUnit.lb : WeightUnit.kg;
+    final target = _targetUnit(_source);
     return ListView(
       shrinkWrap: true,
       padding: const EdgeInsets.all(16),
@@ -301,7 +302,17 @@ class _CalculatorState extends State<_Calculator> {
         SegmentedButton<WeightUnit>(
           segments: [
             for (final unit in WeightUnit.values)
-              ButtonSegment(value: unit, label: Text(unit.name)),
+              ButtonSegment(
+                value: unit,
+                label: Text(
+                  '${unit.name} → ${_targetUnit(unit).name}',
+                  textDirection: TextDirection.ltr,
+                  semanticsLabel: l10n.weightConversionDirection(
+                    unit.name,
+                    _targetUnit(unit).name,
+                  ),
+                ),
+              ),
           ],
           selected: {_source},
           onSelectionChanged: (selected) =>
@@ -310,9 +321,7 @@ class _CalculatorState extends State<_Calculator> {
         const SizedBox(height: 14),
         TextField(
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-            labelText: AppLocalizations.of(context)!.setWeight(_source.name),
-          ),
+          decoration: InputDecoration(labelText: l10n.setWeight(_source.name)),
           onChanged: (value) => setState(() => _input = value),
         ),
         const SizedBox(height: 14),
@@ -323,6 +332,9 @@ class _CalculatorState extends State<_Calculator> {
       ],
     );
   }
+
+  WeightUnit _targetUnit(WeightUnit source) =>
+      source == WeightUnit.kg ? WeightUnit.lb : WeightUnit.kg;
 }
 
 class _MovementLibrary extends StatefulWidget {

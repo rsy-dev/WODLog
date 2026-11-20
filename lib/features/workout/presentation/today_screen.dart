@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../app/wodlog_sheet.dart';
 import '../../../app/wodlog_theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -15,6 +14,7 @@ import 'wod_library_sheet.dart';
 import 'wod_blocks_section.dart';
 import '../providers/wod_providers.dart';
 import 'wod_record_list.dart';
+import 'workout_date_sheet.dart';
 import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
 
@@ -327,20 +327,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 
   Future<void> _chooseDate() async {
-    final today = DateUtils.dateOnly(DateTime.now());
-    final selected = await showWodLogSheet<DateTime>(
-      context: context,
-      title: AppLocalizations.of(context)!.chooseDate,
-      fitContent: true,
-      builder: (context) => SingleChildScrollView(
-        child: CalendarDatePicker(
-          initialDate: _selectedDate,
-          firstDate: DateTime(today.year - 5),
-          lastDate: today,
-          onDateChanged: (date) => Navigator.pop(context, date),
-        ),
-      ),
-    );
+    final selected = await showWorkoutDateSheet(context, _selectedDate);
     if (selected != null && mounted) {
       setState(() => _selectedDate = DateUtils.dateOnly(selected));
     }

@@ -153,6 +153,13 @@
   "languageSetting": "Language",
   "deviceLanguage": "Device language",
   "weeklyGoal": "Weekly goal",
+  "weightConversionDirection": "{source} to {target}",
+  "@weightConversionDirection": {
+    "placeholders": {
+      "source": {"type": "String"},
+      "target": {"type": "String"}
+    }
+  },
   "weightCalculator": "Weight calculator",
   "movementLibrary": "Movement library",
   "glossary": "Glossary",
@@ -204,6 +211,7 @@
   "wodWorkoutStandard": "Workout standard",
   "wodUnconfirmedStandard": "Unconfirmed",
   "wodCustomStandard": "Custom",
+  "wodMissingTimeCap": "Enter the time cap for a capped result.",
   "wodTimeCapSeconds": "Time cap (seconds)",
   "wodTotalRounds": "Total rounds",
   "wodDurationSeconds": "Workout duration (seconds)",

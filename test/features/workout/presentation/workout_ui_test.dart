@@ -229,6 +229,90 @@ void main() {
       final trailing = tester.getCenter(scoreLabel);
       expect(leading.dx > trailing.dx, isRtl);
 
+      if (locale.languageCode == 'en') {
+        wodWriter.savedRepeatScore = null;
+        await tester.tap(scoreLabel);
+        await tester.pumpAndSettle();
+        final again = find.widgetWithText(OutlinedButton, l10n.wodRecordAgain);
+        await tester.scrollUntilVisible(
+          again,
+          100,
+          scrollable: find.byType(Scrollable).last,
+        );
+        await tester.tap(again);
+        await tester.pumpAndSettle();
+
+        final now = DateTime.now();
+        final formatDate = DateFormat.yMMMd('en');
+        final dateButton = find.widgetWithText(
+          OutlinedButton,
+          formatDate.format(now),
+        );
+        await tester.tap(dateButton);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Previous month'));
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.descendant(
+            of: find.byType(CalendarDatePicker),
+            matching: find.text('15'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final repeatDate = DateTime(now.year, now.month - 1, 15);
+        expect(
+          find.widgetWithText(OutlinedButton, formatDate.format(repeatDate)),
+          findsOneWidget,
+        );
+
+        final editor = find.byType(Scrollable).last;
+        final ending = find.text(l10n.wodFinished);
+        await tester.scrollUntilVisible(ending, 100, scrollable: editor);
+        await tester.tap(ending);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.wodCapped).last);
+        await tester.pumpAndSettle();
+        final reps = find.widgetWithText(TextFormField, l10n.wodCompletedReps);
+        await tester.scrollUntilVisible(reps, 100, scrollable: editor);
+        await tester.enterText(reps, '42');
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+
+        final save = find.widgetWithText(FilledButton, l10n.save);
+        await tester.scrollUntilVisible(save, 100, scrollable: editor);
+        await tester.tap(save);
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.wodMissingTimeCap), findsOneWidget);
+        expect(wodWriter.savedRepeatScore, isNull);
+
+        final cap = find.widgetWithText(TextFormField, l10n.wodTimeCapSeconds);
+        await tester.scrollUntilVisible(cap, -100, scrollable: editor);
+        await tester.enterText(cap, '600');
+        final tiebreak = find.widgetWithText(TextFormField, l10n.wodTiebreak);
+        await tester.scrollUntilVisible(tiebreak, 100, scrollable: editor);
+        await tester.enterText(tiebreak, '8:40');
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(save, 100, scrollable: editor);
+        await tester.tap(save);
+        await tester.pumpAndSettle();
+        expect(
+          wodWriter.savedWorkoutDate,
+          DateFormat('yyyy-MM-dd').format(repeatDate),
+        );
+        expect(wodWriter.savedAttemptId, isNot(_wod.id));
+        expect(wodWriter.savedPrescription?.timeCapSeconds, 600);
+        expect(wodWriter.savedRepeatScore?.outcome, WodOutcome.capped);
+        expect(wodWriter.savedRepeatScore?.reps, 42);
+        expect(wodWriter.savedRepeatScore?.tieBreakMs, 520000);
+        expect(find.text(formatDate.format(repeatDate)), findsOneWidget);
+        for (var i = 0; i < 2; i++) {
+          await tester.tap(find.byTooltip(l10n.closeSheet).hitTestable());
+          await tester.pumpAndSettle();
+        }
+        expect(find.text('07:45'), findsOneWidget);
+      }
+
       await show(const ProgressScreen());
       await tester.scrollUntilVisible(find.text('Back Squat'), 120);
       await tester.scrollUntilVisible(find.text(displayedWeight), 120);
@@ -248,6 +332,19 @@ void main() {
         );
         await tester.pump();
         expect(find.text(WeightUnit.lb.format(100, number)), findsOneWidget);
+        final reverse = find.text('lb → kg');
+        expect(tester.widget<Text>(reverse).semanticsLabel, 'lb to kg');
+        await tester.tap(reverse);
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n.setWeight('lb')),
+          '225',
+        );
+        await tester.pump();
+        expect(
+          find.text(WeightUnit.kg.format(102.05828325, number)),
+          findsOneWidget,
+        );
         await tester.tap(close);
         await tester.pumpAndSettle();
       }
@@ -441,6 +538,9 @@ class _RetryWodWriter implements WodRepository {
 
   WodResult? created;
   String? savedWorkoutDate;
+  String? savedAttemptId;
+  WodPrescription? savedPrescription;
+  WodAttemptScore? savedRepeatScore;
 
   @override
   Future<void> saveRepeat({
@@ -450,6 +550,9 @@ class _RetryWodWriter implements WodRepository {
     required WodAttemptScore score,
   }) async {
     savedWorkoutDate = workoutDate;
+    savedAttemptId = attemptId;
+    savedPrescription = prescription;
+    savedRepeatScore = score;
   }
 
   @override

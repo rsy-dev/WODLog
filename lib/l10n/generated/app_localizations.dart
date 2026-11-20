@@ -769,6 +769,12 @@ abstract class AppLocalizations {
   /// **'Weekly goal'**
   String get weeklyGoal;
 
+  /// No description provided for @weightConversionDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'{source} to {target}'**
+  String weightConversionDirection(String source, String target);
+
   /// No description provided for @weightCalculator.
   ///
   /// In en, this message translates to:
@@ -1074,6 +1080,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Custom'**
   String get wodCustomStandard;
+
+  /// No description provided for @wodMissingTimeCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the time cap for a capped result.'**
+  String get wodMissingTimeCap;
 
   /// No description provided for @wodTimeCapSeconds.
   ///
