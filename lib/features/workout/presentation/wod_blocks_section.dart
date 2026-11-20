@@ -420,6 +420,7 @@ Future<void> showWodResultEditor(
           ),
           if (isNew || repeat || prescription.movements.isNotEmpty)
             DropdownButtonFormField<WodVersion>(
+              key: ValueKey(('version', titleRevision, notesRevision)),
               initialValue: version,
               decoration: InputDecoration(labelText: l10n.wodWorkoutStandard),
               items: [

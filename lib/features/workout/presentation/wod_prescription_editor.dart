@@ -33,12 +33,17 @@ Future<WodMovementPrescription?> editWodMovement(
 ) {
   final l10n = AppLocalizations.of(context)!;
   final ko = l10n.localeName.startsWith('ko');
+  final inputNumber = NumberFormat('0.############', number.locale);
+  final initialQuantities = initial.quantities
+      .map(inputNumber.format)
+      .join(' / ');
+  final initialWeight = initial.weightKg == null
+      ? ''
+      : inputNumber.format(weightUnit.fromKg(initial.weightKg!));
   var movement = initial;
   var quantityUnit = initial.unit;
-  var quantities = initial.quantities.map(number.format).join(' / ');
-  var weight = initial.weightKg == null
-      ? ''
-      : number.format(weightUnit.fromKg(initial.weightKg!));
+  var quantities = initialQuantities;
+  var weight = initialWeight;
   var equipment = initial.equipment ?? '';
   var standard = initial.standard ?? '';
   var error = false;
@@ -128,15 +133,11 @@ Future<WodMovementPrescription?> editWodMovement(
                 WodMovementPrescription(
                   name: movement.name,
                   movementId: movement.movementId,
-                  quantities: values.whereType<double>().toList(),
+                  quantities: quantities == initialQuantities
+                      ? initial.quantities
+                      : values.whereType<double>().toList(),
                   unit: quantityUnit,
-                  weightKg:
-                      weight ==
-                          (initial.weightKg == null
-                              ? ''
-                              : number.format(
-                                  weightUnit.fromKg(initial.weightKg!),
-                                ))
+                  weightKg: weight == initialWeight
                       ? initial.weightKg
                       : kg == null
                       ? null
