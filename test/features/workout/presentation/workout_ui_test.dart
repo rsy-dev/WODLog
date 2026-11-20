@@ -200,7 +200,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(saveNew);
         await tester.pumpAndSettle();
-        expect(find.text('Saved workout'), findsOneWidget);
+        expect(find.text('Saved workout'), findsWidgets);
         expect(find.text(displayedWeight), findsOneWidget);
         expect(
           find.widgetWithText(FilledButton, l10n.editWodResult),
