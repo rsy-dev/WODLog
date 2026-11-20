@@ -7,6 +7,7 @@ Future<T?> showWodLogSheet<T>({
   required String title,
   required WidgetBuilder builder,
   bool fitContent = false,
+  bool expandForKeyboard = false,
 }) => showModalBottomSheet<T>(
   context: context,
   useRootNavigator: true,
@@ -17,18 +18,24 @@ Future<T?> showWodLogSheet<T>({
       : null,
   builder: (context) {
     final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final keyboardVisible = expandForKeyboard && keyboard > 0;
+    final compactHeader =
+        keyboardVisible && MediaQuery.sizeOf(context).height - keyboard < 300;
     return Padding(
       padding: EdgeInsets.only(bottom: keyboard),
       child: SafeArea(
         top: false,
         child: FractionallySizedBox(
-          heightFactor: fitContent ? null : .9,
+          heightFactor: fitContent ? null : (keyboardVisible ? 1 : .9),
           child: Column(
             mainAxisSize: fitContent ? MainAxisSize.min : MainAxisSize.max,
             children: [
               ListTile(
+                minTileHeight: compactHeader ? 48 : null,
                 title: Text(
                   title,
+                  maxLines: compactHeader ? 1 : null,
+                  overflow: compactHeader ? TextOverflow.ellipsis : null,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 trailing: IconButton(

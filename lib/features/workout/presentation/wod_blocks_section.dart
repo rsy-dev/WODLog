@@ -354,6 +354,7 @@ Future<void> showWodResultEditor(
 
   final saved = await showWodLogSheet<bool>(
     context: context,
+    expandForKeyboard: true,
     title: repeat
         ? (l10n.wodRecordAgain)
         : result == null
@@ -533,6 +534,7 @@ Future<void> showWodResultEditor(
           ),
           if (isNew || repeat || prescription.movements.isNotEmpty)
             DropdownButtonFormField<WodVersion>(
+              isExpanded: true,
               key: ValueKey(('version', titleRevision, notesRevision)),
               initialValue: version,
               decoration: InputDecoration(labelText: l10n.wodWorkoutStandard),
@@ -552,6 +554,7 @@ Future<void> showWodResultEditor(
           const SizedBox(height: 12),
           if (type == 'for_time' && !usePreviousScore)
             DropdownButtonFormField<_WodEnding>(
+              isExpanded: true,
               initialValue: ending,
               items: [
                 DropdownMenuItem(
@@ -654,6 +657,7 @@ Future<void> showWodResultEditor(
             onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
             children: [
               DropdownButtonFormField<WodStructure>(
+                isExpanded: true,
                 initialValue: prescription.structure,
                 decoration: InputDecoration(labelText: l10n.wodSectionTitle),
                 items: [
@@ -969,31 +973,38 @@ class _WodEditorLayout extends StatelessWidget {
   final List<Widget> actions;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Expanded(
-        child: ListView(
-          key: const ValueKey('wod-editor-fields'),
-          padding: const EdgeInsets.all(16),
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: fields,
-            ),
-          ],
+  Widget build(BuildContext context) {
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final compact =
+        keyboard > 0 && MediaQuery.sizeOf(context).height - keyboard < 300;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: ListView(
+            key: const ValueKey('wod-editor-fields'),
+            padding: const EdgeInsets.all(16),
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: fields,
+              ),
+            ],
+          ),
         ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: actions,
+        Padding(
+          padding: compact
+              ? const EdgeInsets.symmetric(horizontal: 16)
+              : const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: actions,
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 Future<void> showWodRecordDetail(
