@@ -24,9 +24,9 @@ class WodLogShell extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final labels = [l10n.todayTab, l10n.history, l10n.statsTab, l10n.settings];
     const icons = [
-      Icons.today_outlined,
-      Icons.receipt_long_outlined,
-      Icons.bar_chart_rounded,
+      Icons.home_outlined,
+      Icons.view_agenda_outlined,
+      Icons.trending_up_rounded,
       Icons.settings_outlined,
     ];
     final colors = Theme.of(context).colorScheme;
@@ -132,7 +132,8 @@ class WodLogShell extends StatelessWidget {
                                                               shell.currentIndex
                                                           ? colors
                                                                 .onPrimaryContainer
-                                                          : colors.onSurface,
+                                                          : colors
+                                                                .onSurfaceVariant,
                                                     ),
                                                     Text(
                                                       labels[index],
@@ -140,7 +141,19 @@ class WodLogShell extends StatelessWidget {
                                                           TextAlign.center,
                                                       style: Theme.of(context)
                                                           .textTheme
-                                                          .labelSmall,
+                                                          .labelSmall
+                                                          ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                index ==
+                                                                    shell
+                                                                        .currentIndex
+                                                                ? colors
+                                                                      .onPrimaryContainer
+                                                                : colors
+                                                                      .onSurfaceVariant,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),

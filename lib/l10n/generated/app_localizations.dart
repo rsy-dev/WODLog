@@ -328,7 +328,7 @@ abstract class AppLocalizations {
   /// No description provided for @history.
   ///
   /// In en, this message translates to:
-  /// **'History'**
+  /// **'Records'**
   String get history;
 
   /// No description provided for @emptyHistory.
@@ -388,13 +388,13 @@ abstract class AppLocalizations {
   /// No description provided for @addWodResult.
   ///
   /// In en, this message translates to:
-  /// **'Add result'**
+  /// **'Log a WOD'**
   String get addWodResult;
 
   /// No description provided for @editWodResult.
   ///
   /// In en, this message translates to:
-  /// **'Edit result'**
+  /// **'Edit record'**
   String get editWodResult;
 
   /// No description provided for @wodResultType.

@@ -111,7 +111,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get emptyBlocks => '아직 운동 블록이 없어요.\n근력 블록을 추가해 운동을 기록하세요.';
 
   @override
-  String get history => '운동 이력';
+  String get history => '기록';
 
   @override
   String get emptyHistory => '아직 기록된 운동이 없어요.';
@@ -141,10 +141,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get wodName => 'WOD 이름';
 
   @override
-  String get addWodResult => '결과 추가';
+  String get addWodResult => 'WOD 기록';
 
   @override
-  String get editWodResult => '결과 수정';
+  String get editWodResult => '기록 수정';
 
   @override
   String get wodResultType => '결과 유형';

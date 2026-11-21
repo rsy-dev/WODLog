@@ -569,7 +569,7 @@ void main() {
         expect(find.text(l10n.openSession), findsOneWidget);
         await tester.tap(find.byTooltip(l10n.closeSheet));
         await tester.pumpAndSettle();
-        await tester.tap(find.byIcon(Icons.receipt_long_outlined));
+        await tester.tap(find.byIcon(Icons.view_agenda_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.searchWorkouts), findsOneWidget);
         await tester.tap(find.byIcon(Icons.settings_outlined));

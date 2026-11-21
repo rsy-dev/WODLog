@@ -113,7 +113,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'No workout blocks yet.\nAdd a Strength block to start logging.';
 
   @override
-  String get history => 'History';
+  String get history => 'Records';
 
   @override
   String get emptyHistory => 'No workouts recorded yet.';
@@ -144,10 +144,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wodName => 'WOD name';
 
   @override
-  String get addWodResult => 'Add result';
+  String get addWodResult => 'Log a WOD';
 
   @override
-  String get editWodResult => 'Edit result';
+  String get editWodResult => 'Edit record';
 
   @override
   String get wodResultType => 'Result type';
