@@ -150,17 +150,28 @@ void main() {
         tester.view.physicalSize = const Size(393, 852);
         await tester.tap(find.text(l10n.recordWod));
         await tester.pumpAndSettle();
+        final nameField = find.widgetWithText(TextFormField, l10n.wodName);
+        final dateButton = find.ancestor(
+          of: find.byIcon(Icons.calendar_today_outlined),
+          matching: find.byType(OutlinedButton),
+        );
+        expect(
+          tester.getRect(nameField).bottom,
+          lessThanOrEqualTo(tester.getRect(dateButton.first).top),
+        );
         tester.view.viewInsets = const FakeViewPadding(bottom: 300);
         addTearDown(tester.view.resetViewInsets);
         await tester.pumpAndSettle();
 
-        final standard = find.text(l10n.wodUnconfirmedStandard);
+        final standard = find.byType(DropdownButtonFormField<WodVersion>);
         await tester.scrollUntilVisible(
           standard,
           100,
           scrollable: editorFields,
         );
-        await tester.tap(standard);
+        await tester.ensureVisible(standard);
+        await tester.pumpAndSettle();
+        await tester.tap(standard.hitTestable());
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.wodCustomStandard).last);
         await tester.pumpAndSettle();

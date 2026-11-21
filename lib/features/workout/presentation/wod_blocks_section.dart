@@ -454,6 +454,7 @@ Future<void> showWodResultEditor(
             child: Text(l10n.reviewWodText),
           ),
           _ResponsiveFieldPair(
+            topSpacing: true,
             first: DropdownButtonFormField<String>(
               key: ValueKey(('type', typeRevision)),
               initialValue: type,
@@ -1046,10 +1047,15 @@ class _WodEditorLayout extends StatelessWidget {
 }
 
 class _ResponsiveFieldPair extends StatelessWidget {
-  const _ResponsiveFieldPair({required this.first, this.second});
+  const _ResponsiveFieldPair({
+    required this.first,
+    this.second,
+    this.topSpacing = false,
+  });
 
   final Widget first;
   final Widget? second;
+  final bool topSpacing;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -1058,10 +1064,20 @@ class _ResponsiveFieldPair extends StatelessWidget {
           second != null &&
           constraints.maxWidth >= 340 &&
           MediaQuery.textScalerOf(context).scale(14) <= 18;
+      final scaledLabelSize = MediaQuery.textScalerOf(context).scale(14);
+      final needsFieldSpacing = scaledLabelSize > 20;
+      final fieldSpacing = (scaledLabelSize * .6).clamp(20.0, 32.0).toDouble();
       if (!sideBySide) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [first, ?second],
+          children: [
+            if (topSpacing && needsFieldSpacing) SizedBox(height: fieldSpacing),
+            first,
+            if (second != null) ...[
+              if (needsFieldSpacing) SizedBox(height: fieldSpacing),
+              second!,
+            ],
+          ],
         );
       }
       return Row(
