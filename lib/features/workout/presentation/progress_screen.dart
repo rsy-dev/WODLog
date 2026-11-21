@@ -14,11 +14,17 @@ import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
 import '../providers/wod_providers.dart';
 
-class ProgressScreen extends ConsumerWidget {
+class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProgressScreen> createState() => _ProgressScreenState();
+}
+
+class _ProgressScreenState extends ConsumerState<ProgressScreen> {
+  String? selectedWod;
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final progress = ref.watch(exerciseProgressProvider);
     final records = ref.watch(_wodAttemptsProvider);
@@ -28,7 +34,7 @@ class ProgressScreen extends ConsumerWidget {
     final dateFormat = DateFormat.yMMMd(locale);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.progress)),
+      appBar: AppBar(title: const Text('WODLog')),
       body: progress.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
@@ -58,6 +64,11 @@ class ProgressScreen extends ConsumerWidget {
             ),
             children: [
               Text(
+                l10n.statsTab,
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              const SizedBox(height: 16),
+              Text(
                 wodPersonalRecordsLabel(l10n),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
@@ -66,10 +77,20 @@ class ProgressScreen extends ConsumerWidget {
                 loading: () => const LinearProgressIndicator(),
                 error: (_, _) => Text(l10n.loadWorkoutError),
                 data: (records) {
-                  final groups = wodPersonalBests(records);
-                  if (groups.isEmpty) {
-                    return Text(l10n.wodNoComparableRecords);
-                  }
+                  final names =
+                      records.map((r) => r.prescription.title).toSet().toList()
+                        ..sort();
+                  final selected = names.contains(selectedWod)
+                      ? selectedWod
+                      : null;
+                  final visible = records
+                      .where(
+                        (r) =>
+                            selected == null ||
+                            r.prescription.title == selected,
+                      )
+                      .toList();
+                  final groups = wodPersonalBests(visible);
                   final attemptsByKey = <String, List<WodRecord>>{};
                   for (final record in records) {
                     final key = wodComparisonKey(record);
@@ -78,21 +99,61 @@ class ProgressScreen extends ConsumerWidget {
                     }
                   }
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final group in groups)
-                        _WodPersonalRecordCard(
-                          group: group,
-                          attempts:
-                              attemptsByKey[wodComparisonKey(group.best)]!,
-                          dateFormat: dateFormat,
-                        ),
+                      DropdownButtonFormField<String>(
+                        key: ValueKey(selected),
+                        initialValue: selected,
+                        isExpanded: true,
+                        decoration: InputDecoration(labelText: l10n.wodName),
+                        items: [
+                          DropdownMenuItem<String>(
+                            value: null,
+                            child: Text(l10n.allMovements),
+                          ),
+                          for (final name in names)
+                            DropdownMenuItem(value: name, child: Text(name)),
+                        ],
+                        onChanged: (value) =>
+                            setState(() => selectedWod = value),
+                      ),
+                      const SizedBox(height: 12),
+                      if (groups.isEmpty)
+                        Text(l10n.wodNoComparableRecords)
+                      else
+                        for (final group in groups)
+                          _WodPersonalRecordCard(
+                            group: group,
+                            attempts:
+                                attemptsByKey[wodComparisonKey(group.best)]!,
+                            dateFormat: dateFormat,
+                          ),
+                      const SizedBox(height: 16),
+                      Text(
+                        l10n.wodScoreHistory,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      if (records.isEmpty)
+                        Text(l10n.emptyWodBlocks)
+                      else
+                        for (final record in visible.reversed.take(10))
+                          _WodHistoryTile(
+                            record: record,
+                            dateFormat: dateFormat,
+                          ),
                     ],
                   );
                 },
               ),
               const SizedBox(height: 24),
               if (items.isEmpty)
-                Text(l10n.noProgressYet)
+                _MovementTypeTrends(
+                  progress: items,
+                  unit: unit,
+                  locale: locale,
+                  number: number,
+                )
               else ...[
                 Text(
                   l10n.trainingOverview,
@@ -146,6 +207,42 @@ class ProgressScreen extends ConsumerWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _WodHistoryTile extends ConsumerWidget {
+  const _WodHistoryTile({required this.record, required this.dateFormat});
+
+  final WodRecord record;
+  final DateFormat dateFormat;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final workoutDate = ref
+        .watch(workoutSessionProvider(record.block.sessionId))
+        .value
+        ?.workoutDate;
+    final parsed = DateTime.tryParse(workoutDate ?? '');
+    final dateLabel = parsed == null ? workoutDate : dateFormat.format(parsed);
+    final score = wodScoreLabel(context, ref, record.result);
+    return Card(
+      child: ListTile(
+        title: Text(record.prescription.title),
+        subtitle: Text(dateLabel ?? ''),
+        trailing: Text(
+          score ?? '—',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        onTap: () => showWodRecordDetail(
+          context,
+          blockId: record.block.id,
+          sessionId: record.block.sessionId,
+          title: record.prescription.title,
+          notes: record.block.notes,
+          workoutDate: workoutDate,
+        ),
       ),
     );
   }

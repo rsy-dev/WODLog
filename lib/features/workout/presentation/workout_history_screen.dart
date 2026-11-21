@@ -6,6 +6,9 @@ import 'package:intl/intl.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/workout_providers.dart';
 import 'wod_record_list.dart';
+import 'wod_blocks_section.dart';
+
+import 'package:uuid/uuid.dart';
 
 class WorkoutHistoryScreen extends ConsumerStatefulWidget {
   const WorkoutHistoryScreen({super.key});
@@ -26,7 +29,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     final locale = Localizations.localeOf(context).toString();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.history)),
+      appBar: AppBar(title: const Text('WODLog')),
       body: sessions.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
@@ -47,28 +50,61 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
             ),
             children: [
               Wrap(
-                spacing: 8,
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 12,
+                runSpacing: 8,
                 children: [
-                  ChoiceChip(
-                    label: const Text('WOD'),
-                    selected: _showWods,
-                    onSelected: (_) => setState(() => _showWods = true),
+                  Text(
+                    l10n.workoutLog,
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
-                  ChoiceChip(
-                    label: Text(l10n.strengthSessions),
-                    selected: !_showWods,
-                    onSelected: (_) => setState(() => _showWods = false),
+                  FilledButton.icon(
+                    onPressed: () => showWodResultEditor(
+                      context,
+                      ref,
+                      const Uuid().v4(),
+                      newWorkoutDate: DateFormat('yyyy-MM-dd')
+                          .format(DateTime.now()),
+                    ),
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.recordWod),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: l10n.searchWorkouts,
-                  prefixIcon: const Icon(Icons.search),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('WOD'),
+                            selected: _showWods,
+                            onSelected: (_) => setState(() => _showWods = true),
+                          ),
+                          ChoiceChip(
+                            label: Text(l10n.strengthSessions),
+                            selected: !_showWods,
+                            onSelected: (_) =>
+                                setState(() => _showWods = false),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: l10n.searchWorkouts,
+                          prefixIcon: const Icon(Icons.search),
+                        ),
+                        onChanged: (value) =>
+                            setState(() => _query = value.trim().toLowerCase()),
+                      ),
+                    ],
+                  ),
                 ),
-                onChanged: (value) =>
-                    setState(() => _query = value.trim().toLowerCase()),
               ),
               const SizedBox(height: 12),
               if (_showWods) ...[
@@ -78,6 +114,12 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                 ),
                 WodRecordList(sessions: sessions, query: _query),
               ] else ...[
+                FilledButton.icon(
+                  onPressed: _startStrengthSession,
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.addStrengthBlock),
+                ),
+                const SizedBox(height: 8),
                 if (items.isEmpty) Text(l10n.noMatchingWorkouts),
                 for (final session in items)
                   Builder(
@@ -109,5 +151,23 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _startStrengthSession() async {
+    try {
+      final date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final sessionId = await ref
+          .read(workoutRepositoryProvider)
+          .createSession(workoutDate: date);
+      if (mounted) context.push('/sessions/$sessionId');
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.loadWorkoutError),
+          ),
+        );
+      }
+    }
   }
 }

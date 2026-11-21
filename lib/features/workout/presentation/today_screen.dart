@@ -8,14 +8,11 @@ import '../../../app/wodlog_theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../settings/display_preferences.dart';
-import '../../settings/weight_unit.dart';
-import 'progress_screen.dart';
 import 'wod_library_sheet.dart';
 import 'wod_blocks_section.dart';
 import '../providers/wod_providers.dart';
 import 'wod_record_list.dart';
 import 'workout_date_sheet.dart';
-import '../data/exercise_progress_service.dart';
 import '../providers/workout_providers.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
@@ -34,8 +31,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final sessions = ref.watch(
       sessionsForDateProvider(_formatDate(_selectedDate)),
     );
-    final progress = ref.watch(exerciseProgressProvider);
     final locale = Localizations.localeOf(context).toString();
+    final textScaler = MediaQuery.textScalerOf(context);
+    final compactDate =
+        MediaQuery.sizeOf(context).width < 360 || textScaler.scale(16) > 24;
     final today = DateUtils.dateOnly(DateTime.now());
     final isToday = DateUtils.isSameDay(_selectedDate, today);
 
@@ -71,7 +70,25 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('WODLog')),
+      appBar: AppBar(
+        titleSpacing: 20,
+        title: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(7),
+              child: Image.asset(
+                'assets/branding/wodlog-launcher.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.cover,
+                semanticLabel: 'WODLog',
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text('WODLog'),
+          ],
+        ),
+      ),
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -89,52 +106,106 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isToday ? l10n.todayWorkout : l10n.workoutLog,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
                         l10n.workoutDate(
                           _formatDisplayDate(_selectedDate, context),
                         ),
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isToday ? l10n.todayWodTitle : l10n.workoutLog,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontSize: 31),
                       ),
                     ],
                   ),
                 ),
-                IconButton.outlined(
-                  style: IconButton.styleFrom(
-                    backgroundColor: WodLogColors.surface,
-                    foregroundColor: WodLogColors.navy,
-                    minimumSize: const Size(48, 48),
+                Tooltip(
+                  message: l10n.chooseDate,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: WodLogColors.surface,
+                      foregroundColor: WodLogColors.navy,
+                      minimumSize: const Size(48, 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    onPressed: _chooseDate,
+                    icon: const Icon(Icons.calendar_month_outlined, size: 18),
+                    label: compactDate
+                        ? const SizedBox.shrink()
+                        : Text(l10n.chooseDate),
                   ),
-                  tooltip: l10n.chooseDate,
-                  onPressed: _chooseDate,
-                  icon: const Icon(Icons.calendar_month_outlined),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             Card(
               margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    FilledButton.icon(
-                      onPressed: _startWorkout,
-                      icon: const Icon(Icons.add),
-                      label: Text(l10n.recordWod),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DecoratedBox(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFC43C12), Color(0xFFA82B0A)],
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    LayoutBuilder(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _startWorkout,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 28,
+                                height: 28,
+                                alignment: Alignment.center,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white24,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  l10n.recordWod,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              const Icon(
+                                Icons.chevron_right,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+                    child: LayoutBuilder(
                       builder: (context, constraints) {
-                        const spacing = 6.0;
-                        final shortcuts = <(String, VoidCallback)>[
+                        final shortcuts = <(String, IconData, VoidCallback)>[
                           (
-                            l10n.benchmarkWorkouts,
+                            l10n.homeBenchmarks,
+                            Icons.grid_view_rounded,
                             () async {
                               final template = await showWodLibrary(context);
                               if (template != null && mounted) {
@@ -143,75 +214,129 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                             },
                           ),
                           (
-                            l10n.pastWods,
+                            l10n.homeRepeatWod,
+                            Icons.refresh_rounded,
                             () => showPastWods(context, recent ?? []),
                           ),
                           (
-                            wodPersonalRecordsLabel(l10n),
+                            l10n.homeWodPr,
+                            Icons.trending_up_rounded,
                             () => context.go('/progress'),
                           ),
                         ];
-                        final width = (constraints.maxWidth - 2 * spacing) / 3;
-                        final painter = TextPainter(
-                          textDirection: Directionality.of(context),
-                          textScaler: MediaQuery.textScalerOf(context),
-                        );
-                        final labelStyle = Theme.of(context)
-                            .textTheme
-                            .labelLarge;
-                        final equalWidths = shortcuts.every((shortcut) {
-                          painter.text = TextSpan(
-                            text: shortcut.$1,
-                            style: labelStyle,
-                          );
-                          painter.layout();
-                          return painter.width + 16 <= width.floorToDouble();
-                        });
-                        painter.dispose();
+                        final equalWidths = textScaler.scale(16) <= 24;
 
-                        return Wrap(
-                          spacing: spacing,
-                          runSpacing: 4,
+                        if (equalWidths) {
+                          return Row(
+                            children: [
+                              for (final (index, shortcut)
+                                  in shortcuts.indexed) ...[
+                                Expanded(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: shortcut.$3,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                        horizontal: 3,
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            shortcut.$2,
+                                            size: 20,
+                                            color: WodLogColors.accent,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            shortcut.$1,
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge
+                                                ?.copyWith(
+                                                  color: WodLogColors.ink,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (index < shortcuts.length - 1)
+                                  const SizedBox(
+                                    height: 48,
+                                    child: VerticalDivider(width: 1),
+                                  ),
+                              ],
+                            ],
+                          );
+                        }
+                        return Column(
                           children: [
-                            for (final (label, onPressed) in shortcuts)
+                            for (final (label, icon, onPressed) in shortcuts)
                               SizedBox(
-                                width: equalWidths
-                                    ? width.floorToDouble()
-                                    : null,
-                                child: OutlinedButton(
+                                width: constraints.maxWidth,
+                                child: TextButton.icon(
                                   style: shortcutStyle,
                                   onPressed: onPressed,
-                                  child: Text(
-                                    label,
-                                    textAlign: TextAlign.center,
-                                  ),
+                                  icon: Icon(icon),
+                                  label: Text(label),
                                 ),
                               ),
                           ],
                         );
                       },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 14),
-            Text(
-              l10n.lastSevenDays,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            Row(
-              children: [
-                for (final date in dates)
-                  Expanded(child: _dayChip(context, date, days, locale)),
-              ],
-            ),
-            Text(
-              [
-                l10n.weeklyGoal,
-                if (activityReady && goal != null)
-                  '${number.format(days.length)} / ${number.format(goal)}',
-              ].join(' · '),
+            Card(
+              color: WodLogColors.blueSurface,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.lastSevenDays,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            [
+                              l10n.weeklyGoal,
+                              if (activityReady && goal != null)
+                                '${number.format(days.length)} / ${number.format(goal)}',
+                            ].join(' · '),
+                            textAlign: TextAlign.end,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        for (final date in dates)
+                          Expanded(
+                            child: _dayChip(context, date, days, locale),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -241,37 +366,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     : currentSessions,
                 limit: isToday ? 3 : null,
               ),
-            const SizedBox(height: 20),
-            sessions.when(
-              loading: () => const LinearProgressIndicator(),
-              error: (error, stackTrace) => const SizedBox.shrink(),
-              data: (items) => _DailySummary(
-                sessionCount: items.length,
-                progress: progress.value,
-                date: _formatDate(_selectedDate),
-                locale: locale,
-              ),
-            ),
-            OutlinedButton.icon(
-              onPressed: _startStrengthSession,
-              icon: const Icon(Icons.fitness_center),
-              label: Text(l10n.addStrengthBlock),
-            ),
-            const SizedBox(height: 22),
-            ...sessions.when<List<Widget>>(
-              loading: () => [const Center(child: CircularProgressIndicator())],
-              error: (error, stackTrace) => [
-                Text(l10n.loadWorkoutError, textAlign: TextAlign.center),
-              ],
-              data: (items) => [
-                if (items.isEmpty) _EmptyWorkoutState(isToday: isToday),
-                for (final session in items)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _TodaySessionTile(session: session),
-                  ),
-              ],
-            ),
           ],
         ),
       ),
@@ -302,25 +396,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     }
   }
 
-  Future<void> _startStrengthSession() async {
-    if (_starting) return;
-    _starting = true;
-    try {
-      final sessionId = await ref
-          .read(workoutRepositoryProvider)
-          .createSession(workoutDate: _formatDate(_selectedDate));
-      if (mounted) context.push('/sessions/$sessionId');
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.wodSaveError)),
-        );
-      }
-    } finally {
-      _starting = false;
-    }
-  }
-
   Widget _dayChip(
     BuildContext context,
     DateTime date,
@@ -337,12 +412,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: () => setState(() => _selectedDate = date),
           child: Ink(
-            decoration: BoxDecoration(
-              color: selected
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : null,
-              borderRadius: BorderRadius.circular(12),
-            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Column(
@@ -352,8 +421,35 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(DateFormat.d(locale).format(date)),
-                  Icon(recorded ? Icons.check : Icons.remove, size: 14),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: selected ? WodLogColors.navy : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      NumberFormat.decimalPattern(locale).format(date.day),
+                      style: TextStyle(
+                        color: selected ? Colors.white : null,
+                        fontWeight: selected ? FontWeight.w700 : null,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: recorded
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.transparent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -380,201 +476,5 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   static String _formatDisplayDate(DateTime date, BuildContext context) {
     final locale = Localizations.localeOf(context).toString();
     return DateFormat.yMMMMEEEEd(locale).format(date);
-  }
-}
-
-class _TodaySessionTile extends StatelessWidget {
-  const _TodaySessionTile({required this.session});
-  final WorkoutSession session;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final localTime = DateTime.fromMillisecondsSinceEpoch(
-      session.createdAt,
-      isUtc: true,
-    ).toLocal();
-    return Card(
-      child: ListTile(
-        leading: const Icon(Icons.fitness_center_rounded),
-        title: Text(session.title ?? l10n.workoutLog),
-        subtitle: Text(TimeOfDay.fromDateTime(localTime).format(context)),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => context.push('/sessions/${session.id}'),
-      ),
-    );
-  }
-}
-
-class _DailySummary extends ConsumerWidget {
-  const _DailySummary({
-    required this.sessionCount,
-    required this.progress,
-    required this.date,
-    required this.locale,
-  });
-
-  final int sessionCount;
-  final List<ExerciseProgress>? progress;
-  final String date;
-  final String locale;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final unit = ref.watch(weightUnitProvider).value ?? WeightUnit.kg;
-    final l10n = AppLocalizations.of(context)!;
-    var movementCount = 0;
-    var setCount = 0;
-    double? volumeKg;
-    for (final movement in progress ?? const <ExerciseProgress>[]) {
-      final workouts = movement.workouts.where(
-        (workout) => workout.workoutDate == date,
-      );
-      if (workouts.isEmpty) continue;
-      movementCount++;
-      for (final workout in workouts) {
-        setCount += workout.setCount;
-        if (workout.volumeKg case final volume?) {
-          volumeKg = (volumeKg ?? 0) + volume;
-        }
-      }
-    }
-    final number = NumberFormat.decimalPattern(locale);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.todaySummary,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: _Metric(
-                    value: number.format(sessionCount),
-                    label: l10n.sessionsLabel,
-                    prominent: true,
-                  ),
-                ),
-                Expanded(
-                  child: _Metric(
-                    value: progress == null
-                        ? '—'
-                        : number.format(movementCount),
-                    label: l10n.movementsLabel,
-                    prominent: true,
-                  ),
-                ),
-                Expanded(
-                  child: _Metric(
-                    value: progress == null ? '—' : number.format(setCount),
-                    label: l10n.setsLabel,
-                    prominent: true,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(height: 1, color: WodLogColors.line),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(
-                  Icons.bolt_rounded,
-                  size: 17,
-                  color: WodLogColors.navy,
-                ),
-                const SizedBox(width: 7),
-                Expanded(
-                  child: Text(
-                    l10n.weightedVolume,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-                Flexible(
-                  child: Text(
-                    volumeKg == null
-                        ? '—'
-                        : '${unit.format(volumeKg, number)}·${l10n.reps}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: WodLogColors.accent,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Metric extends StatelessWidget {
-  const _Metric({
-    required this.value,
-    required this.label,
-    this.prominent = false,
-  });
-
-  final String value;
-  final String label;
-  final bool prominent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style:
-              (prominent
-                      ? Theme.of(context).textTheme.headlineSmall
-                      : Theme.of(context).textTheme.titleMedium)
-                  ?.copyWith(color: WodLogColors.ink),
-        ),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-      ],
-    );
-  }
-}
-
-class _EmptyWorkoutState extends StatelessWidget {
-  const _EmptyWorkoutState({required this.isToday});
-
-  final bool isToday;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.event_note_outlined,
-            size: 44,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            isToday ? l10n.noRecords : l10n.emptyHistory,
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-          if (isToday) ...[
-            const SizedBox(height: 4),
-            Text(l10n.emptyTodayHelp, textAlign: TextAlign.center),
-          ],
-        ],
-      ),
-    );
   }
 }

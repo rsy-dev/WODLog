@@ -7,6 +7,7 @@ import '../../../app/wodlog_theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../providers/wod_providers.dart';
+import '../data/wod_prescription.dart';
 import '../data/crossfit_catalog.dart';
 import 'wod_blocks_section.dart';
 
@@ -86,10 +87,12 @@ class WodRecordList extends ConsumerWidget {
         if (loading) const LinearProgressIndicator(),
         if (failed) Text(l10n.loadWorkoutError),
         if (showEmpty && !failed && !loading && records.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              query.isEmpty ? l10n.emptyWodBlocks : l10n.noMatchingWorkouts,
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                query.isEmpty ? l10n.emptyWodBlocks : l10n.noMatchingWorkouts,
+              ),
             ),
           ),
         for (final (:session, :block, :dateLabel) in records.take(
@@ -146,6 +149,11 @@ final _searchableWodsProvider = FutureProvider.autoDispose.family((
   };
 });
 
+final _recordProvider = FutureProvider.autoDispose.family((ref, String id) {
+  ref.watch(wodResultProvider(id));
+  return ref.watch(wodRepositoryProvider).getRecord(id);
+});
+
 class _WodRecordTile extends ConsumerWidget {
   const _WodRecordTile({
     required this.session,
@@ -164,50 +172,15 @@ class _WodRecordTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final title = block.title ?? l10n.wodSectionTitle;
     final score = ref.watch(wodResultProvider(block.id)).value;
+    final record = ref.watch(_recordProvider(block.id)).value;
     final bests = ref.watch(wodPersonalBestsProvider).value ?? [];
     final isPr = bests.any(
       (group) =>
           group.improvements.any((record) => record.block.id == block.id),
     );
     return Card(
-      child: ListTile(
-        leading: const Icon(Icons.fitness_center),
-        title: Text(title),
-        subtitle: Text(
-          [
-            dateLabel,
-            TimeOfDay.fromDateTime(
-              DateTime.fromMillisecondsSinceEpoch(
-                score?.createdAt ?? session.createdAt,
-              ),
-            ).format(context),
-          ].join(' · '),
-        ),
-        trailing: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 116),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (wodScoreLabel(context, ref, score) case final label?)
-                Text(label),
-              if (isPr)
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: WodLogColors.prSurface,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6),
-                    child: Text(
-                      'PR',
-                      style: TextStyle(color: WodLogColors.prText),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
         onTap: repeat
             ? () => showWodResultEditor(context, ref, block.id, repeat: true)
             : () => showWodRecordDetail(
@@ -218,6 +191,80 @@ class _WodRecordTile extends ConsumerWidget {
                 workoutDate: session.workoutDate,
                 notes: block.notes,
               ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  color: WodLogColors.blueSurface,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.fitness_center,
+                    size: 20,
+                    color: WodLogColors.navy,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      [
+                        dateLabel,
+                        if (score != null) wodTypeLabel(l10n, score.resultType),
+                        wodVersionLabel(
+                          l10n,
+                          record?.prescription.version ?? WodVersion.unknown,
+                        ),
+                      ].join(' · '),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                fit: FlexFit.tight,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 116),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (wodScoreLabel(context, ref, score) case final label?)
+                        Text(
+                          label,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                      if (isPr)
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: WodLogColors.prSurface,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            child: Text(
+                              'PR',
+                              style: TextStyle(color: WodLogColors.prText),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -58,7 +58,7 @@
   "invalidSet": "Enter a valid weight and a whole number of reps greater than zero.",
   "bodyweight": "Bodyweight",
   "emptyBlocks": "No workout blocks yet.\nAdd a Strength block to start logging.",
-  "history": "History",
+  "history": "Records",
   "emptyHistory": "No workouts recorded yet.",
   "editSession": "Edit session",
   "sessionTitle": "Session title",
@@ -68,8 +68,8 @@
   "wodSectionTitle": "WODs",
   "addWodBlock": "Add WOD",
   "wodName": "WOD name",
-  "addWodResult": "Add result",
-  "editWodResult": "Edit result",
+  "addWodResult": "Log a WOD",
+  "editWodResult": "Edit record",
   "wodResultType": "Result type",
   "wodScore": "Score or result",
   "wodNotes": "Result notes",
@@ -120,7 +120,7 @@
   "noProgressYet": "Repeat an exercise to see how your record changes.",
   "previousWorkout": "Previous",
   "lastWorkout": "Latest",
-  "chooseDate": "Choose workout date",
+  "chooseDate": "Choose date",
   "allMovements": "All",
   "customExercise": "Add a custom exercise",
   "noMovementsFound": "No movements found",
@@ -137,7 +137,7 @@
   "categoryBodyweight": "Bodyweight",
   "categoryOtherEquipment": "Other equipment",
   "settings": "Settings",
-  "weightUnit": "Weight unit",
+  "weightUnit": "Logging unit",
   "weightUnitError": "Could not save the weight unit.",
   "categoryBenchmarkWod": "Benchmark WODs",
   "@setWeight": {
@@ -149,18 +149,22 @@
   },
   "noRecentMovementRecords": "No movement records in the last 14 days.",
   "todayTab": "Today",
-  "recordWod": "Record WOD",
+  "recordWod": "Log a WOD",
   "languageSetting": "Language",
   "deviceLanguage": "Device language",
   "weeklyGoal": "Weekly goal",
   "weightConversionDirection": "{source} to {target}",
   "@weightConversionDirection": {
     "placeholders": {
-      "source": {"type": "String"},
-      "target": {"type": "String"}
+      "source": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
     }
   },
-  "weightCalculator": "Weight calculator",
+  "weightCalculator": "Weight converter",
   "movementLibrary": "Movement library",
   "glossary": "Glossary",
   "lastSevenDays": "Last 7 days",
@@ -195,7 +199,7 @@
   "wodExtraReps": "Extra reps",
   "wodEnterNewScore": "Enter a new score",
   "wodInvalidScore": "Enter a valid result for this workout type.",
-  "wodPersonalRecords": "WOD personal records",
+  "wodPersonalRecords": "WOD PR",
   "wodNoComparableRecords": "No WOD results with confirmed comparison conditions.",
   "wodCurrentBest": "Current best",
   "wodRecordImprovements": "Record improvements",
@@ -242,5 +246,13 @@
   "glossaryBuyInCashOut": "Prescribed work before / after the main workout.",
   "glossaryUnbroken": "Complete a set without a break.",
   "glossaryNoRep": "A repetition that does not meet the movement standard.",
-  "glossaryPr": "A personal record under comparable workout conditions."
+  "glossaryPr": "A personal record under comparable workout conditions.",
+  "todayWodTitle": "Today's WOD",
+  "homeBenchmarks": "Benchmarks",
+  "homeRepeatWod": "Repeat a WOD",
+  "homeWodPr": "WOD PR",
+  "recordsTab": "Log",
+  "settingsEyebrow": "Preferences",
+  "weightUnitDescription": "Applies to workout loads, logs and stats.",
+  "resources": "Resources"
 }

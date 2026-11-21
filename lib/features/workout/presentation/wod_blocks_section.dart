@@ -171,8 +171,10 @@ Future<void> showWodResultEditor(
   if ((!isNew && record == null) || !context.mounted) return;
   final result = repeat ? null : record?.result;
   final attemptId = repeat ? const Uuid().v4() : blockId;
-  var repeatDate = DateUtils.dateOnly(DateTime.now());
-  final dateLabel = DateFormat.yMMMd(l10n.localeName);
+  var repeatDate = DateUtils.dateOnly(
+    DateTime.tryParse(newWorkoutDate ?? '') ?? DateTime.now(),
+  );
+  final compactDateLabel = DateFormat.yMd(l10n.localeName);
   String? savedWorkoutDate;
 
   WodPrescription benchmarkDraft(String title) {
@@ -352,6 +354,19 @@ Future<void> showWodResultEditor(
     });
   }
 
+  Widget workoutDatePicker(StateSetter update) => OutlinedButton.icon(
+    icon: const Icon(Icons.calendar_today_outlined),
+    label: Text(compactDateLabel.format(repeatDate)),
+    onPressed: saving
+        ? null
+        : () async {
+            final date = await showWorkoutDateSheet(context, repeatDate);
+            if (date != null && context.mounted) {
+              update(() => repeatDate = date);
+            }
+          },
+  );
+
   final saved = await showWodLogSheet<bool>(
     context: context,
     expandForKeyboard: true,
@@ -363,31 +378,26 @@ Future<void> showWodResultEditor(
     builder: (_) => StatefulBuilder(
       builder: (context, setState) => _WodEditorLayout(
         fields: [
-          if (repeat)
-            OutlinedButton.icon(
-              icon: const Icon(Icons.calendar_today_outlined),
-              label: Text(dateLabel.format(repeatDate)),
-              onPressed: saving
-                  ? null
-                  : () async {
-                      final date = await showWorkoutDateSheet(
-                        context,
-                        repeatDate,
-                      );
-                      if (date != null && context.mounted) {
-                        setState(() => repeatDate = date);
-                      }
-                    },
-            ),
+          if (repeat && !isNew) workoutDatePicker(setState),
           if (isNew) ...[
-            TextFormField(
-              key: fieldKey('titleField', titleRevision),
-              initialValue: title,
-              enabled: !saving,
-              decoration: InputDecoration(labelText: l10n.wodName),
-              onChanged: (value) => title = value,
+            _ResponsiveFieldPair(
+              first: TextFormField(
+                key: fieldKey('titleField', titleRevision),
+                initialValue: title,
+                enabled: !saving,
+                decoration: InputDecoration(labelText: l10n.wodName),
+                onChanged: (value) => title = value,
+              ),
+              second: workoutDatePicker(setState),
             ),
             OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
               onPressed: saving
                   ? null
                   : () async {
@@ -412,6 +422,10 @@ Future<void> showWodResultEditor(
             ),
           ],
           OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
             onPressed: saving
                 ? null
                 : () async {
@@ -450,29 +464,144 @@ Future<void> showWodResultEditor(
                   },
             child: Text(l10n.reviewWodText),
           ),
-          DropdownButtonFormField<String>(
-            key: ValueKey(('type', typeRevision)),
-            initialValue: type,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: l10n.wodResultType),
-            items: [
-              for (final item in availableTypes)
-                DropdownMenuItem(
-                  value: item,
-                  child: Text(wodTypeLabel(l10n, item)),
+          _ResponsiveFieldPair(
+            topSpacing: true,
+            first: DropdownButtonFormField<String>(
+              key: ValueKey(('type', typeRevision)),
+              initialValue: type,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: l10n.wodResultType),
+              items: [
+                for (final item in availableTypes)
+                  DropdownMenuItem(
+                    value: item,
+                    child: Text(wodTypeLabel(l10n, item)),
+                  ),
+              ],
+              onChanged: saving
+                  ? null
+                  : (value) => setState(() {
+                      if (value == null || type == value) return;
+                      type = value;
+                      ending = _WodEnding.finished;
+                      invalid = false;
+                      usePreviousScore = false;
+                      score = '';
+                      secondScore = '';
+                    }),
+            ),
+            second: (isNew || repeat || prescription.movements.isNotEmpty)
+                ? DropdownButtonFormField<WodVersion>(
+                    isExpanded: true,
+                    key: ValueKey(('version', titleRevision, notesRevision)),
+                    initialValue: version,
+                    decoration: InputDecoration(
+                      labelText: l10n.wodWorkoutStandard,
+                    ),
+                    items: [
+                      for (final item in WodVersion.values)
+                        DropdownMenuItem(
+                          value: item,
+                          child: Text(wodVersionLabel(l10n, item)),
+                        ),
+                    ],
+                    onChanged: saving
+                        ? null
+                        : (value) {
+                            if (value != null) setState(() => version = value);
+                          },
+                  )
+                : null,
+          ),
+          ExpansionTile(
+            key: fieldKey('prescriptionFields', (titleRevision, notesRevision)),
+            tilePadding: EdgeInsets.zero,
+            title: Text(l10n.wodPrescription),
+            maintainState: true,
+            onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
+            children: [
+              DropdownButtonFormField<WodStructure>(
+                isExpanded: true,
+                initialValue: prescription.structure,
+                decoration: InputDecoration(labelText: l10n.wodSectionTitle),
+                items: [
+                  for (final structure in WodStructure.values)
+                    DropdownMenuItem(
+                      value: structure,
+                      child: Text(switch (structure) {
+                        WodStructure.forTime => l10n.resultForTime,
+                        WodStructure.amrap => l10n.resultAmrap,
+                        WodStructure.emom => l10n.resultEmom,
+                        WodStructure.intervals => l10n.wodIntervals,
+                        WodStructure.other => l10n.resultOther,
+                        WodStructure.unknown => l10n.wodUnconfirmedStandard,
+                      }),
+                    ),
+                ],
+                onChanged: saving
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          updatePrescription({'structure': value.name});
+                        }
+                      },
+              ),
+              for (final (field, label, value) in [
+                ('rounds', l10n.wodTotalRounds, prescription.rounds),
+                if (!isCapped())
+                  (
+                    'timeCapSeconds',
+                    l10n.wodTimeCapSeconds,
+                    prescription.timeCapSeconds,
+                  ),
+                (
+                  'durationSeconds',
+                  l10n.wodDurationSeconds,
+                  prescription.durationSeconds,
                 ),
+                (
+                  'intervalCount',
+                  l10n.wodTotalIntervals,
+                  prescription.intervalCount,
+                ),
+                (
+                  'intervalSeconds',
+                  l10n.wodIntervalLengthSeconds,
+                  prescription.intervalSeconds,
+                ),
+              ])
+                TextFormField(
+                  key: fieldKey(field, (titleRevision, notesRevision)),
+                  initialValue: value == null ? '' : number.format(value),
+                  enabled: !saving,
+                  decoration: InputDecoration(labelText: label),
+                  keyboardType: TextInputType.number,
+                  onChanged: (text) {
+                    final amount = whole(text);
+                    if (text.trim().isNotEmpty &&
+                        (amount == null || amount == 0)) {
+                      invalidPrescriptionFields.add(field);
+                    } else {
+                      invalidPrescriptionFields.remove(field);
+                      updatePrescription({field: amount});
+                    }
+                  },
+                ),
+              if (prescription.unparsedLines.isNotEmpty) ...[
+                Text(l10n.unreadWodLines),
+                for (final line in prescription.unparsedLines) Text(line),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.wodUnreadLinesConfirmed),
+                  value: false,
+                  onChanged: saving
+                      ? null
+                      : (_) => setState(() {
+                          updatePrescription({'unparsedLines': <String>[]});
+                        }),
+                ),
+              ],
             ],
-            onChanged: saving
-                ? null
-                : (value) => setState(() {
-                    if (value == null || type == value) return;
-                    type = value;
-                    ending = _WodEnding.finished;
-                    invalid = false;
-                    usePreviousScore = false;
-                    score = '';
-                    secondScore = '';
-                  }),
           ),
           for (final (index, movement) in prescription.movements.indexed)
             ListTile(
@@ -517,7 +646,11 @@ Future<void> showWodResultEditor(
                 icon: const Icon(Icons.remove_circle_outline),
               ),
             ),
-          OutlinedButton(
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
             onPressed: saving
                 ? null
                 : () async {
@@ -530,27 +663,9 @@ Future<void> showWodResultEditor(
                       ]),
                     );
                   },
-            child: Text(l10n.addExercise),
+            icon: const Icon(Icons.add, size: 18),
+            label: Text(l10n.addExercise),
           ),
-          if (isNew || repeat || prescription.movements.isNotEmpty)
-            DropdownButtonFormField<WodVersion>(
-              isExpanded: true,
-              key: ValueKey(('version', titleRevision, notesRevision)),
-              initialValue: version,
-              decoration: InputDecoration(labelText: l10n.wodWorkoutStandard),
-              items: [
-                for (final item in WodVersion.values)
-                  DropdownMenuItem(
-                    value: item,
-                    child: Text(wodVersionLabel(l10n, item)),
-                  ),
-              ],
-              onChanged: saving
-                  ? null
-                  : (value) {
-                      if (value != null) setState(() => version = value);
-                    },
-            ),
           const SizedBox(height: 12),
           if (type == 'for_time' && !usePreviousScore)
             DropdownButtonFormField<_WodEnding>(
@@ -650,95 +765,6 @@ Future<void> showWodResultEditor(
               decoration: InputDecoration(labelText: l10n.wodExtraReps),
               onChanged: (value) => secondScore = value,
             ),
-          ExpansionTile(
-            key: fieldKey('prescriptionFields', (titleRevision, notesRevision)),
-            title: Text(l10n.wodPrescription),
-            maintainState: true,
-            onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
-            children: [
-              DropdownButtonFormField<WodStructure>(
-                isExpanded: true,
-                initialValue: prescription.structure,
-                decoration: InputDecoration(labelText: l10n.wodSectionTitle),
-                items: [
-                  for (final structure in WodStructure.values)
-                    DropdownMenuItem(
-                      value: structure,
-                      child: Text(switch (structure) {
-                        WodStructure.forTime => l10n.resultForTime,
-                        WodStructure.amrap => l10n.resultAmrap,
-                        WodStructure.emom => l10n.resultEmom,
-                        WodStructure.intervals => l10n.wodIntervals,
-                        WodStructure.other => l10n.resultOther,
-                        WodStructure.unknown => l10n.wodUnconfirmedStandard,
-                      }),
-                    ),
-                ],
-                onChanged: saving
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          updatePrescription({'structure': value.name});
-                        }
-                      },
-              ),
-              for (final (field, label, value) in [
-                ('rounds', l10n.wodTotalRounds, prescription.rounds),
-                if (!isCapped())
-                  (
-                    'timeCapSeconds',
-                    l10n.wodTimeCapSeconds,
-                    prescription.timeCapSeconds,
-                  ),
-                (
-                  'durationSeconds',
-                  l10n.wodDurationSeconds,
-                  prescription.durationSeconds,
-                ),
-                (
-                  'intervalCount',
-                  l10n.wodTotalIntervals,
-                  prescription.intervalCount,
-                ),
-                (
-                  'intervalSeconds',
-                  l10n.wodIntervalLengthSeconds,
-                  prescription.intervalSeconds,
-                ),
-              ])
-                TextFormField(
-                  key: fieldKey(field, (titleRevision, notesRevision)),
-                  initialValue: value == null ? '' : number.format(value),
-                  enabled: !saving,
-                  decoration: InputDecoration(labelText: label),
-                  keyboardType: TextInputType.number,
-                  onChanged: (text) {
-                    final amount = whole(text);
-                    if (text.trim().isNotEmpty &&
-                        (amount == null || amount == 0)) {
-                      invalidPrescriptionFields.add(field);
-                    } else {
-                      invalidPrescriptionFields.remove(field);
-                      updatePrescription({field: amount});
-                    }
-                  },
-                ),
-              if (prescription.unparsedLines.isNotEmpty) ...[
-                Text(l10n.unreadWodLines),
-                for (final line in prescription.unparsedLines) Text(line),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.wodUnreadLinesConfirmed),
-                  value: false,
-                  onChanged: saving
-                      ? null
-                      : (_) => setState(() {
-                          updatePrescription({'unparsedLines': <String>[]});
-                        }),
-                ),
-              ],
-            ],
-          ),
           if (usePreviousScore)
             TextButton(
               onPressed: saving
@@ -764,191 +790,221 @@ Future<void> showWodResultEditor(
           if (invalidCap && hasMissingCap()) Text(l10n.wodMissingTimeCap),
           if (invalid) Text(l10n.wodInvalidScore),
           if (failed) Text(l10n.wodSaveError),
-          FilledButton(
-            onPressed: saving
-                ? null
-                : () async {
-                    if (isNew && title.trim().isEmpty) {
-                      setState(() {
-                        invalid = true;
-                        invalidCap = false;
-                      });
-                      revealField('titleField');
-                      return;
-                    }
-                    if (hasMissingCap()) {
-                      setState(() {
-                        invalid = false;
-                        invalidCap = true;
-                      });
-                      revealField('capField');
-                      return;
-                    }
-                    final confirmedScore = validatedScore();
-                    if (confirmedScore == null ||
-                        invalidPrescriptionFields.isNotEmpty) {
-                      setState(() {
-                        invalid = true;
-                        invalidCap = false;
-                      });
-                      final capMs = (prescription.timeCapSeconds ?? 0) * 1000;
-                      final tieBreakMs = durationMs(tieBreak);
-                      final target = switch (type) {
-                        _
-                            when invalidPrescriptionFields.contains(
-                                  'timeCapSeconds',
-                                ) &&
-                                isCapped() =>
-                          'capField',
-                        _ when invalidPrescriptionFields.isNotEmpty =>
-                          prescriptionExpanded
-                              ? invalidPrescriptionFields.first
-                              : 'prescriptionFields',
-                        'for_time'
-                            when isCapped() &&
-                                tieBreak.trim().isNotEmpty &&
-                                (tieBreakMs == null ||
-                                    (capMs > 0 && tieBreakMs > capMs)) =>
-                          'tieBreakField',
-                        'amrap' || 'rounds_reps'
-                            when !usePreviousScore && whole(score) != null =>
-                          'roundsField',
-                        _ => 'scoreField',
-                      };
-                      revealField(target);
-                      return;
-                    }
-                    setState(() {
-                      invalid = false;
-                      invalidCap = false;
-                      saving = true;
-                      failed = false;
-                    });
-                    try {
-                      final kind = switch (type) {
-                        'for_time' => WodScoreKind.time,
-                        'amrap' || 'rounds_reps' => WodScoreKind.roundsAndReps,
-                        'emom' => WodScoreKind.intervals,
-                        'load' => WodScoreKind.weight,
-                        'reps' => WodScoreKind.reps,
-                        'distance' => WodScoreKind.distance,
-                        'calories' => WodScoreKind.calories,
-                        'points' => WodScoreKind.points,
-                        _ => WodScoreKind.unknown,
-                      };
-                      final definition = WodPrescription.fromJson({
-                        ...prescription.toJson(),
-                        if (isNew) 'title': title.trim(),
-                        'scoreKind': kind.name,
-                        'version': version.name,
-                      });
-                      if (usePreviousScore &&
-                          result?.outcome != null &&
-                          prescription.scoreKind == kind) {
-                        await repository.saveStructuredResult(
-                          blockId: blockId,
-                          prescription: definition,
-                          score: WodAttemptScore(
-                            outcome: WodOutcome.values.byName(result!.outcome!),
-                            elapsedMs: result.durationMs,
-                            rounds: result.rounds?.toInt(),
-                            reps: result.extraReps,
-                            value: result.scoreValue,
-                            tieBreakMs: result.tieBreakMs,
-                            text: confirmedScore,
-                            notes: notes.trim(),
-                          ),
-                        );
-                      } else if (!usePreviousScore &&
-                          kind != WodScoreKind.unknown) {
-                        final attemptScore = WodAttemptScore(
-                          outcome: type == 'for_time'
-                              ? switch (ending) {
-                                  _WodEnding.finished => WodOutcome.completed,
-                                  _WodEnding.capped => WodOutcome.capped,
-                                  _WodEnding.stopped => WodOutcome.stopped,
-                                }
-                              : WodOutcome.completed,
-                          elapsedMs:
-                              kind == WodScoreKind.time &&
-                                  ending == _WodEnding.finished
-                              ? durationMs(score)
-                              : null,
-                          tieBreakMs:
-                              kind == WodScoreKind.time &&
-                                  ending == _WodEnding.capped
-                              ? durationMs(tieBreak)
-                              : null,
-                          rounds: kind == WodScoreKind.roundsAndReps
-                              ? whole(score)
-                              : null,
-                          reps: kind == WodScoreKind.roundsAndReps
-                              ? whole(secondScore)
-                              : kind == WodScoreKind.reps ||
-                                    (kind == WodScoreKind.time &&
-                                        ending == _WodEnding.capped)
-                              ? whole(score)
-                              : null,
-                          value: switch (kind) {
-                            WodScoreKind.intervals ||
-                            WodScoreKind.calories => whole(score)?.toDouble(),
-                            WodScoreKind.weight => unit.toKg(
-                              parseLocalizedDecimal(score, number)!,
-                            ),
-                            WodScoreKind.distance || WodScoreKind.points =>
-                              parseLocalizedDecimal(score, number),
-                            _ => null,
-                          },
-                          text: confirmedScore,
-                          notes: notes.trim(),
-                        );
-                        if (newSessionId != null) {
-                          await repository.saveConfirmed(
-                            attemptId: attemptId,
-                            sessionId: newSessionId,
-                            sortOrder: await repository.nextWodSortOrder(
-                              newSessionId,
-                            ),
-                            prescription: definition,
-                            score: attemptScore,
-                          );
-                        } else if (repeat || newWorkoutDate != null) {
-                          final workoutDate =
-                              newWorkoutDate ??
-                              DateFormat('yyyy-MM-dd', 'en').format(repeatDate);
-                          await repository.saveRepeat(
-                            attemptId: attemptId,
-                            workoutDate: workoutDate,
-                            prescription: definition,
-                            score: attemptScore,
-                          );
-                          savedWorkoutDate = workoutDate;
-                        } else {
-                          await repository.saveStructuredResult(
-                            blockId: blockId,
-                            prescription: definition,
-                            score: attemptScore,
-                          );
-                        }
-                      } else {
-                        await repository.saveResult(
-                          blockId: blockId,
-                          resultType: type,
-                          resultText: confirmedScore,
-                          notes: notes,
-                        );
-                      }
-                      if (context.mounted) Navigator.pop(context, true);
-                    } catch (_) {
-                      if (context.mounted) {
-                        setState(() {
-                          saving = false;
-                          failed = true;
-                        });
-                      }
-                    }
-                  },
-            child: Text(l10n.save),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF243552),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(52),
+                    shape: const StadiumBorder(),
+                  ),
+                  onPressed: saving
+                      ? null
+                      : () async {
+                          if (isNew && title.trim().isEmpty) {
+                            setState(() {
+                              invalid = true;
+                              invalidCap = false;
+                            });
+                            revealField('titleField');
+                            return;
+                          }
+                          if (hasMissingCap()) {
+                            setState(() {
+                              invalid = false;
+                              invalidCap = true;
+                            });
+                            revealField('capField');
+                            return;
+                          }
+                          final confirmedScore = validatedScore();
+                          if (confirmedScore == null ||
+                              invalidPrescriptionFields.isNotEmpty) {
+                            setState(() {
+                              invalid = true;
+                              invalidCap = false;
+                            });
+                            final capMs =
+                                (prescription.timeCapSeconds ?? 0) * 1000;
+                            final tieBreakMs = durationMs(tieBreak);
+                            final target = switch (type) {
+                              _
+                                  when invalidPrescriptionFields.contains(
+                                        'timeCapSeconds',
+                                      ) &&
+                                      isCapped() =>
+                                'capField',
+                              _ when invalidPrescriptionFields.isNotEmpty =>
+                                prescriptionExpanded
+                                    ? invalidPrescriptionFields.first
+                                    : 'prescriptionFields',
+                              'for_time'
+                                  when isCapped() &&
+                                      tieBreak.trim().isNotEmpty &&
+                                      (tieBreakMs == null ||
+                                          (capMs > 0 && tieBreakMs > capMs)) =>
+                                'tieBreakField',
+                              'amrap' || 'rounds_reps'
+                                  when !usePreviousScore &&
+                                      whole(score) != null =>
+                                'roundsField',
+                              _ => 'scoreField',
+                            };
+                            revealField(target);
+                            return;
+                          }
+                          setState(() {
+                            invalid = false;
+                            invalidCap = false;
+                            saving = true;
+                            failed = false;
+                          });
+                          try {
+                            final kind = switch (type) {
+                              'for_time' => WodScoreKind.time,
+                              'amrap' ||
+                              'rounds_reps' => WodScoreKind.roundsAndReps,
+                              'emom' => WodScoreKind.intervals,
+                              'load' => WodScoreKind.weight,
+                              'reps' => WodScoreKind.reps,
+                              'distance' => WodScoreKind.distance,
+                              'calories' => WodScoreKind.calories,
+                              'points' => WodScoreKind.points,
+                              _ => WodScoreKind.unknown,
+                            };
+                            final definition = WodPrescription.fromJson({
+                              ...prescription.toJson(),
+                              if (isNew) 'title': title.trim(),
+                              'scoreKind': kind.name,
+                              'version': version.name,
+                            });
+                            if (usePreviousScore &&
+                                result?.outcome != null &&
+                                prescription.scoreKind == kind) {
+                              await repository.saveStructuredResult(
+                                blockId: blockId,
+                                prescription: definition,
+                                score: WodAttemptScore(
+                                  outcome: WodOutcome.values.byName(
+                                    result!.outcome!,
+                                  ),
+                                  elapsedMs: result.durationMs,
+                                  rounds: result.rounds?.toInt(),
+                                  reps: result.extraReps,
+                                  value: result.scoreValue,
+                                  tieBreakMs: result.tieBreakMs,
+                                  text: confirmedScore,
+                                  notes: notes.trim(),
+                                ),
+                              );
+                            } else if (!usePreviousScore &&
+                                kind != WodScoreKind.unknown) {
+                              final attemptScore = WodAttemptScore(
+                                outcome: type == 'for_time'
+                                    ? switch (ending) {
+                                        _WodEnding.finished =>
+                                          WodOutcome.completed,
+                                        _WodEnding.capped => WodOutcome.capped,
+                                        _WodEnding.stopped =>
+                                          WodOutcome.stopped,
+                                      }
+                                    : WodOutcome.completed,
+                                elapsedMs:
+                                    kind == WodScoreKind.time &&
+                                        ending == _WodEnding.finished
+                                    ? durationMs(score)
+                                    : null,
+                                tieBreakMs:
+                                    kind == WodScoreKind.time &&
+                                        ending == _WodEnding.capped
+                                    ? durationMs(tieBreak)
+                                    : null,
+                                rounds: kind == WodScoreKind.roundsAndReps
+                                    ? whole(score)
+                                    : null,
+                                reps: kind == WodScoreKind.roundsAndReps
+                                    ? whole(secondScore)
+                                    : kind == WodScoreKind.reps ||
+                                          (kind == WodScoreKind.time &&
+                                              ending == _WodEnding.capped)
+                                    ? whole(score)
+                                    : null,
+                                value: switch (kind) {
+                                  WodScoreKind.intervals ||
+                                  WodScoreKind.calories => whole(
+                                    score,
+                                  )?.toDouble(),
+                                  WodScoreKind.weight => unit.toKg(
+                                    parseLocalizedDecimal(score, number)!,
+                                  ),
+                                  WodScoreKind.distance ||
+                                  WodScoreKind.points => parseLocalizedDecimal(
+                                    score,
+                                    number,
+                                  ),
+                                  _ => null,
+                                },
+                                text: confirmedScore,
+                                notes: notes.trim(),
+                              );
+                              if (newSessionId != null) {
+                                await repository.saveConfirmed(
+                                  attemptId: attemptId,
+                                  sessionId: newSessionId,
+                                  sortOrder: await repository.nextWodSortOrder(
+                                    newSessionId,
+                                  ),
+                                  prescription: definition,
+                                  score: attemptScore,
+                                );
+                              } else if (repeat || newWorkoutDate != null) {
+                                final workoutDate = DateFormat(
+                                  'yyyy-MM-dd',
+                                  'en',
+                                ).format(repeatDate);
+                                await repository.saveRepeat(
+                                  attemptId: attemptId,
+                                  workoutDate: workoutDate,
+                                  prescription: definition,
+                                  score: attemptScore,
+                                );
+                                savedWorkoutDate = workoutDate;
+                              } else {
+                                await repository.saveStructuredResult(
+                                  blockId: blockId,
+                                  prescription: definition,
+                                  score: attemptScore,
+                                );
+                              }
+                            } else {
+                              await repository.saveResult(
+                                blockId: blockId,
+                                resultType: type,
+                                resultText: confirmedScore,
+                                notes: notes,
+                              );
+                            }
+                            if (context.mounted) Navigator.pop(context, true);
+                          } catch (_) {
+                            if (context.mounted) {
+                              setState(() {
+                                saving = false;
+                                failed = true;
+                              });
+                            }
+                          }
+                        },
+                  child: Text(l10n.save),
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: saving ? null : () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+            ],
           ),
         ],
       ),
@@ -1005,6 +1061,52 @@ class _WodEditorLayout extends StatelessWidget {
       ],
     );
   }
+}
+
+class _ResponsiveFieldPair extends StatelessWidget {
+  const _ResponsiveFieldPair({
+    required this.first,
+    this.second,
+    this.topSpacing = false,
+  });
+
+  final Widget first;
+  final Widget? second;
+  final bool topSpacing;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final sideBySide =
+          second != null &&
+          constraints.maxWidth >= 340 &&
+          MediaQuery.textScalerOf(context).scale(14) <= 18;
+      final scaledLabelSize = MediaQuery.textScalerOf(context).scale(14);
+      final needsFieldSpacing = scaledLabelSize > 20;
+      final fieldSpacing = (scaledLabelSize * .6).clamp(20.0, 32.0).toDouble();
+      if (!sideBySide) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (topSpacing && needsFieldSpacing) SizedBox(height: fieldSpacing),
+            first,
+            if (second != null) ...[
+              if (needsFieldSpacing) SizedBox(height: fieldSpacing),
+              second!,
+            ],
+          ],
+        );
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: first),
+          const SizedBox(width: 12),
+          Expanded(child: second!),
+        ],
+      );
+    },
+  );
 }
 
 Future<void> showWodRecordDetail(

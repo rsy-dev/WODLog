@@ -5,6 +5,7 @@ import '../../l10n/generated/app_localizations.dart';
 
 import 'package:intl/intl.dart' show NumberFormat;
 
+import '../../app/wodlog_theme.dart';
 import '../../app/wodlog_sheet.dart';
 import '../workout/data/crossfit_catalog.dart';
 import '../workout/presentation/localized_decimal.dart';
@@ -47,8 +48,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final number = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toString(),
     );
+    final largeText = MediaQuery.textScalerOf(context).scale(16) > 22;
+    final goal = display.value == null
+        ? '—'
+        : number.format(display.value!.weeklyGoal);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settings)),
+      appBar: AppBar(title: const Text('WODLog')),
       body: ListView(
         padding: EdgeInsets.fromLTRB(
           16,
@@ -57,61 +62,160 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           16 + MediaQuery.paddingOf(context).bottom,
         ),
         children: [
+          Text(
+            l10n.settingsEyebrow.toUpperCase(),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: WodLogColors.secondaryText,
+              letterSpacing: 1.1,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.settings,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 16),
           Card(
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.language),
-                  title: Text(l10n.languageSetting),
-                  subtitle: Text(
-                    locale == null ? l10n.deviceLanguage : _name(locale),
-                  ),
-                  onTap: display.isLoading ? null : () => _language(context),
-                ),
-                Text(l10n.weightUnit),
-                RadioGroup<WeightUnit>(
-                  groupValue: preference.value,
-                  onChanged: _select,
-                  child: Column(
-                    children: [
-                      for (final unit in WeightUnit.values)
-                        RadioListTile(
-                          value: unit,
-                          enabled: !_saving && !preference.isLoading,
-                          title: Text(
-                            unit.name,
-                            textDirection: TextDirection.ltr,
+            color: WodLogColors.surface,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final dropdown = OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                    ),
+                    onPressed: display.isLoading
+                        ? null
+                        : () => _language(context),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            locale == null
+                                ? l10n.deviceLanguage
+                                : _name(locale),
+                            textAlign: TextAlign.end,
                           ),
                         ),
+                        const Icon(Icons.unfold_more, size: 18),
+                      ],
+                    ),
+                  );
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (constraints.maxWidth < 280 ||
+                          MediaQuery.textScalerOf(context).scale(16) > 22) ...[
+                        Text(
+                          l10n.languageSetting,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(width: double.infinity, child: dropdown),
+                      ] else
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                l10n.languageSetting,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            SizedBox(width: 168, child: dropdown),
+                          ],
+                        ),
+                      const SizedBox(height: 20),
+                      Text(
+                        l10n.weightUnit,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.weightUnitDescription,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: SegmentedButton<WeightUnit>(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.resolveWith(
+                              (states) => states.contains(WidgetState.selected)
+                                  ? WodLogColors.accentSoft
+                                  : WodLogColors.surface,
+                            ),
+                            foregroundColor: const WidgetStatePropertyAll(
+                              WodLogColors.navy,
+                            ),
+                          ),
+                          segments: [
+                            for (final unit in WeightUnit.values)
+                              ButtonSegment(
+                                value: unit,
+                                label: Text(unit.name.toUpperCase()),
+                              ),
+                          ],
+                          selected: {preference.value ?? WeightUnit.kg},
+                          onSelectionChanged: _saving || preference.isLoading
+                              ? null
+                              : (value) => _select(value.first),
+                        ),
+                      ),
+                      if (_saving || preference.isLoading)
+                        const LinearProgressIndicator(),
+                      if (_saveFailed || preference.hasError)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(l10n.weightUnitError),
+                        ),
                     ],
-                  ),
-                ),
-                if (_saving || preference.isLoading)
-                  const LinearProgressIndicator(),
-                if (_saveFailed || preference.hasError)
-                  Text(l10n.weightUnitError),
-                ListTile(
-                  leading: const Icon(Icons.calculate_outlined),
-                  title: Text(l10n.weightCalculator),
-                  onTap: () => showWodLogSheet<void>(
-                    context: context,
-                    title: l10n.weightCalculator,
-                    fitContent: true,
-                    builder: (_) => const _Calculator(),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 12),
           Card(
+            color: WodLogColors.surface,
             child: ListTile(
-              leading: const Icon(Icons.flag_outlined),
+              leading: const Icon(
+                Icons.calculate_outlined,
+                color: WodLogColors.navy,
+              ),
+              title: Text(l10n.weightCalculator),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => showWodLogSheet<void>(
+                context: context,
+                title: l10n.weightCalculator,
+                fitContent: true,
+                builder: (_) => const _Calculator(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            color: WodLogColors.surface,
+            child: ListTile(
+              leading: const Icon(
+                Icons.flag_outlined,
+                color: WodLogColors.navy,
+              ),
               title: Text(l10n.weeklyGoal),
-              subtitle: Text(
-                display.value == null
-                    ? '—'
-                    : number.format(display.value!.weeklyGoal),
+              subtitle: largeText ? Text(goal) : null,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!largeText)
+                    Text(goal, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.chevron_right),
+                ],
               ),
               onTap: display.isLoading
                   ? null
@@ -119,12 +223,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              l10n.resources.toUpperCase(),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: WodLogColors.secondaryText,
+                letterSpacing: 1.1,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           Card(
+            color: WodLogColors.surface,
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.fitness_center),
+                  leading: const Icon(
+                    Icons.fitness_center,
+                    color: WodLogColors.navy,
+                  ),
                   title: Text(l10n.movementLibrary),
+                  trailing: const Icon(Icons.chevron_right),
                   onTap: () => showWodLogSheet<void>(
                     context: context,
                     title: l10n.movementLibrary,
@@ -132,8 +253,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.menu_book_outlined),
+                  leading: const Icon(
+                    Icons.menu_book_outlined,
+                    color: WodLogColors.navy,
+                  ),
                   title: Text(l10n.glossary),
+                  trailing: const Icon(Icons.chevron_right),
                   onTap: () => showWodLogSheet<void>(
                     context: context,
                     title: l10n.glossary,

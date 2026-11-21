@@ -22,12 +22,23 @@ class WodLogShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final labels = [l10n.todayTab, l10n.history, l10n.statsTab, l10n.settings];
-    const icons = [
-      Icons.today_outlined,
-      Icons.receipt_long_outlined,
-      Icons.bar_chart_rounded,
+    final labels = [
+      l10n.todayTab,
+      l10n.recordsTab,
+      l10n.statsTab,
+      l10n.settings,
+    ];
+    const idleIcons = [
+      Icons.home_outlined,
+      Icons.view_list_outlined,
+      Icons.trending_up_outlined,
       Icons.settings_outlined,
+    ];
+    const selectedIcons = [
+      Icons.home_rounded,
+      Icons.view_list_rounded,
+      Icons.trending_up_rounded,
+      Icons.settings_rounded,
     ];
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
@@ -125,14 +136,18 @@ class WodLogShell extends StatelessWidget {
                                                       MainAxisAlignment.center,
                                                   children: [
                                                     Icon(
-                                                      icons[index],
+                                                      index ==
+                                                              shell.currentIndex
+                                                          ? selectedIcons[index]
+                                                          : idleIcons[index],
                                                       size: 21,
                                                       color:
                                                           index ==
                                                               shell.currentIndex
                                                           ? colors
                                                                 .onPrimaryContainer
-                                                          : colors.onSurface,
+                                                          : colors
+                                                                .onSurfaceVariant,
                                                     ),
                                                     Text(
                                                       labels[index],
@@ -140,7 +155,19 @@ class WodLogShell extends StatelessWidget {
                                                           TextAlign.center,
                                                       style: Theme.of(context)
                                                           .textTheme
-                                                          .labelSmall,
+                                                          .labelSmall
+                                                          ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                index ==
+                                                                    shell
+                                                                        .currentIndex
+                                                                ? colors
+                                                                      .onPrimaryContainer
+                                                                : colors
+                                                                      .onSurfaceVariant,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
