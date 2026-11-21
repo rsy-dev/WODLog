@@ -1,0 +1,1766 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>와드로그 · WODLog</title>
+<style>
+:root{color-scheme:light;--ink:#162035;--muted:#657187;--blue:#345cf3;--bg:#f3f5f9;--line:#e9edf4;--surface:white}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;letter-spacing:-.025em}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #7994ff;outline-offset:3px}
+button{border:0;color:inherit;background:transparent}h1,h2,h3,p{margin:0}
+body{background:#e6eaf3}
+.shell{--app-width:440px;position:relative;display:flex;flex-direction:column;width:min(100%,var(--app-width));min-height:100dvh;margin:auto;background:var(--bg);box-shadow:0 0 70px #24304b20}
+.app-header{display:flex;align-items:center;gap:8px;padding:15px 18px 8px;font-size:18px;font-weight:850;letter-spacing:-.06em}
+.mark{display:grid;place-items:center;width:27px;height:27px;border-radius:8px;background:var(--blue);color:white;font-size:15px;letter-spacing:-.1em;padding-right:1px}
+aside{position:fixed;z-index:3;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,var(--app-width));padding:5px 8px calc(5px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.navitem{border-radius:10px;color:var(--muted);font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 3px;font-size:12px}.navitem[aria-current=page]{background:#edf1ff;color:#284ee0}.navicon{font-size:21px;width:24px;text-align:center;line-height:1}
+main{width:100%;padding:8px 16px 87px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:15px}.date{color:var(--muted);font-size:13px;font-weight:700;margin-bottom:3px}
+h1{font-size:34px;letter-spacing:-.065em;line-height:1.2}h2{font-size:21px;letter-spacing:-.055em}h3{font-size:15px}
+.primary,.secondary,.quiet,.inverse,.danger{border-radius:11px;padding:10px 15px;font-weight:750;white-space:nowrap}.primary{color:white;background:var(--blue)}.secondary{background:#edf1ff;color:#2d50d7}.quiet{color:var(--muted);padding-inline:8px}.inverse{background:#fff;color:#243ecc}.danger{background:#fff0f0;color:#af3036}
+.section{margin-top:23px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}.card{background:var(--surface);border:1px solid #eaf0f6;border-radius:17px;padding:17px 19px;min-width:0}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.quick{text-align:left;display:flex;gap:10px;align-items:center;width:100%}.quick:hover,.row:hover{background:#f9faff}.quick b,.row b{display:block;overflow-wrap:anywhere}.hint{color:var(--muted);font-size:13px}.icon{width:37px;height:37px;flex:none;display:grid;place-items:center;border-radius:11px;font-size:19px;font-weight:800;background:#eaf0ff;color:#365bed}.purple{background:#f0ebff;color:#7951d7}.mint{background:#e3f7f0;color:#1c8666}
+.columns{display:grid;grid-template-columns:1.13fr 1fr;gap:14px}.row{width:100%;display:flex;text-align:left;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0;padding-bottom:0}.row:first-child{padding-top:0}.row .end{margin-left:auto;text-align:right;max-width:42%}.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.day{border-radius:10px;text-align:center;padding:5px 2px;color:var(--muted);font-size:12px}.day b{display:block;color:var(--ink);font-size:16px}.day.today{background:#edf1ff;color:#2851df}.day.done::after{content:"";display:block;margin:1px auto 0;width:5px;height:5px;border-radius:50%;background:var(--blue)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:5px;font-weight:700}.wide{grid-column:1/-1}
+input,textarea,select{min-width:0;width:100%;border:1px solid #dce3ee;border-radius:9px;padding:10px 11px;color:var(--ink);background:#fff}textarea{resize:vertical}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.stack{display:grid;gap:12px}.empty{padding:18px 0;color:var(--muted)}.set{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end}.chart{margin:12px 0}.chart progress{width:100%;height:12px;accent-color:var(--blue)}
+dialog{border:0;border-radius:20px;width:min(680px,calc(100% - 24px));max-height:90dvh;padding:20px;color:var(--ink);box-shadow:0 24px 95px #1726533d}dialog::backdrop{background:#13204666}.dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.toast{position:fixed;z-index:10;left:50%;bottom:24px;transform:translateX(-50%);background:#17233b;color:white;border-radius:12px;padding:11px 17px;box-shadow:0 8px 28px #17233b33}.toast:empty{display:none}
+h1{font-size:31px}.columns{grid-template-columns:1fr}.quick{display:grid;gap:5px;padding:10px 8px}.quick .hint{display:none}.stack .quick{display:flex;padding:12px}.stack .quick .hint{display:block}.card{padding:14px}.section{margin-top:22px}.toast{bottom:73px}.set{gap:5px}.set input{padding:8px 5px}dialog{width:min(100% - 24px,416px)}
+.segmented{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#eef1f7;border-radius:11px;margin-top:10px}.segmented button{padding:8px 5px;border-radius:8px;color:var(--muted);font-weight:750}.segmented button[aria-pressed=true]{background:white;color:#284ee0;box-shadow:0 1px 5px #17265314}.conversion{display:block;margin-top:10px;padding:10px 12px;border-radius:10px;background:#edf1ff;color:#284ee0;font-size:19px;font-weight:800;overflow-wrap:anywhere}
+/* Color and spacing shared by the app screens. */
+:root{--ink:#1d2421;--muted:#616c65;--blue:#215c43;--bg:#fbfbf8;--line:#e5e8df;--surface:#fff}
+body{background:#e8ebe5}
+.shell{box-shadow:0 0 45px #24352b12}
+.app-header{padding:17px 20px 11px;font-size:19px}.mark{border-radius:7px;background:#215c43}
+main{padding:15px 20px 85px}
+.top{margin-bottom:19px}.top .date{font-weight:640;margin-bottom:5px}.top .secondary{padding:8px 10px;font-size:12px}
+.secondary,.navitem[aria-current=page]{background:#edf2e9;color:#215c43}.navitem[aria-current=page]{background:#eaf1e6}
+aside{background:#fbfbf8f5;backdrop-filter:blur(12px)}
+.entry{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#fff}
+.entry-cta{display:flex;align-items:center;width:100%;border-radius:0;min-height:57px;padding:11px 14px;gap:10px;font-size:17px;text-align:left}
+.entry-plus{display:grid;place-items:center;width:26px;height:26px;border-radius:7px;background:#ffffff23;font-size:22px;line-height:1}.entry-arrow{margin-left:auto;font-size:24px;line-height:1}
+.entry-shortcuts{gap:0}.entry-shortcuts .quick{padding:10px 2px;border:0;border-radius:0;text-align:center;display:flex;flex-direction:column;font-size:13px}
+.entry-shortcuts .quick+.quick{border-left:1px solid var(--line)}
+.icon,.purple,.mint{background:#edf1e9;color:#276148;border-radius:8px}.entry-shortcuts .icon{width:24px;height:24px;background:transparent;font-size:20px}.quick:hover,.row:hover{background:#f0f4ed}
+.section-head{margin-bottom:8px}h2{font-size:19px}
+.activity{padding:14px;border:1px solid var(--line);border-radius:14px;background:#f1f4eb}
+.week-goal{color:var(--muted);font-size:12px;white-space:nowrap}.week-goal strong{color:#215c43}
+.day{min-height:50px;display:grid;justify-items:center;align-content:start}.day b{width:29px;height:28px;line-height:28px;border-radius:50%}.day.today{background:transparent;color:#215c43}.day.today b{background:#215c43;color:white}.day.done::after{margin-top:2px}
+.record-list{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.record-list .row{padding:10px 0}
+.card{border-color:var(--line);border-radius:14px}
+.segmented{background:#eef1ea}.segmented button[aria-pressed=true]{color:#215c43;box-shadow:0 1px 4px #24352b1a}.conversion{background:#edf2e9;color:#215c43}
+@media(max-width:350px){main{padding-inline:14px}.app-header{padding-inline:14px}h1{font-size:27px}.entry-shortcuts .quick{font-size:12px}}
+/* Translucent controls float above the scrolling workout content. */
+:root{
+  --glass:linear-gradient(156deg,#ffffffdc 0%,#ffffff8c 54%,#f0f6edd9 100%);
+  --glass-edge:inset 0 1px 1px #fff,inset 0 -1px 2px #fff9,0 0 0 1px #3a604214;
+  --glass-shadow:0 3px 9px #1d40201c,0 14px 28px #1d402020;
+}
+.app-header{
+  position:sticky;top:0;z-index:2;isolation:isolate;
+  padding-top:calc(14px + env(safe-area-inset-top));
+  background:linear-gradient(#fbfbf8f5,#fbfbf8ce 78%,#fbfbf800);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+main{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+.top .secondary[data-action="choose-date"],aside,.dialog-head .quiet{
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(22px) saturate(165%);
+  backdrop-filter:blur(22px) saturate(165%);
+  box-shadow:var(--glass-edge),var(--glass-shadow);
+}
+.top .secondary[data-action="choose-date"]{
+  display:flex;align-items:center;gap:7px;min-height:40px;
+  border-radius:24px;padding:0 12px;color:#234d39;
+}
+.calendar-icon{
+  width:15px;height:14px;border:1.5px solid currentColor;border-radius:4px;
+  display:inline-block;position:relative;flex:none;
+}
+.calendar-icon::after{content:"";position:absolute;inset:3px 0 auto;border-top:1.5px solid currentColor}
+aside{
+  bottom:calc(12px + env(safe-area-inset-bottom));
+  width:calc(min(100%,var(--app-width)) - 24px);
+  border:1px solid #ffffffbf;border-radius:36px;padding:5px;
+}
+nav{position:relative;isolation:isolate;gap:0}
+nav::before{
+  content:"";position:absolute;z-index:-1;inset:0 auto 0 0;width:25%;border-radius:29px;
+  background:linear-gradient(155deg,#e0eddded,#d6e4d2c7);
+  box-shadow:inset 0 1px 1px #fff,0 1px 2px #34543820;
+  transform:translateX(calc(100% * var(--tab-index,0)));
+  transition:transform .28s cubic-bezier(.24,.76,.24,1);
+}
+.navitem{
+  min-height:53px;gap:4px;border-radius:28px;padding:5px 3px;color:#38453e;
+  font-size:11px;letter-spacing:0;transition:color .18s;
+}
+.navitem[aria-current=page]{background:transparent;color:#194c34}
+.navicon{font-size:22px}
+.entry{border-radius:19px}
+.entry-cta{background:linear-gradient(166deg,#2d6b50,#1c5139);box-shadow:inset 0 1px 1px #ffffff40}
+.activity{border-radius:19px}
+dialog{border-radius:26px;box-shadow:0 24px 95px #19392749}
+.dialog-head .quiet{min-width:37px;min-height:37px;border-radius:50%}
+@media(prefers-reduced-motion:reduce){nav::before,.navitem{transition:none}}
+@media(prefers-reduced-transparency:reduce){
+  :root{--glass:#f6f8f3}
+  aside,.app-header,.top .secondary[data-action="choose-date"],.dialog-head .quiet{
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+  }
+  .app-header{background:var(--bg)}
+}
+/* Grouped lists, system typography and bottom sheets across the four tabs. */
+:root{--bg:#f3f4f0;--surface:#fff;--line:#e6e9e2}
+body{background:#e5e9e4;font-size:16px;letter-spacing:-.022em}
+.app-header{
+  min-height:56px;padding-bottom:10px;gap:8px;
+  background:linear-gradient(#f3f4f0f5,#f3f4f0cc);
+}
+.app-header .mark{width:25px;height:25px}
+main{padding-top:11px}
+.top {margin-bottom:17px}
+h1{font-size:34px;line-height:1.12;font-weight:780}
+h2{font-weight:750}
+.date{font-size:12px;letter-spacing:0}
+.entry-cta{min-height:59px}
+.entry-shortcuts .quick{min-height:63px}
+.icon{width:34px;height:34px}
+.activity{background:#eaf0e5;border:0;padding:14px 13px}
+.recent .quiet{padding-block:5px;color:#215c43}
+.record-list{background:#fff;border:0;padding:1px 13px;border-radius:16px}
+.record-list .row{min-height:58px}
+.row b,.conversion,.week-goal,.day b{font-variant-numeric:tabular-nums}
+.card{border:0;border-radius:16px;padding:15px}
+.card:has(.setting-row){padding-block:0}
+.setting-row{display:flex;width:100%;min-height:48px;align-items:center;justify-content:space-between;gap:10px;font-weight:620;text-align:left}
+.setting-row select{width:auto;border:0;background:transparent;color:#215c43;text-align:right}
+.setting-delete{color:#a7343e;padding:0}
+.setting-delete span{color:var(--muted);font-size:23px}
+.segmented{border-radius:10px;padding:3px;background:#ebeee9;margin-top:10px}
+.segmented button{min-height:36px;border-radius:7px}
+.segmented button[aria-pressed=true]{box-shadow:0 1px 3px #24352b28}
+input,textarea,select{background:#f5f6f3;border-color:#e9ece6;border-radius:10px}
+input,textarea,select{font-size:16px}
+.conversion{background:#eef3eb;border-radius:12px}
+[data-screen="history"] #search{border-radius:13px}
+[data-screen="history"] .row,[data-screen="progress"] .row{min-height:56px}
+dialog{
+  position:fixed;inset:auto 0 0;margin:0 auto;
+  width:min(100%,440px);max-width:none;max-height:min(88dvh,760px);
+  border-radius:28px 28px 0 0;padding:9px 17px calc(20px + env(safe-area-inset-bottom));
+  background:#fbfcf9;box-shadow:0 -16px 70px #172c2740;
+  overscroll-behavior:contain;
+}
+dialog[open]{animation:present-sheet .25s cubic-bezier(.2,.7,.25,1)}
+dialog::backdrop{background:#18292450;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.sheet-grabber{width:36px;height:4px;background:#b7c0b7;border-radius:3px;margin:0 auto 10px}
+.dialog-head{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:13px}
+.dialog-head h2{font-size:21px}
+.dialog-head .quiet{min-width:34px;min-height:34px;padding:0}
+#dialog-body .stack .quick{min-height:54px}
+@keyframes present-sheet{from{transform:translateY(28px);opacity:.6}to{transform:translateY(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){dialog[open]{animation:none}}
+/* Chalk and charcoal draw attention to the workout and score. */
+:root{
+  --ink:#222324;--muted:#646567;--blue:#292b2d;--bg:#f4f3f0;--line:#e6e3dd;
+  --glass:linear-gradient(155deg,#fffffff2,#ffffff9e 54%,#f2eee8e0);
+  --glass-edge:inset 0 1px 1px #fff,inset 0 -1px 2px #fff9,0 0 0 1px #322d2614;
+  --glass-shadow:0 3px 9px #29272218,0 10px 24px #2927221c;
+}
+body{background:#e5e2dc}
+.app-header{background:linear-gradient(#f4f3f0f8,#f4f3f0d2)}
+.app-header .mark,.day.today b{background:#292b2d}
+.top .secondary[data-action="choose-date"],.navitem[aria-current=page],.recent .quiet,.week-goal strong,.day.today,.setting-row select{color:#2d2e30}
+nav::before{background:linear-gradient(155deg,#eee8de,#ddd8cf);box-shadow:inset 0 1px 1px #fff,0 1px 2px #302b2520}
+.navitem{color:#3e3e3e}
+.entry-cta{background:linear-gradient(161deg,#c8451c,#a82e10);color:#fff}
+.activity{background:#ebe8e2}
+.icon,.purple,.mint,.secondary,.conversion{background:#eeebe6;color:#333336}
+.segmented,.score-fields{background:#eeebe6}
+.segmented button[aria-pressed=true]{color:#292b2d}
+.pr-badge{display:inline-block;margin-left:5px;padding:1px 6px;border-radius:5px;color:#79280f;background:#fce6d8;font-size:11px;font-weight:850;letter-spacing:.025em;vertical-align:middle}
+.score-fields{padding:12px;border-radius:12px}.sheet-message{margin-bottom:10px;color:#a32e13;font-size:14px}.sheet-message:empty{display:none}.score-fields label{min-width:0}
+.wod-move{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 10px;margin:0;min-width:0;border:1px solid var(--line);border-radius:12px;padding:9px 10px 12px}
+.wod-move legend{font-size:13px;font-weight:750;padding:0 5px}
+.wod-move .move-remove{position:absolute;right:4px;top:-25px;background:#fbfcf9;border-radius:50%}
+#record-form>.form-grid,#record-form .score-fields{grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr))}
+#record-form [name="scale"]{font-size:1rem}
+.movement-picker{border:1px solid var(--line);border-radius:15px;padding:12px;background:#fff}
+#movement-picker-host:empty{display:none}
+.picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.picker-head h3{font-size:17px}
+.picker-search{font-size:13px}
+.movement-categories{display:flex;flex-wrap:wrap;gap:5px;margin:11px 0}
+.movement-categories button{padding:6px 9px;min-height:33px;border-radius:18px;background:#eeebe6;color:#333336;font-size:12px;font-weight:730}
+.movement-categories button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.movement-results{max-height:min(240px,33dvh);overflow:auto;border-block:1px solid var(--line);overscroll-behavior:contain}
+.movement-results .row{min-height:50px;padding:6px 2px}
+.movement-results .end{font-size:18px;color:#a82e10}
+.movement-results .empty{padding:12px 2px}
+.custom-movement{margin-top:5px;text-align:left}
+.move-tools{text-align:right;margin-top:-8px}
+.move-tools .quiet{font-size:12px;padding:3px 0}
+.wod-import{border:1px solid var(--line);border-radius:13px;padding:10px 12px;background:#fff}
+.wod-import summary{font-weight:750;color:#333336;cursor:pointer}
+.wod-import[open]>*+*{margin-top:9px}
+.wod-import [role="status"]:empty{display:none}
+/* Brighter training palette across content, controls and feedback. */
+:root{
+  --ink:#1c2431;--muted:#515f71;--blue:#243552;--bg:#f9fbff;--surface:#fff;--line:#e2e8f1;
+  --accent:#c43c12;--accent-end:#a82b0a;--accent-soft:#fff0e8;
+  --activity:#edf3ff;--record-best:#ffefbb;--record-best-ink:#683b00;
+  --glass:linear-gradient(155deg,#fffffff5,#ffffffb8 54%,#f0f5ffe0);
+  --glass-edge:inset 0 1px 1px #fff,inset 0 -1px 2px #fff9,0 0 0 1px #182d5519;
+  --glass-shadow:0 3px 9px #162a5020,0 10px 24px #213f6a1a;
+}
+body{background:#eaf0fc}
+.app-header{background:linear-gradient(#f9fbfff9,#f9fbffdb)}
+.app-header .mark{background:#243552}
+aside{background:var(--glass)}
+nav::before{background:linear-gradient(155deg,#e7efff,#d9e6ff);box-shadow:inset 0 1px 1px #fff,0 1px 2px #28447220}
+.navitem{color:var(--muted)}
+.navitem[aria-current=page],.top .secondary[data-action="choose-date"],.week-goal strong,.setting-row select{color:var(--blue)}
+.entry{border-color:var(--line)}
+.entry-cta{background:linear-gradient(156deg,var(--accent),var(--accent-end))}
+.entry-shortcuts .icon,.recent .quiet{color:var(--accent)}
+.activity{background:var(--activity)}
+.day.today{color:var(--blue)}
+.day.today b{background:var(--blue)}
+.icon,.secondary,.conversion{background:#eaf1ff;color:var(--blue)}
+.purple{background:var(--accent-soft);color:#8e2b0d}
+.mint{background:#eaf1ff;color:var(--blue)}
+.pr-badge{background:var(--record-best);color:var(--record-best-ink)}
+.quick:hover,.row:hover{background:#f1f5ff}
+input,select,textarea,.segmented,.score-fields,.movement-categories button{background:#f0f4fb;border-color:var(--line)}
+.segmented button[aria-pressed=true]{color:var(--blue)}
+dialog,.wod-move .move-remove{background:#f9fbff}
+@media(prefers-reduced-transparency:reduce){
+  aside,.top .secondary[data-action="choose-date"],.dialog-head .quiet{background:#fff}
+}
+.rep-maxes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:9px 0 12px}
+.rep-maxes div{padding:9px 7px;border-radius:9px;background:var(--activity)}
+.rep-maxes dt{font-size:12px;color:var(--muted)}
+.rep-maxes dd{margin:0;font-weight:750;font-variant-numeric:tabular-nums}
+.strength-estimate{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:9px;border-top:1px solid var(--line)}
+.strength-estimate strong{white-space:nowrap}
+.strength-pr h3{margin-bottom:3px}
+#record-form [hidden]{display:none}
+.pending-score{display:flex;align-items:center;gap:8px}
+.pending-score input{width:auto;accent-color:var(--accent)}
+.pr-group summary{cursor:pointer}
+.pr-group summary span{float:right;font-size:13px;color:var(--muted)}
+.move-tools{display:flex;justify-content:flex-end;gap:4px}
+.move-tools [data-action^="move-"]{min-width:37px;min-height:36px;border-radius:8px;background:#edf3ff;font-size:16px}
+.move-tools button:disabled{opacity:.38;cursor:default}
+dialog[open]:has(#record-form){
+  display:flex;flex-direction:column;overflow:hidden;
+  bottom:var(--keyboard-inset,0px);
+  max-height:min(88dvh,760px,calc(var(--editor-viewport,100dvh) - 12px));
+}
+dialog[open].editor-keyboard{animation:none}
+dialog[open].editor-keyboard-short{max-height:var(--editor-viewport);padding-block:5px 6px}
+dialog.editor-keyboard-short .sheet-grabber{margin-bottom:3px}
+dialog.editor-keyboard-short .dialog-head{min-height:44px;margin-bottom:2px;padding-bottom:1px}
+dialog.editor-keyboard-short #sheet-actions{padding-top:4px}
+dialog:has(#record-form) .dialog-head{flex:none}
+dialog:has(#record-form) #dialog-body{min-height:0;overflow:auto;padding:3px 3px 10px;scroll-padding-block:9px;overscroll-behavior:contain}
+#sheet-actions{flex:none;margin-top:0;padding-top:9px;border-top:1px solid var(--line)}
+#sheet-actions[hidden]{display:none}
+#sheet-actions .primary{flex:1;min-height:46px}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="app-header"><span class="mark" aria-hidden="true">W</span><span>WODLog</span></header>
+<aside>
+  <nav aria-label="주 메뉴" id="nav"></nav>
+</aside>
+<main id="main"></main>
+</div>
+<dialog id="dialog" aria-labelledby="dialog-title">
+  <div class="sheet-grabber" aria-hidden="true"></div>
+  <div class="dialog-head"><h2 id="dialog-title"></h2><button class="quiet" data-action="close" aria-label="닫기">✕</button></div>
+  <p id="sheet-message" class="sheet-message" role="status"></p>
+  <div id="dialog-body"></div>
+  <div id="sheet-actions" class="actions" hidden></div>
+</dialog>
+<div id="toast" role="status" class="toast"></div>
+<script>
+(() => {
+"use strict";
+const main = document.querySelector("#main");
+const dialog = document.querySelector("#dialog");
+const dialogBody = document.querySelector("#dialog-body");
+const storageKey = "wodlog-design-v1";
+const poundsPerKg = 2.20462262185;
+
+const english = {
+  "오늘": "Today",
+  "기록": "Log",
+  "통계": "Stats",
+  "설정": "Settings",
+  "오늘의 WOD": "Today's WOD",
+  "날짜별 WOD": "WOD by date",
+  "날짜 선택": "Choose date",
+  "WOD 기록하기": "Log a WOD",
+  "지난 WOD": "Repeat a WOD",
+  "벤치마크": "Benchmarks",
+  "WOD PR": "WOD PR",
+  "최근 WOD": "Recent WODs",
+  "선택한 날의 WOD": "WODs on this date",
+  "전체 보기 ›": "View all ›",
+  "최근 7일": "Last 7 days",
+  "직전 7일": "Previous 7 days",
+  "하체":"Lower body",
+  "상체":"Upper body",
+  "역도":"Weightlifting",
+  "체조":"Gymnastics",
+  "유산소":"Cardio",
+  "직접 추가":"Custom",
+  "운동 기록": "Workout log",
+  "히스토리": "History",
+  "＋ 기록하기": "+ Log a workout",
+  "검색": "Search",
+  "WOD 이름, 날짜, 메모": "WOD, date or notes",
+  "종류": "Type",
+  "모든 운동": "All workouts",
+  "근력": "Strength",
+  "표시할 운동 기록이 없어요.": "No workout entries yet.",
+  "결과 미입력": "No score",
+  "운동 통계": "Training stats",
+  "진행 상황": "Progress",
+  "운동 선택": "Workout",
+  "기록 없음": "No results",
+  "최고 중량": "Heaviest load",
+  "근력 PR": "Strength PRs",
+  "실측 1·3·5RM": "Actual 1, 3 and 5RM",
+  "추정 1RM": "Estimated 1RM",
+  "Epley · 중량이 있는 2–10회 세트 기준": "Epley · weighted sets of 2–10 reps",
+  "날짜별 최고 중량": "Daily heaviest load",
+  "중량 기록이 없어요.": "No weighted sets yet.",
+  "최근 볼륨 · 이전 기록 대비": "Latest volume vs. previous",
+  "이전 기록을 추가하면 비교할 수 있어요": "Log another attempt to compare",
+  "운동 추이": "Score history",
+  "동작 그룹별 볼륨": "Volume by movement group",
+  "최근 14일에 기록한 근력 운동이 없어요.": "No strength sessions in the last 14 days.",
+  "내 운동 기록": "Preferences",
+  "기록 단위": "Logging unit",
+  "근력 세트 입력과 기록·통계에 적용돼요.": "Applies to workout loads, logs and stats.",
+  "킬로그램 (kg)": "Kilograms (kg)",
+  "파운드 (lb)": "Pounds (lb)",
+  "중량 계산기": "Weight converter",
+  "변환 방향": "Conversion direction",
+  "7일 운동 목표": "Weekly workout goal",
+  "샘플 기록 지우기": "Remove sample records",
+  "도움말": "Resources",
+  "크로스핏 동작": "Movement library",
+  "WOD 용어": "CrossFit glossary",
+  "근력 기록": "Strength log",
+  "운동과 세트 입력": "Movements and sets",
+  "기록 수정": "Edit workout",
+  "WOD 기록": "Log a WOD",
+  "운동 이름": "Workout name",
+  "운동 날짜": "Workout date",
+  "예: 백 스쿼트": "e.g. Back Squat",
+  "예: Fran": "e.g. Fran",
+  "반복": "Reps",
+  "중량": "Load",
+  "세트 삭제": "Remove set",
+  "＋ 세트 추가": "+ Add set",
+  "운동 방식": "Format",
+  "기준": "Division",
+  "미확인": "Unconfirmed",
+  "공통 구성": "Workout prescription",
+  "라운드·구간 구성": "Round or interval structure",
+  "예: 5 rounds / Every 2 min × 6": "e.g. 5 rounds / Every 2 min × 6",
+  "동작 또는 21-15-9, 라운드 구성, 타깃 높이 등을 적어주세요.": "Describe the movements, rep scheme, rounds or targets.",
+  "버전·수행 조건": "Version / standards",
+  "예: 14 lb · 9 ft / 2025 Scaled": "e.g. 14 lb · 9 ft / 2025 Scaled",
+  "타임캡·제한 시간 (분)": "Time limit (min)",
+  "타임캡을 기록하려면 제한 시간을 입력하세요.": "Enter the time limit for a capped result.",
+  "동작": "Movement",
+  "동작 삭제": "Remove movement",
+  "동작을 위로": "Move earlier",
+  "동작을 아래로": "Move later",
+  "동작 이름": "Movement name",
+  "반복·거리·패턴": "Reps, distance or pattern",
+  "단위": "Unit",
+  "동작 기준": "Movement standard",
+  "사용한 장비": "Equipment used",
+  "예: 10 ft 타깃": "e.g. 10 ft target",
+  "＋ 동작 추가": "+ Add movement",
+  "동작 찾기": "Find a movement",
+  "WOD 원문 붙여넣기": "Paste a WOD",
+  "CrossFit WOD의 운동 부분을 복사해서 붙여넣으세요.": "Copy and paste the workout section from CrossFit.",
+  "WOD 원문": "WOD text",
+  "초안 채우기": "Fill draft",
+  "수행한 레벨": "Level performed",
+  "레벨을 선택하세요": "Choose a level",
+  "수행한 레벨을 먼저 선택해 주세요.": "Choose the level you performed first.",
+  "수행한 레벨을 변경하려면 입력을 취소하고 다시 시작해 주세요.": "Cancel and reopen the editor to change the imported level.",
+  "스코어는 나중에 입력": "Enter score later",
+  "WOD 원문을 붙여넣어 주세요.": "Paste the workout text first.",
+  "초안을 채웠어요. 확인하고 수정한 뒤 기록을 저장하세요.": "Draft filled. Review and edit it before saving.",
+  "운동 방식을 확인해 주세요.": "Check the workout format.",
+  "자동으로 읽은 동작이 없어요. 공통 구성을 확인해 주세요.": "No movements identified. Review the workout prescription.",
+  "해석이 필요한 줄은 공통 구성에 남겼어요.": "Lines that need review are in the prescription.",
+  "중량·타깃 기준 중 실제 적용한 값을 적어 주세요.": "Enter the load and target standards you actually used.",
+  "입력한 스코어를 유지했어요. 운동 방식을 확인해 주세요.": "Your score was kept. Verify the workout format.",
+  "원문에 여러 수행 기준이 있어요. PR 비교를 위해 실제 수행 조건을 적어 주세요.": "The source has multiple standards. Add yours to compare PRs.",
+  "이름이나 약어로 검색": "Search by name or abbreviation",
+  "검색 결과": "Search results",
+  "동작 직접 입력": "Enter a custom movement",
+  "러닝·수영": "Running & swimming",
+  "볼·박스·기타 장비": "Balls, boxes & equipment",
+  "카테고리": "Category",
+  "전체": "All",
+  "검색 결과가 없어요.": "No matching movements.",
+  "바벨·역도": "Barbell & weightlifting",
+  "짐네스틱": "Gymnastics",
+  "덤벨·케틀벨": "Dumbbell & kettlebell",
+  "맨몸·코어": "Bodyweight & core",
+  "머신": "Machines",
+  "기타 장비": "Other equipment",
+  "완료": "Finished",
+  "중단 (DNF)": "Stopped (DNF)",
+  "중단 기록은 PR 비교에 포함되지 않아요.": "Stopped attempts are excluded from PR comparisons.",
+  "타임캡": "Time cap",
+  "라운드 + 추가 반복": "Rounds + reps",
+  "총 반복": "Total reps",
+  "완료 구간": "Completed intervals",
+  "거리": "Distance",
+  "칼로리": "Calories",
+  "합산 점수": "Combined score",
+  "최저 구간 반복": "Lowest interval reps",
+  "전체 반복": "Total reps",
+  "직접 입력": "Free text",
+  "완료 시간 (분:초)": "Finish time (min:sec)",
+  "완료 반복": "Completed reps",
+  "타이브레이크 (선택)": "Tiebreak (optional)",
+  "완료 라운드": "Completed rounds",
+  "추가 반복": "Extra reps",
+  "전체 구간": "Total intervals",
+  "거리 (m)": "Distance (m)",
+  "칼로리 (cal)": "Calories (cal)",
+  "스코어": "Score",
+  "채점 방식": "Scoring method",
+  "메모": "Notes",
+  "컨디션, 동작 수정, 다음 목표": "How it felt, modifications or next goal",
+  "기록 저장": "Save workout",
+  "취소": "Cancel",
+  "닫기": "Close",
+  "벤치마크 WOD": "Benchmark WODs",
+  "수정": "Edit",
+  "삭제": "Delete",
+  "다시 기록": "Log another attempt",
+  "확인": "Confirm",
+  "지난 WOD 다시 하기": "Repeat a previous WOD",
+  "와드 PR": "WOD personal records",
+  "비교 조건이 확인된 WOD 기록이 없어요.": "No WOD records with confirmed comparison conditions.",
+  "최고 기록": "Best scores",
+  "PR 갱신 이력": "PR history",
+  "같은 조건의 전체 스코어": "All scores under the same conditions",
+  "같은 조건에서 최고 기록을 넘으면 PR 배지가 붙어요.": "Beat your previous best under the same conditions to earn a PR badge.",
+  "현재 최고 기록": "Current best scores",
+  "아직 갱신한 PR이 없어요.": "No PR improvements yet.",
+  "구성과 수행 조건을 입력해 두면 다시 했을 때 PR을 비교할 수 있어요.": "Save the prescription and conditions to compare PRs on repeat attempts.",
+  "새 PR!": "New PR!",
+  "운동 기록을 저장했어요.": "Workout saved.",
+  "브라우저 저장에 실패했어요.": "Could not save to this browser.",
+  "운동 이름을 입력해 주세요.": "Enter a workout name.",
+  "운동 기록의 입력값을 확인해 주세요.": "Check the workout details.",
+  "스코어와 제한 시간을 확인해 주세요.": "Check the score and time limit.",
+  "완주 시간이 타임캡을 초과했어요. 시간을 수정하거나 종료 상태를 바꿔 주세요.": "Your finish time exceeds the time cap. Correct the time or change the workout outcome.",
+  "동작 이름과 수량을 입력해 주세요.": "Enter a movement name and amount.",
+  "운동 날짜 선택": "Choose workout date",
+  "이 날짜 보기": "Show this date",
+  "운동 기록 삭제": "Delete workout",
+  "이 운동 기록을 삭제할까요?": "Delete this workout?",
+  "운동 기록을 삭제했어요.": "Workout deleted.",
+  "샘플 기록 삭제": "Delete sample records",
+  "시안에 포함된 샘플 기록을 지울까요?": "Remove the sample records?",
+  "샘플 기록을 지웠어요.": "Sample records removed.",
+  "세트를 한 개 이상 남겨주세요.": "Keep at least one set.",
+  "자유 형식": "Custom",
+  "기타": "Other",
+  "주 메뉴": "Main navigation",
+  "완료 시간 또는 타임캡까지 수행한 반복 수를 기록합니다.": "Log your finish time or reps completed at the time cap.",
+  "정해진 라운드를 완료한 시간을 기록합니다.": "Log the time to finish the prescribed rounds.",
+  "제한 시간 안에 완료한 라운드와 추가 반복을 기록합니다.": "Log completed rounds and extra reps within the time limit.",
+  "매분 시작하는 운동입니다. 완료한 구간 또는 정해진 점수를 기록합니다.": "Work starts each minute. Log completed intervals or the prescribed score.",
+  "2분마다 시작하는 운동입니다. 완료한 구간을 기록합니다.": "Work starts every two minutes. Log completed intervals.",
+  "작업과 휴식을 반복합니다. 완료 구간 또는 정해진 점수를 기록합니다.": "Alternate work and rest, then log completed intervals or the prescribed score.",
+  "보통 20초 운동과 10초 휴식입니다. WOD에 지정된 채점 방식을 선택하세요.": "Typically 20 seconds of work and 10 of rest. Use the prescribed scoring method.",
+  "성공한 최고 중량을 기록합니다.": "Log the heaviest successful lift.",
+  "성공한 반복 수를 기록합니다.": "Log the number of successful repetitions.",
+  "이동 거리를 기록합니다.": "Log the distance covered.",
+  "기기에서 측정한 칼로리를 기록합니다.": "Log the calories measured by the machine.",
+  "스코어를 그대로 남길 수 있습니다.": "Save the score as written.",
+  "Workout of the Day · 오늘의 와드": "Workout of the Day",
+  "Metabolic conditioning · 대사 컨디셔닝": "Metabolic conditioning",
+  "처방된 중량, 동작, 반복 수 기준을 그대로 수행": "Perform the prescribed loads, movements and repetitions.",
+  "중량, 반복 수 또는 동작을 조정해 수행": "Modify the load, repetitions or movements.",
+  "CrossFit Open의 기초 수준 버전": "Foundational division of the CrossFit Open.",
+  "운동을 종료하는 제한 시간": "The limit at which the workout ends.",
+  "동점 비교에 쓰는 지정 구간 시간": "Elapsed time at a designated checkpoint, used to break ties.",
+  "한 동작의 정해진 양을 마친 뒤 다음 동작으로 진행": "Complete the prescribed amount of one movement before moving on.",
+  "두 동작 / 세 동작으로 구성된 와드": "A WOD with two or three movements, respectively.",
+  "반복 수나 중량이 단계적으로 변하는 구성": "A progression in repetitions or load.",
+  "본 운동 전 / 후에 수행하는 지정 동작": "Work prescribed before or after the main piece.",
+  "동작을 끊지 않고 연속하여 수행": "Complete the repetitions consecutively without breaking.",
+  "동작 기준을 충족하지 않은 반복": "A repetition that does not meet the movement standard.",
+  "Personal Record · 개인 최고 기록": "Personal Record"
+};
+let locale = "ko";
+const tr = text => (locale==="en" ? english[text] : undefined) ?? text;
+function localize(root) {
+  if (locale!=="en") return;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const node=walker.currentNode;
+    const text=node.textContent.trim();
+    if (english[text]) node.textContent=node.textContent.replace(text,english[text]);
+  }
+  for (const node of root.querySelectorAll("[placeholder],[aria-label]")) {
+    for (const attribute of ["placeholder","aria-label"]) {
+      if (node.hasAttribute(attribute)) node.setAttribute(attribute,tr(node.getAttribute(attribute)));
+    }
+  }
+}
+const dateKey = date => [date.getFullYear(), String(date.getMonth()+1).padStart(2,"0"), String(date.getDate()).padStart(2,"0")].join("-");
+const today = new Date();
+const todayKey = dateKey(today);
+const ago = days => {
+  const date = new Date(today);
+  date.setDate(date.getDate() - days);
+  return date;
+};
+const fmtDate = key => new Date(key+"T12:00:00").toLocaleDateString(locale, {month:"long",day:"numeric",weekday:"short"});
+const fullDate = key => new Date(key+"T12:00:00").toLocaleDateString(locale,{year:"numeric",month:"short",day:"numeric"});
+const number = value => Number(value).toLocaleString(locale,{maximumFractionDigits:1});
+const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
+const newId = () => crypto.randomUUID?.() ?? Array.from(crypto.getRandomValues(new Uint32Array(4)), part=>part.toString(16).padStart(8,"0")).join("-");
+const catalog = [
+  ["백 스쿼트","하체","Back Squat BS"],["프론트 스쿼트","하체","Front Squat FS"],
+  ["데드리프트","하체","Deadlift DL"],["클린","역도","Clean"],["스내치","역도","Snatch"],
+  ["푸시 프레스","상체","Push Press"],["벤치 프레스","상체","Bench Press"],
+  ["풀업","체조","Pull Up 턱걸이"],["토즈 투 바","체조","Toes to Bar TTB"],
+  ["버피","체조","Burpee"],["박스 점프","체조","Box Jump"],["푸시업","체조","Push Up"],
+  ["쓰러스터","역도","Thruster"],["월볼","체조","Wall Ball"],["로잉","유산소","Row"],
+  ["더블 언더","유산소","Double Under DU"],["러닝","유산소","Run 달리기"]
+];
+const movementCatalog = [
+  ["Air Bike", "머신", ["Fan Bike", "에어 바이크"]],
+  ["Air Squat", "맨몸·코어", ["Bodyweight Squat", "Squat", "에어 스쿼트"]],
+  ["American Kettlebell Swing", "덤벨·케틀벨", ["American KB Swing", "Overhead Kettlebell Swing", "American KBS", "아메리칸 케틀벨 스윙"]],
+  ["Assault Bike", "머신", ["Assault AirBike", "어썰트 바이크"]],
+  ["Back Squat", "바벨·역도", ["Barbell Back Squat", "백 스쿼트"]],
+  ["Bar Dip", "짐네스틱", []],
+  ["Bar Muscle-up", "짐네스틱", ["BMU", "바 머슬업", "바머슬업"]],
+  ["Bar-facing Burpee", "맨몸·코어", ["BFB", "바 페이싱 버피"]],
+  ["Barbell Row", "바벨·역도", ["Bent Over Row"]],
+  ["Bench Press", "바벨·역도", ["벤치 프레스"]],
+  ["BikeErg", "머신", ["BikeErg", "Bike Erg", "바이크에르그"]],
+  ["Box Jump", "기타 장비", ["박스 점프"]],
+  ["Box Jump Over", "기타 장비", ["Box Jump Over", "BJO", "박스 점프 오버"]],
+  ["Box Step-Up", "기타 장비", ["Step-Up"]],
+  ["Burpee", "맨몸·코어", ["버피"]],
+  ["Burpee Box Jump Over", "기타 장비", ["BBJO", "버피 박스 점프 오버"]],
+  ["Butterfly Pull-up", "짐네스틱", ["버터플라이 풀업"]],
+  ["Chest-to-bar Pull-up", "짐네스틱", ["Chest To Bar", "C2B", "Chest to Bar", "체스트 투 바"]],
+  ["Clean", "바벨·역도", ["Squat Clean", "클린"]],
+  ["Clean and Jerk", "바벨·역도", ["Clean & Jerk", "C&J", "클린 앤 저크", "클린앤저크"]],
+  ["Deadlift", "바벨·역도", ["Barbell Deadlift", "데드리프트"]],
+  ["Double-under", "기타 장비", ["Double Unders", "DU", "더블언더", "더블 언더"]],
+  ["Dumbbell Box Step-over", "덤벨·케틀벨", ["DB Box Step-over", "덤벨 박스 스텝오버"]],
+  ["Dumbbell Burpee Deadlift", "덤벨·케틀벨", ["DB Burpee Deadlift", "덤벨 버피 데드리프트"]],
+  ["Dumbbell Clean", "덤벨·케틀벨", ["DB Clean"]],
+  ["Dumbbell Clean and Jerk", "덤벨·케틀벨", ["DB Clean and Jerk", "DB C&J"]],
+  ["Dumbbell Hang Clean and Jerk", "덤벨·케틀벨", ["DB Hang C&J", "덤벨 행 클린 앤 저크"]],
+  ["Dumbbell Push Press", "덤벨·케틀벨", ["DB Push Press"]],
+  ["Dumbbell Snatch", "덤벨·케틀벨", ["DB Snatch", "Alternating Dumbbell Snatch"]],
+  ["Dumbbell Thruster", "덤벨·케틀벨", ["DB Thruster"]],
+  ["Echo Bike", "머신", ["Rogue Echo Bike", "에코 바이크"]],
+  ["Front Squat", "바벨·역도", ["프론트 스쿼트"]],
+  ["Goblet Squat", "덤벨·케틀벨", []],
+  ["Ground-to-overhead", "바벨·역도", ["G2OH", "GTOH", "그라운드 투 오버헤드"]],
+  ["Handstand Push-Up", "짐네스틱", ["HSPU", "Handstand Pushup"]],
+  ["Handstand Walk", "짐네스틱", ["HSW", "핸드스탠드 워크"]],
+  ["Hang Power Clean", "바벨·역도", ["HPC", "행 파워 클린"]],
+  ["Hang Power Snatch", "바벨·역도", ["HPS", "행 파워 스내치"]],
+  ["Hang Squat Clean", "바벨·역도", []],
+  ["Hang Squat Snatch", "바벨·역도", []],
+  ["Hollow Rock", "맨몸·코어", []],
+  ["Kettlebell Clean", "덤벨·케틀벨", ["KB Clean"]],
+  ["Kettlebell Snatch", "덤벨·케틀벨", ["KB Snatch"]],
+  ["Kettlebell Swing", "덤벨·케틀벨", ["KB Swing"]],
+  ["Kipping Handstand Push-up", "짐네스틱", ["Kipping HSPU", "키핑 핸드스탠드 푸시업"]],
+  ["Kipping Pull-up", "짐네스틱", ["키핑 풀업"]],
+  ["Knees-to-Elbows", "짐네스틱", ["K2E"]],
+  ["Lateral Burpee Over Bar", "맨몸·코어", ["Lateral Burpee", "래터럴 버피"]],
+  ["Legless Rope Climb", "짐네스틱", ["Legless RC", "레그리스 로프 클라임"]],
+  ["Lunge", "맨몸·코어", ["Walking Lunge", "Alternating Lunge"]],
+  ["Medicine Ball Clean", "기타 장비", ["Med Ball Clean"]],
+  ["Medicine-ball Box Step-over", "기타 장비", ["Med-ball Step-over", "메디신볼 박스 스텝오버"]],
+  ["Overhead Lunge", "바벨·역도", []],
+  ["Overhead Squat", "바벨·역도", ["OHS", "오버헤드 스쿼트"]],
+  ["Plank", "맨몸·코어", []],
+  ["Power Clean", "바벨·역도", []],
+  ["Power Snatch", "바벨·역도", []],
+  ["Pull-Up", "짐네스틱", ["Pullup", "Pull Up", "풀업"]],
+  ["Push Jerk", "바벨·역도", ["푸시 저크"]],
+  ["Push Press", "바벨·역도", ["푸시 프레스"]],
+  ["Push-Up", "맨몸·코어", ["Pushup", "Push Up", "푸시업"]],
+  ["Ring Dip", "짐네스틱", []],
+  ["Ring Muscle-up", "짐네스틱", ["RMU", "링 머슬업", "링머슬업"]],
+  ["Ring Row", "짐네스틱", ["Inverted Row"]],
+  ["Romanian Deadlift", "바벨·역도", ["RDL"]],
+  ["Rope Climb", "짐네스틱", []],
+  ["Row", "머신", ["Rowing", "Concept2 Row", "RowErg", "Rower", "로잉", "로잉머신"]],
+  ["Run", "러닝·수영", ["Running", "러닝", "달리기"]],
+  ["Russian Kettlebell Swing", "덤벨·케틀벨", ["Russian KBS", "러시안 케틀벨 스윙"]],
+  ["Sandbag Carry", "기타 장비", []],
+  ["Shoulder-to-overhead", "바벨·역도", ["S2OH", "STOH", "숄더 투 오버헤드"]],
+  ["Shuttle Run", "러닝·수영", ["Shuttles", "셔틀런"]],
+  ["Single-under", "기타 장비", ["Single Unders", "SU", "싱글 언더"]],
+  ["Sit-Up", "맨몸·코어", ["Situp", "Abmat Sit-Up", "싯업"]],
+  ["SkiErg", "머신", ["SkiErg", "Ski Erg", "Ski", "스키에르그", "스키머신"]],
+  ["Sled Pull", "기타 장비", []],
+  ["Sled Push", "기타 장비", []],
+  ["Snatch", "바벨·역도", ["Squat Snatch", "스내치"]],
+  ["Split Jerk", "바벨·역도", []],
+  ["Strict Handstand Push-up", "짐네스틱", ["Strict HSPU", "스트릭트 핸드스탠드 푸시업"]],
+  ["Strict Press", "바벨·역도", ["Shoulder Press", "Military Press"]],
+  ["Strict Pull-up", "짐네스틱", ["스트릭트 풀업"]],
+  ["Sumo Deadlift High Pull", "바벨·역도", ["SDHP"]],
+  ["Swim", "러닝·수영", ["Swimming"]],
+  ["Thruster", "바벨·역도", ["Barbell Thruster", "쓰러스터", "스러스터"]],
+  ["Toes-to-bar", "짐네스틱", ["T2B", "Toes To Bar", "TTB", "Toes to Bar", "토즈 투 바"]],
+  ["Toes-to-rings", "짐네스틱", ["T2R", "Toes to Rings", "토즈 투 링"]],
+  ["Treadmill Run", "머신", ["Treadmill", "트레드밀"]],
+  ["Triple-under", "기타 장비", ["TU", "트리플 언더"]],
+  ["Turkish Get-Up", "덤벨·케틀벨", ["TGU"]],
+  ["V-Up", "맨몸·코어", ["V Up"]],
+  ["Wall Walk", "짐네스틱", ["월워크", "월 워크"]],
+  ["Wall-ball Shot", "기타 장비", ["Wall Ball", "Wall-ball", "WBS", "월볼", "월볼샷", "월볼 샷", "Wall Balls", "Wall-Ball Shot"]]
+];
+const wodFormats = ["For Time","RFT","AMRAP","EMOM","E2MOM","Intervals","Tabata","Max Load","Max Reps","For Distance","For Calories","자유 형식"];
+const scales = ["미확인","Rx","Scaled","Foundations","기타"];
+const formatHints = {
+  "For Time":"완료 시간 또는 타임캡까지 수행한 반복 수를 기록합니다.",
+  RFT:"정해진 라운드를 완료한 시간을 기록합니다.",
+  AMRAP:"제한 시간 안에 완료한 라운드와 추가 반복을 기록합니다.",
+  EMOM:"매분 시작하는 운동입니다. 완료한 구간 또는 정해진 점수를 기록합니다.",
+  E2MOM:"2분마다 시작하는 운동입니다. 완료한 구간을 기록합니다.",
+  Intervals:"작업과 휴식을 반복합니다. 완료 구간 또는 정해진 점수를 기록합니다.",
+  Tabata:"보통 20초 운동과 10초 휴식입니다. WOD에 지정된 채점 방식을 선택하세요.",
+  "Max Load":"성공한 최고 중량을 기록합니다.",
+  "Max Reps":"성공한 반복 수를 기록합니다.",
+  "For Distance":"이동 거리를 기록합니다.",
+  "For Calories":"기기에서 측정한 칼로리를 기록합니다.",
+  "자유 형식":"스코어를 그대로 남길 수 있습니다."
+};
+const terms = [
+  ["WOD","Workout of the Day · 오늘의 와드"],["Metcon","Metabolic conditioning · 대사 컨디셔닝"],
+  ...Object.entries(formatHints),
+  ["Rx","처방된 중량, 동작, 반복 수 기준을 그대로 수행"],
+  ["Scaled","중량, 반복 수 또는 동작을 조정해 수행"],
+  ["Foundations","CrossFit Open의 기초 수준 버전"],
+  ["Time Cap","운동을 종료하는 제한 시간"],["Tiebreak","동점 비교에 쓰는 지정 구간 시간"],
+  ["Chipper","한 동작의 정해진 양을 마친 뒤 다음 동작으로 진행"],
+  ["Couplet / Triplet","두 동작 / 세 동작으로 구성된 와드"],["Ladder","반복 수나 중량이 단계적으로 변하는 구성"],
+  ["Buy-in / Cash-out","본 운동 전 / 후에 수행하는 지정 동작"],
+  ["Unbroken","동작을 끊지 않고 연속하여 수행"],["No Rep","동작 기준을 충족하지 않은 반복"],
+  ["PR","Personal Record · 개인 최고 기록"]
+];
+const timed = format => ["For Time","RFT"].includes(format);
+const asSeconds = value => {
+  const parts = /^(\d+):([0-5]\d)$/.exec(value??"");
+  return parts ? Number(parts[1])*60+Number(parts[2]) : null;
+};
+function measures(record) {
+  if (record.performance) return record.performance;
+  if (timed(record.format) && asSeconds(record.score)>0) return {kind:"time",value:asSeconds(record.score)};
+  const rounds=/^(\d+)\s*R\s*\+\s*(\d+)(?:\s*reps?)?$/i.exec(record.score);
+  if (record.format==="AMRAP" && rounds) return {kind:"rounds",value:Number(rounds[1]),extra:Number(rounds[2])};
+  if (["AMRAP","Max Reps"].includes(record.format) && /^\d+$/.test(record.score)) return {kind:"reps",value:Number(record.score)};
+  return null;
+}
+const cleanKey = value => String(value??"").normalize("NFKC").trim().toLowerCase().replace(/\s+/g," ");
+function wodKey(record) {
+  const score = measures(record);
+  if (!score || score.kind==="stopped" || record.scale==="미확인") return null;
+  const moves = (record.moves??[]).map(move=>[
+    cleanKey(move.name),cleanKey(move.amount),move.unit,move.kg===null?null:Math.round(move.kg*10000)/10000,cleanKey(move.standard),cleanKey(move.equipment)
+  ]);
+  if (!moves.length && !cleanKey(record.plan)) return null;
+  if (record.needsVariant && !cleanKey(record.variant)) return null;
+  const setup=cleanKey(record.variant);
+  if (record.scale!=="Rx" && !setup && !moves.length) return null;
+  return JSON.stringify([cleanKey(record.name), record.format, record.scale, setup, record.minutes||0, cleanKey(record.plan), cleanKey(record.structure), moves, score.kind==="intervals"?score.extra:null,
+    ["time","cap"].includes(score.kind)?"completion":score.kind]);
+}
+function compareScores(first, second) {
+  const a=measures(first), b=measures(second);
+  if (a.kind!==b.kind) return a.kind==="time"?1:-1;
+  if (a.kind==="time") return b.value-a.value;
+  return a.value-b.value || (a.kind==="rounds"?a.extra-b.extra:0) ||
+    (a.kind==="cap" && a.tie && b.tie?b.tie-a.tie:0);
+}
+function getPRs(records=data.records) {
+  const improvements=new Set();
+  const best=new Map();
+  for (const record of records.slice().sort((a,b)=>a.date.localeCompare(b.date))) {
+    if (record.type!=="wod") continue;
+    const key=wodKey(record);
+    if (!key) continue;
+    const prior=best.get(key);
+    if (!prior || compareScores(record,prior)>0) {
+      if (prior) improvements.add(record.id);
+      best.set(key,record);
+    } else if (measures(record).kind==="cap" && measures(prior).kind==="cap" &&
+      measures(record).value===measures(prior).value && measures(record).tie && !measures(prior).tie) {
+      best.set(key,record);
+    }
+  }
+  return {improvements,best:[...best.values()].sort((a,b)=>b.date.localeCompare(a.date))};
+}
+function scoreText(record) {
+  const score=measures(record);
+  if (!score) return record.score || tr("결과 미입력");
+  const {kind,value,extra,tie}=score;
+  const clock=seconds=>Math.floor(seconds/60)+":"+String(seconds%60).padStart(2,"0");
+  if (kind==="time") return clock(value);
+  if (kind==="stopped") return "DNF";
+  if (kind==="cap") return "CAP · "+value+" reps"+(tie?" · TB "+clock(tie):"");
+  if (kind==="rounds") return value+"R + "+(extra??0);
+  if (kind==="load") return weight(value);
+  return number(value)+" "+({reps:"reps",total:"reps",lowest:"min reps",intervals:"/ "+(extra??"")+" intervals",distance:"m",calories:"cal",points:"pts"})[kind];
+}
+const prBadge = '<span class="pr-badge" aria-label="Personal record">PR</span>';
+const benchmarks = [
+  {name:"Fran",format:"For Time",plan:"21-15-9\nThrusters · Pull-ups",minutes:10},
+  {name:"Cindy",format:"AMRAP",plan:"5 Pull-ups\n10 Push-ups\n15 Air Squats",minutes:20},
+  {name:"Grace",format:"For Time",plan:"30 Clean and Jerks",minutes:10},
+  {name:"Annie",format:"For Time",plan:"50-40-30-20-10\nDouble-unders · Sit-ups",minutes:15},
+  {name:"DT",format:"For Time",plan:"5 rounds\n12 Deadlifts\n9 Hang Power Cleans\n6 Push Jerks",minutes:15},
+  {name:"Helen",format:"RFT",plan:"3 rounds\n400 m Run\n21 Kettlebell Swings\n12 Pull-ups"},
+  {name:"Karen",format:"For Time",plan:"150 Wall-ball Shots"},
+  {name:"Diane",format:"For Time",plan:"21-15-9\nDeadlifts · Handstand Push-ups"},
+  {name:"Murph",format:"For Time",plan:"1 mi Run\n100 Pull-ups\n200 Push-ups\n300 Air Squats\n1 mi Run"},
+  {name:"Fight Gone Bad",format:"Intervals",plan:"3 rounds\n1 min per station: Wall-ball Shot, Sumo Deadlift High Pull, Box Jump, Push Press, Row\n1 min rest after each round",scoreKind:"points"},
+  {name:"Tabata This!",format:"Tabata",plan:"Air Squat · Row · Pull-up · Sit-up · Push-up\n8 intervals per station · 20 sec work / 10 sec rest\nSum the lowest score at each station.",scoreKind:"points"}
+];
+const oldBenchmarkPlans = new Map([
+  ["21-15-9\n쓰러스터 · 풀업","21-15-9\nThrusters · Pull-ups"],
+  ["5 풀업\n10 푸시업\n15 에어 스쿼트","5 Pull-ups\n10 Push-ups\n15 Air Squats"],
+  ["클린 앤 저크 30회","30 Clean and Jerks"],
+  ["50-40-30-20-10\n더블 언더 · 싯업","50-40-30-20-10\nDouble-unders · Sit-ups"],
+  ["5 라운드\n12 데드리프트\n9 행 파워 클린\n6 푸시 저크","5 rounds\n12 Deadlifts\n9 Hang Power Cleans\n6 Push Jerks"],
+]);
+const starter = {unit:"kg",goal:4,records:[
+  {id:"demo-1",date:dateKey(ago(1)),type:"strength",name:"백 스쿼트",sets:[{weight:90,reps:5,rpe:7},{weight:100,reps:5,rpe:8},{weight:105,reps:3,rpe:9}],note:"마지막 세트 깊이 유지"},
+  {id:"demo-2",date:dateKey(ago(3)),type:"wod",name:"Fran",format:"For Time",plan:benchmarks[0].plan,minutes:10,scale:"Rx",score:"05:42",note:""},
+  {id:"demo-3",date:dateKey(ago(5)),type:"strength",name:"데드리프트",sets:[{weight:110,reps:5,rpe:7},{weight:120,reps:5,rpe:8}],note:""},
+  {id:"demo-4",date:dateKey(ago(10)),type:"strength",name:"백 스쿼트",sets:[{weight:80,reps:5,rpe:7},{weight:90,reps:5,rpe:8},{weight:100,reps:3,rpe:8}],note:""},
+  {id:"demo-5",date:dateKey(ago(12)),type:"wod",name:"Fran",format:"For Time",plan:benchmarks[0].plan,minutes:10,scale:"Rx",score:"06:10",note:""},
+  {id:"demo-6",date:dateKey(ago(1)),type:"wod",name:"Cindy",format:"AMRAP",plan:benchmarks[1].plan,minutes:20,scale:"Rx",score:"15R + 6",note:""},
+  {id:"demo-7",date:dateKey(ago(5)),type:"wod",name:"Wall Ball & Ski",format:"EMOM",plan:"",structure:"12 minutes · alternating",minutes:12,scale:"Rx",score:"",note:"",
+   moves:[{name:"Wall-ball Shot",amount:"12",unit:"reps",kg:20/poundsPerKg,standard:"10 ft"},{name:"SkiErg",amount:"10",unit:"cal",kg:null,standard:""}],
+   performance:{kind:"intervals",value:12,extra:12}}
+]};
+const movementSearchKey = value => cleanKey(value).replace(/[^\p{L}\p{N}]/gu,"");
+const timeUnit = "(?:min(?:ute)?s?|분)";
+const measureUnit = "(?:kilometers?|kilometres?|km|meters?|metres?|miles?|mi|m|feet|foot|ft|calories?|cals?|cal|seconds?|secs?|sec|minutes?|mins?|min|reps?|회)";
+const quantityPattern = new RegExp("^(\\d+(?:[.,]\\d+)?)\\s*(?:[- ]?("+measureUnit+")(?:\\b|(?=\\s)|$))?\\s*(?:of\\s+)?(.+)$","i");
+const minutesAfter = new RegExp("\\b(?:in|for)\\s+(\\d+(?:[.,]\\d+)?)\\s*"+timeUnit,"i");
+const minutesBefore = new RegExp("(\\d+(?:[.,]\\d+)?)\\s*[- ]?"+timeUnit+"\\s*(?:AMRAP|EMOM|E2MOM)","i");
+const capPattern = new RegExp("(?:time\\s*cap|제한\\s*시간|타임캡)\\s*[:(]?\\s*(\\d+(?:[.,]\\d+)?)(?::([0-5]\\d))?(?:\\s*"+timeUnit+")?","i");
+const durationSuffix = new RegExp("^(?:AMRAP|EMOM|E2MOM)\\s*(?:x|×|:)?\\s*(\\d+(?:[.,]\\d+)?)","i");
+const loadPattern = /(?:@\s*)?(?:\(\s*)?(\d+(?:[.,]\d+)?)\s*-?\s*(kg|kgs|kilograms?|lb|lbs|pounds?)\b\s*\)?/i;
+const sectionStop = /^(?:(?:stimulus(?: and strategy)?|scaling(?: options)?|coaching cues?|resources|movement standards?|additional resources)\s*:|find a gym\b|featured photo\b)/i;
+const alternativeHeading = /^(intermediate|beginner|scaled|foundations)\s+option\s*:\s*$/i;
+const sectionSplit = /^(?:then\b.*(?:complete|perform)|(?:post-workout|pre-workout)\b|from\s+\d+:\d+|[A-D][.):]\s)/i;
+const divisionLine = /^(?:[♀♂]|(?:women|men|female|male)\b\s*:)/i;
+const explicitDivision = /^(?:division\s*:\s*)?(Rx(?:['’]d)?|Scaled|Foundations)\s*:?$/i;
+const repetitionLadder = /^\s*(\d+(?:\s*-\s*\d+)+)\b/;
+const foldedMove = value => movementSearchKey(value).replace(/(?:ies|oes|sses|shes|ches|xes|zes|s)$/u, ending=>ending==="ies"?"y":ending==="s"?"":ending.slice(0,-2));
+const ingestMoves = new Map();
+for (const [name] of movementCatalog) ingestMoves.set(foldedMove(name),name);
+for (const [name,,aliases] of movementCatalog) {
+  for (const alias of aliases) if (!ingestMoves.has(foldedMove(alias))) ingestMoves.set(foldedMove(alias),name);
+}
+for (const [alias,name] of [
+  ["AbMat Sit-ups","Sit-Up"],["Rowing (calories)","Row"],["Rogue Echo Bike","Echo Bike"],
+  ["SkiErg","SkiErg"],["Handstand push-ups","Handstand Push-Up"],["Chin-over-bar pull-ups","Pull-Up"]
+]) ingestMoves.set(foldedMove(alias),name);
+
+function readMovementLine(raw, ladder) {
+  const station = /^(?:Minute|Min\.?|Station|Round|구간)\s*\d+\s*:\s*/i.exec(raw);
+  let line=raw.slice(station?.[0].length??0).replace(/^[-•*]\s*/,"").trim();
+  const notes=[];
+  if (station) notes.push(station[0].trim().replace(/:$/,""));
+  if (/^rest\b/i.test(line)) return null;
+  const ambiguous = /\d+(?:[.,]\d+)?\s*\/\s*\d+(?:[.,]\d+)?\s*-?\s*(?:kg|lbs?)\b/i.test(line) ||
+    /\d+\s*%/.test(line) || [...line.matchAll(new RegExp(loadPattern.source,"gi"))].length>1;
+  let kg=null;
+  if (!ambiguous) {
+    const match=loadPattern.exec(line);
+    if (match) {
+      kg=Number(match[1].replace(",","."))/(match[2].toLowerCase().startsWith("lb")||match[2].toLowerCase().startsWith("pound")?poundsPerKg:1);
+      line=line.replace(match[0]," ").trim();
+    }
+  }
+  const target=/\b(\d+(?:[.,]\d+)?\s*-?\s*(?:feet|foot|ft|inches?|inch|in|cm|m)\s+(?:target|box)(?:\s+height)?)(?:\b|$)/i.exec(line);
+  if (target) {
+    notes.push(target[1]);
+    line=line.replace(target[0]," ").trim();
+  }
+  const lineLadder=repetitionLadder.exec(line);
+  const maximum=/^max(?:imum)?\s+(?:(?:reps?)\s+(?:of\s+)?)?/i.exec(line);
+  const quantity=lineLadder||maximum?null:quantityPattern.exec(line);
+  let amount=ladder??"";
+  let unit="reps";
+  if (lineLadder) {
+    amount=lineLadder[1].replace(/\s+/g,"");
+    line=line.slice(lineLadder[0].length);
+  } else if (maximum) {
+    amount="Max";
+    line=line.slice(maximum[0].length);
+  } else if (quantity) {
+    amount=quantity[1].replace(",",".");
+    line=quantity[3];
+    const measure=(quantity[2]??"reps").toLowerCase();
+    const unitPatterns=[["km",/^k(?:m|ilomet)/],["mi",/^(?:mi$|mile)/],["m",/^(?:m$|met)/],
+      ["ft",/^(?:ft|foot|feet)/],["cal",/^cal/],["sec",/^sec/],["min",/^min/]];
+    unit=unitPatterns.find(([,pattern])=>pattern.test(measure))?.[0]??"reps";
+  }
+  const stem=line.replace(/^\s*(?:x|×|reps?\s+of|of)\s+/i,"").replace(/[\s:().,]+$/g,"").trim();
+  const name=ingestMoves.get(foldedMove(stem));
+  if (!name || !amount || ambiguous) return null;
+  return {name,amount,unit,kg,standard:notes.join(" · ")};
+}
+
+function parseWodText(raw) {
+  const lines=raw.normalize("NFKC").replace(/[–—−]/g,"-").replace(/\r\n?/g,"\n").split("\n")
+    .flatMap(line=>line.split(/\.\s+(?=(?:Minute|Station)\s+\d+\s*:)/i))
+    .map(line=>line.trim()).filter(Boolean);
+  const draft={name:"",format:"",structure:"",minutes:0,scale:"",scoreKind:"",moves:[],review:[],needsVariant:false};
+  let ladder="";
+  let parsedMain=false;
+  let secondary=false;
+  for (const line of lines) {
+    if (sectionStop.test(line)) break;
+    if (/^compare to\b/i.test(line)) continue;
+    const alternative=alternativeHeading.exec(line);
+    if (alternative) {
+      if (draft.format || parsedMain) break;
+      draft.scale=/^foundations$/i.test(alternative[1])?"Foundations":"Scaled";
+      draft.review.push(line);
+      draft.needsVariant=true;
+      continue;
+    }
+    if (parsedMain && sectionSplit.test(line)) secondary=true;
+    if (secondary) { draft.review.push(line); continue; }
+    if (/^(?:(?:Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day\s+\d{6}|\d{6})$/i.test(line)) {
+      draft.name ||= "WOD "+line.match(/\d{6}/)[0];
+      continue;
+    }
+    const division=explicitDivision.exec(line);
+    if (division) {
+      draft.scale=division[1].toLowerCase().startsWith("rx")?"Rx":/^scaled$/i.test(division[1])?"Scaled":"Foundations";
+      continue;
+    }
+    if (divisionLine.test(line)) {
+      draft.needsVariant=true;
+      draft.review.push(line);
+      continue;
+    }
+    if (/^post\b/i.test(line)) {
+      if (/\btotal\b.*\breps\b/i.test(line) && ["EMOM","E2MOM","Intervals"].includes(draft.format)) draft.scoreKind="reps";
+      if (/\b(?:load|weight)\b/i.test(line) && ["EMOM","E2MOM"].includes(draft.format) && !draft.scoreKind) draft.scoreKind="load";
+      continue;
+    }
+    const cap=capPattern.exec(line)??/(\d+(?:[.,]\d+)?)\s*-?\s*(?:min(?:ute)?s?|분)\s+(?:time\s*)?cap\b/i.exec(line);
+    if (cap) {
+      draft.minutes=Number(cap[1].replace(",","."))+Number(cap[2]??0)/60;
+      if (/^(?:time\s*cap|타임캡|제한\s*시간|\d+\s*-?\s*min(?:ute)?s?\s+(?:time\s*)?cap)\b/i.test(line)) continue;
+    }
+    const interval=/^every\s+(\d+)\s+minutes?\b/i.exec(line);
+    const rounds=/^(\d+)\s+rounds?\b/i.exec(line);
+    let format="";
+    if (/^(?:tabata\b)/i.test(line)) format="Tabata";
+    else if (/\bAMRAP\b|^complete\s+as\s+many\s+(?:rounds?|reps?)/i.test(line)) format="AMRAP";
+    else if (/\bE2MOM\b/i.test(line) || Number(interval?.[1])===2) format="E2MOM";
+    else if (/\bEMOM\b|^every\s+minute\s+on\s+the\s+minute/i.test(line) || Number(interval?.[1])===1) format="EMOM";
+    else if (interval || (rounds && /max reps|each for time/i.test(line))) format="Intervals";
+    else if (/\bfor time\b/i.test(line) || /\bRFT\b/i.test(line)) format=rounds||/\bRFT\b/i.test(line)?"RFT":"For Time";
+    else if (/^(?:for\s+)?max(?:imum)?\s+(?:load|weight)\b/i.test(line)) format="Max Load";
+    else if (/^(?:for\s+)?max(?:imum)?\s+reps\b/i.test(line)) format="Max Reps";
+    else if (/^for\s+distance\b/i.test(line)) format="For Distance";
+    else if (/^for\s+calories\b/i.test(line)) format="For Calories";
+    let lineForMove=line;
+    if (format) {
+      if (draft.format && (parsedMain || draft.format!==format)) {
+        secondary=true;
+        draft.review.push(line);
+        continue;
+      }
+      draft.format=format;
+      draft.structure=line.split(/:\s+(?=\d|[A-Za-z])/)[0].replace(/:$/,"");
+      ladder=repetitionLadder.exec(line)?.[1]?.replace(/\s+/g,"")??"";
+      const duration=minutesAfter.exec(line)??minutesBefore.exec(line)??durationSuffix.exec(line);
+      if (duration && !cap && !draft.minutes) draft.minutes=Number(duration[1].replace(",","."));
+      if (format==="Intervals" && /max reps/i.test(line)) draft.scoreKind="points";
+      const inline=line.replace(/^.*?:\s*/,"");
+      if (inline===line || !inline) continue;
+      lineForMove=inline;
+    } else if (/^\d+(?:\s*-\s*\d+)+\s*:?$/.test(line) && !parsedMain) {
+      ladder=line.replace(/[\s:]/g,"");
+      draft.structure ||= ladder;
+      continue;
+    } else if (rounds && /^(\d+)\s+rounds?\s*:?$/i.test(line) && !parsedMain && !draft.structure) {
+      draft.structure=line.replace(/:$/,"");
+      continue;
+    } else if (!parsedMain && benchmarks.some(item=>item.name.toLowerCase()===line.toLowerCase())) {
+      draft.name=benchmarks.find(item=>item.name.toLowerCase()===line.toLowerCase()).name;
+      continue;
+    } else if (!parsedMain && /^(?:CrossFit\s+)?(?:Open\s+Workout|Open)\s+\d{2}\.\d+\b/i.test(line)) {
+      draft.name=line;
+      continue;
+    }
+    const moves=lineForMove.split(/\s+[·•]\s+|\s*;\s*/).map(part=>readMovementLine(part,ladder));
+    if (moves.some(Boolean)) {
+      draft.moves.push(...moves.filter(Boolean));
+      parsedMain=true;
+      if (moves.some(move=>!move)) draft.review.push(line);
+    } else draft.review.push(line);
+  }
+  if (draft.minutes>180) {
+    draft.minutes=0;
+    draft.review.push(...lines.filter(line=>capPattern.test(line)||minutesAfter.test(line)));
+  }
+  return draft;
+}
+
+function benchmarkDraft(item) {
+  const parsed=parseWodText(item.plan);
+  let moves=parsed.moves;
+  if (item.name==="Fight Gone Bad") {
+    moves=["Wall-ball Shot","Sumo Deadlift High Pull","Box Jump","Push Press","Row"].map(name=>({name,amount:"1",unit:"min",kg:null,standard:""}));
+  } else if (item.name==="Tabata This!") {
+    moves=["Air Squat","Row","Pull-Up","Sit-Up","Push-Up"].map(name=>({name,amount:"20",unit:"sec",kg:null,standard:"8 intervals"}));
+  }
+  return {...item,structure:parsed.structure,moves,scoreKind:item.scoreKind||parsed.scoreKind};
+}
+
+function renderImportStatus(message) {
+  document.querySelector("#wod-import-status").textContent=tr(message);
+}
+function sourceLevels(raw) {
+  const common=[], levels=[];
+  let active=null;
+  for (const line of raw.split(/\r?\n/)) {
+    const heading=/^\s*(Rx(?:['’]d)?(?:\s*\+)?|Scaled|Foundations?|Intermediate|Beginner|Advanced|Level\s*\d+|레벨\s*\d+)(?:\s+(?:option|workout))?\s*:?\s*$/i.exec(line);
+    if (heading) {
+      active={label:heading[1],lines:[]};
+      levels.push(active);
+    } else (active?.lines??common).push(line);
+  }
+  return {common,levels:levels.filter(level=>level.lines.some(line=>line.trim()))};
+}
+function showSourceLevels() {
+  const {levels}=sourceLevels(document.querySelector('[name="wod-source"]').value);
+  const select=document.querySelector('[name="source-level"]');
+  select.parentElement.hidden=levels.length===0;
+  select.innerHTML=options([["","레벨을 선택하세요"],...levels.map((level,index)=>[String(index),level.label])],"");
+}
+function togglePendingScore() {
+  const pending=document.querySelector('[name="score-pending"]').checked;
+  const fields=document.querySelector("#score-fields");
+  fields.hidden=pending;
+  for (const input of fields.querySelectorAll("input,select")) input.disabled=pending;
+  document.querySelector('[name="minutes"]').required=!pending && fields.querySelector('[name="score-kind"]').value==="cap";
+}
+function applyWodImport() {
+  const form=document.querySelector("#record-form");
+  const fields=form.elements;
+  const raw=fields["wod-source"].value.trim();
+  if (!raw) { renderImportStatus("WOD 원문을 붙여넣어 주세요."); return; }
+  const {common,levels}=sourceLevels(raw);
+  const level=levels[Number(fields["source-level"].value)];
+  if (levels.length && (fields["source-level"].value===""||!level)) {
+    renderImportStatus("수행한 레벨을 먼저 선택해 주세요.");
+    return;
+  }
+  if (fields["applied-level"].value && fields["applied-level"].value!==level?.label) {
+    renderImportStatus("수행한 레벨을 변경하려면 입력을 취소하고 다시 시작해 주세요.");
+    return;
+  }
+  const draft=parseWodText(level?level.lines.join("\n"):raw);
+  if (level) {
+    const title=parseWodText(common.join("\n")).name;
+    draft.name ||= title;
+    draft.scale=/^rx/i.test(level.label)?"Rx":/^foundation/i.test(level.label)?"Foundations":"Scaled";
+    fields["applied-level"].value=level.label;
+    if (!fields.variant.value.trim()) fields.variant.value=level.label;
+  }
+  const hadScore=[...form.querySelectorAll('#score-fields input')].some(input=>input.value && input.name!=="extra");
+  const format=draft.format||fields.format.value;
+  if (draft.name && !fields.name.value.trim()) fields.name.value=draft.name;
+  if (draft.scale) fields.scale.value=draft.scale;
+  if (draft.structure && !fields.structure.value.trim()) fields.structure.value=draft.structure;
+  if (draft.minutes && !fields.minutes.value) fields.minutes.value=String(draft.minutes);
+  if (draft.review.length) {
+    const plan=fields.plan.value.trim();
+    const additions=draft.review.filter(line=>!plan.split("\n").includes(line));
+    fields.plan.value=[plan,...new Set(additions)].filter(Boolean).join("\n");
+  }
+  if (!hadScore && (draft.format||draft.scoreKind)) {
+    fields.format.value=format;
+    document.querySelector("#score-fields").innerHTML=scoreInputs(format,draft.scoreKind);
+  }
+  const moves=document.querySelector("#moves");
+  const current=new Map();
+  for (const fieldset of moves.querySelectorAll("fieldset")) {
+    const identity=JSON.stringify(["name","amount","unit","load","standard","equipment"].map(key=>fieldset.querySelector('[name="move-'+key+'"]').value.trim()));
+    current.set(identity,(current.get(identity)??0)+1);
+  }
+  for (const move of draft.moves) {
+    const load=move.kg===null?"":String(Number((move.kg*(data.unit==="lb"?poundsPerKg:1)).toFixed(4)));
+    const identity=JSON.stringify([move.name,move.amount,move.unit,load,move.standard,move.equipment??""]);
+    if (current.get(identity)>0) {
+      current.set(identity,current.get(identity)-1);
+      continue;
+    }
+    moves.insertAdjacentHTML("beforeend",movementFields(move));
+  }
+  refreshMovementOrder();
+  fields["applied-source"].value=raw;
+  togglePendingScore();
+  fields["needs-variant"].value=fields["needs-variant"].value==="yes"||draft.needsVariant?"yes":"";
+  const notes=[];
+  if (!draft.format) notes.push(tr("운동 방식을 확인해 주세요."));
+  if (!draft.moves.length) notes.push(tr("자동으로 읽은 동작이 없어요. 공통 구성을 확인해 주세요."));
+  if (draft.review.length) notes.push(tr("해석이 필요한 줄은 공통 구성에 남겼어요."));
+  if (draft.needsVariant) notes.push(tr("중량·타깃 기준 중 실제 적용한 값을 적어 주세요."));
+  if (hadScore && draft.format && format!==fields.format.value) notes.push(tr("입력한 스코어를 유지했어요. 운동 방식을 확인해 주세요."));
+  renderImportStatus(tr("초안을 채웠어요. 확인하고 수정한 뒤 기록을 저장하세요.")+(notes.length?" "+notes.join(" "):""));
+}
+function validData(value) {
+  return value && ["kg","lb"].includes(value.unit) && Number.isInteger(value.goal) && value.goal>=1 && value.goal<=7 &&
+    Array.isArray(value.records) && new Set(value.records.map(record=>record?.id)).size === value.records.length &&
+    value.records.every(record => record && typeof record.id==="string" && typeof record.name==="string" && typeof record.note==="string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(record.date) && !Number.isNaN(Date.parse(record.date)) &&
+      (record.type==="strength" ? Array.isArray(record.sets) && record.sets.length &&
+        record.sets.every(set=>set && Number.isFinite(set.weight) && set.weight>=0 && Number.isInteger(set.reps) && set.reps>0 &&
+          (set.rpe===null || (Number.isFinite(set.rpe) && set.rpe>=1 && set.rpe<=10))) :
+        record.type==="wod" && wodFormats.includes(record.format) &&
+        scales.includes(record.scale) && typeof record.plan==="string" &&
+        typeof record.score==="string" && Number.isFinite(record.minutes) && record.minutes>=0 && record.minutes<=180));
+}
+function hydrateBenchmarkRecords(records) {
+  for (const record of records) {
+    if (record.type!=="wod" || record.moves?.length || record.sourceText) continue;
+    const plan=oldBenchmarkPlans.get(record.plan)??record.plan;
+    const item=benchmarks.find(item=>item.name===record.name && item.plan===plan && item.format===record.format);
+    if (!item) continue;
+    const template=benchmarkDraft(item);
+    record.plan=plan;
+    record.moves=template.moves;
+    record.structure ||= template.structure;
+  }
+  return records;
+}
+
+function load() {
+  try {
+    const value = JSON.parse(localStorage.getItem(storageKey));
+    if (validData(value)) return {...value,records:hydrateBenchmarkRecords(value.records)};
+  } catch {}
+  return {...starter,records:hydrateBenchmarkRecords(structuredClone(starter.records))};
+}
+let data = load();
+locale=data.locale??(navigator.language.startsWith("ko")?"ko":"en");
+
+function store(next) {
+  try {
+    localStorage.setItem(storageKey,JSON.stringify(next));
+  } catch {
+    notify("브라우저 저장에 실패했어요.");
+    return false;
+  }
+  data = next;
+  return true;
+}
+let tab = "today";
+let day = todayKey;
+let editRecord = null;
+let search = "";
+let typeFilter = "wod";
+let progressName = "";
+let toastTimeout;
+const pages = [
+  ["today","⌂","오늘"],["history","▤","기록"],["progress","↗","통계"],
+  ["settings","⚙","설정"]
+];
+function notify(message) {
+  clearTimeout(toastTimeout);
+  document.querySelector("#toast").textContent="";
+  document.querySelector("#sheet-message").textContent="";
+  const toast = document.querySelector(dialog.open?"#sheet-message":"#toast");
+  toast.textContent = tr(message);
+  toastTimeout = setTimeout(()=>toast.textContent="",2800);
+}
+function top(title, subtitle, extra="") {
+  return '<header class="top"><div><div class="date">'+subtitle+'</div><h1>'+title+'</h1></div>'+extra+'</header>';
+}
+function weight(kg) {
+  return number(data.unit==="lb" ? kg*poundsPerKg : kg)+" "+data.unit;
+}
+function volume(record) {
+  return record.sets.reduce((sum,set)=>sum+set.weight*set.reps,0);
+}
+function sorted() {
+  return [...data.records].reverse().sort((a,b)=>b.date.localeCompare(a.date));
+}
+function recordRows(records) {
+  const {improvements}=getPRs();
+  return records.length ? records.map(record => {
+    const strength = record.type==="strength";
+    const value = strength ? weight(Math.max(...record.sets.map(set=>set.weight))) : scoreText(record);
+    return '<button class="row" data-action="detail" data-id="'+escapeHtml(record.id)+'"><span class="icon '+(strength?"":"purple")+'" aria-hidden="true">'+(strength?"↟":"↯")+'</span><span><b>'+escapeHtml(record.name)+'</b><span class="hint">'+fmtDate(record.date)+' · '+(strength?record.sets.length+(locale==="en"?" sets":"세트"):escapeHtml(tr(record.format)+" · "+tr(record.scale)))+'</span></span><span class="end"><b>'+escapeHtml(value)+'</b>'+(improvements.has(record.id)?prBadge:"")+'</span></button>';
+  }).join("") : '<p class="empty">표시할 운동 기록이 없어요.</p>';
+}
+function quick(action, icon, tone, title, desc) {
+  return '<button class="card quick" data-action="'+action+'"><span class="icon '+tone+'" aria-hidden="true">'+icon+'</span><span><b>'+title+'</b><span class="hint">'+desc+'</span></span></button>';
+}
+function dashboard() {
+  const week = Array.from({length:7},(_,i)=>ago(6-i));
+  const wods=sorted().filter(record=>record.type==="wod");
+  const count = week.map(date=>wods.filter(record=>record.date===dateKey(date)).length);
+  const days = count.filter(Boolean).length;
+  const records = wods.filter(record=>record.date===day);
+  const recent = day===todayKey && records.length===0;
+  return top(day===todayKey?"오늘의 WOD":"날짜별 WOD",fmtDate(day),
+    '<button class="secondary" data-action="choose-date"><span class="calendar-icon" aria-hidden="true"></span>날짜 선택</button>')+
+    '<section class="entry"><button class="primary entry-cta" data-action="wod"><span class="entry-plus" aria-hidden="true">+</span>WOD 기록하기<span class="entry-arrow" aria-hidden="true">›</span></button>'+
+    '<div class="grid entry-shortcuts">'+quick("benchmarks","▦","mint","벤치마크","Fran · Cindy")+quick("repeat","↻","","지난 WOD","")+quick("prs","↗","purple","WOD PR","")+'</div></section>'+
+    '<section class="section activity"><div class="section-head"><h2>최근 7일</h2><span class="week-goal"><strong>'+days+(locale==="en"?" days":"일")+'</strong>'+ (locale==="en"?' / '+data.goal+' goal':' / 목표 '+data.goal+'일')+'</span></div><div class="week">'+week.map((date,i)=>
+    '<button class="day '+(dateKey(date)===day?"today ":"")+(count[i]?"done":"")+'" data-action="day" data-id="'+dateKey(date)+'" aria-label="'+fmtDate(dateKey(date))+(locale==="en"?" · "+count[i]+" WODs":" · WOD "+count[i]+"개")+'" aria-pressed="'+(dateKey(date)===day)+'"><span>'+date.toLocaleDateString(locale,{weekday:"short"})+'</span><b>'+date.getDate()+'</b></button>').join("")+'</div></section>'+
+    '<section class="section recent"><div class="section-head"><h2>'+(recent?"최근 WOD":"선택한 날의 WOD")+'</h2><button class="quiet" data-page="history">전체 보기 ›</button></div><div class="record-list">'+recordRows(recent?wods.slice(0,3):records)+'</div></section>';
+
+}
+function historyRows() {
+  const searchText = search.trim().toLowerCase();
+  return recordRows(sorted().filter(record=>(typeFilter==="all" || record.type===typeFilter) &&
+    [record.name,record.date,record.note,record.plan,...(record.moves??[]).map(move=>move.name),...(catalog.find(item=>item[0]===record.name)??[])].join(" ").toLowerCase().includes(searchText)));
+}
+function historyPage() {
+  return top("운동 기록","히스토리",'<button class="primary" data-action="start">＋ 기록하기</button>')+
+    '<div class="card form-grid"><label>검색<input id="search" placeholder="WOD 이름, 날짜, 메모" value="'+escapeHtml(search)+'"></label>'+
+    '<label>종류<select id="type-filter">'+options([["all","모든 운동"],["strength","근력"],["wod","WOD"]],typeFilter)+'</select></label></div>'+
+    '<div id="history-repeat" '+(typeFilter==="strength"?"hidden":"")+'><div class="actions"><button class="secondary" data-action="repeat">지난 WOD</button></div></div>'+
+    '<section class="section card" id="history-list">'+historyRows()+'</section>'+
+    '<div class="actions"><button class="quiet" data-action="strength">근력 기록</button></div>';
+}
+function options(values, selected) {
+  return values.map(item=>{
+    const [value,label] = Array.isArray(item)?item:[item,item];
+    return '<option value="'+escapeHtml(value)+'" '+(value===selected?"selected":"")+'>'+escapeHtml(tr(label))+'</option>';
+  }).join("");
+}
+function strengthRecords(records) {
+  const actual = new Map();
+  const daily = new Map();
+  let estimate = null;
+  for (const record of records) {
+    for (const {weight:kg,reps} of record.sets) {
+      if (!Number.isFinite(kg) || kg<=0) continue;
+      daily.set(record.date,Math.max(daily.get(record.date)??0,kg));
+      if ([1,3,5].includes(reps) && kg>(actual.get(reps)?.kg??0)) actual.set(reps,{kg,date:record.date});
+      if (reps>=2 && reps<=10 && kg*(1+reps/30)>(estimate?.kg??0)) estimate={kg:kg*(1+reps/30),date:record.date};
+    }
+  }
+  return '<section class="section card strength-pr"><h2>'+tr("근력 PR")+'</h2><p class="hint">'+tr("실측 1·3·5RM")+'</p>'+
+    '<dl class="rep-maxes">'+[1,3,5].map(reps=>'<div><dt>'+reps+'RM</dt><dd>'+(actual.has(reps)?weight(actual.get(reps).kg):"—")+'</dd>'+(actual.has(reps)?'<span class="hint">'+fmtDate(actual.get(reps).date)+'</span>':"")+'</div>').join("")+'</dl>'+
+    '<div class="strength-estimate"><div><h3>'+tr("추정 1RM")+'</h3><p class="hint">'+tr("Epley · 중량이 있는 2–10회 세트 기준")+'</p></div>'+
+    '<strong>'+(estimate===null?"—":weight(estimate.kg))+'</strong>'+(estimate===null?"":'<span class="hint">'+fmtDate(estimate.date)+'</span>')+'</div>'+
+    '<div class="section"><h3>'+tr("날짜별 최고 중량")+'</h3>'+
+    ([...daily].sort(([a],[b])=>b.localeCompare(a)).slice(0,8).map(([date,kg])=>
+      '<div class="row"><span>'+fmtDate(date)+'</span><strong class="end">'+weight(kg)+'</strong></div>').join("")||
+      '<p class="hint">'+tr("중량 기록이 없어요.")+'</p>')+'</div></section>';
+}
+function progressPage() {
+  const records = sorted();
+  const names = [...new Set(records.map(record=>record.name))];
+  const selected = names.includes(progressName) ? progressName : names[0];
+  const relevant = records.filter(record=>record.name===selected);
+  const strength = relevant.filter(record=>record.type==="strength");
+  const previous = strength[1];
+  const latest = strength[0];
+  const best = strength.length ? Math.max(...strength.flatMap(record=>record.sets.map(set=>set.weight))) : 0;
+  const delta = previous ? volume(latest)-volume(previous) : null;
+  const totals = new Map();
+  for (const record of records.filter(record=>record.type==="strength" && record.date>=dateKey(ago(13)) && record.date<=todayKey)) {
+    const group = catalog.find(item=>item[0]===record.name)?.[1] ?? "직접 추가";
+    const pair = totals.get(group) ?? [0,0];
+    pair[record.date>=dateKey(ago(6))?0:1] += volume(record);
+    totals.set(group,pair);
+  }
+  return top("운동 통계","진행 상황")+
+    '<section class="section stats-pr"><h2>'+tr("와드 PR")+'</h2>'+prGroups()+'</section>'+
+    '<div class="card"><label>운동 선택<select id="progress-name" '+(names.length?"":"disabled")+'>'+options(names.length?names:["기록 없음"],selected)+'</select></label></div>'+
+    (latest?'<section class="section columns"><div class="card"><p class="hint">최고 중량</p><h2>'+weight(best)+'</h2></div><div class="card"><p class="hint">최근 볼륨 · 이전 기록 대비</p><h2>'+weight(volume(latest))+'</h2><p class="hint">'+(delta===null?"이전 기록을 추가하면 비교할 수 있어요":(delta>0?"+":"")+weight(delta))+'</p></div></section>':'')+
+    (latest?strengthRecords(strength):"")+
+    '<section class="section columns"><div><div class="section-head"><h2>운동 추이</h2></div><div class="card">'+recordRows(relevant.slice(0,8))+'</div></div>'+
+    '<div><div class="section-head"><h2>동작 그룹별 볼륨</h2></div><div class="card">'+([...totals].map(([group,[current,prior]])=>
+      '<div class="chart"><b>'+escapeHtml(tr(group))+'</b><progress value="'+current+'" max="'+Math.max(current,prior,1)+'" aria-label="'+escapeHtml(group)+(locale==="en"?' volume over the last seven days':' 최근 7일 볼륨')+'"></progress><p class="hint">'+tr("최근 7일")+' '+weight(current)+' · '+tr("직전 7일")+' '+weight(prior)+'</p></div>').join("") || '<p class="empty">최근 14일에 기록한 근력 운동이 없어요.</p>')+'</div></div></section>';
+}
+let conversionFrom = "kg";
+let conversionInput = "";
+function segments(action, values, active, label) {
+  return '<div class="segmented" role="group" aria-label="'+label+'">'+values.map(([value,text])=>
+    '<button type="button" data-action="'+action+'" data-id="'+value+'" aria-pressed="'+(value===active)+'">'+text+'</button>').join("")+'</div>';
+}
+function updateConversion() {
+  const output = document.querySelector("#conversion-result");
+  const field = document.querySelector("#conversion-input");
+  if (!output || !field) return;
+  conversionInput=field.value;
+  const input=field.value.trim();
+  const value=/^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$/.test(input)?Number(input):NaN;
+  const target=conversionFrom==="kg"?"lb":"kg";
+  const result=conversionFrom==="kg"?value*poundsPerKg:value/poundsPerKg;
+  output.textContent=Number.isFinite(result)?
+    result.toLocaleString(locale,{maximumFractionDigits:3})+" "+target:"—";
+}
+function showCalculator() {
+  show("중량 계산기",segments("convert-direction",[["kg","kg → lb"],["lb","lb → kg"]],conversionFrom,tr("변환 방향"))+
+    '<label class="section">'+(locale==="en"?"Weight to convert":"변환할 중량")+' ('+conversionFrom+')'+
+    '<input id="conversion-input" type="text" inputmode="decimal" placeholder="0" value="'+escapeHtml(conversionInput)+'"></label>'+
+    '<output id="conversion-result" class="conversion" for="conversion-input" aria-live="polite"></output>');
+  updateConversion();
+}
+function settingsPage() {
+  return top("설정","내 운동 기록")+
+    '<div class="stack"><section class="card"><label class="setting-row">Language / 언어<select id="language">'+options([["ko","한국어"],["en","English"]],locale)+'</select></label></section>'+
+    '<section class="card"><h2>기록 단위</h2><p class="hint">근력 세트 입력과 기록·통계에 적용돼요.</p>'+
+    segments("unit",[["kg","킬로그램 (kg)"],["lb","파운드 (lb)"]],data.unit,"기록 단위")+'</section>'+
+    '<section class="card"><button class="setting-row" data-action="calculator">중량 계산기 <span aria-hidden="true">›</span></button></section>'+
+    '<section class="card"><label class="setting-row">7일 운동 목표<select id="goal">'+options(Array.from({length:7},(_,i)=>[String(i+1),(i+1)+(locale==="en"?" days":"일")]),String(data.goal))+'</select></label></section>'+
+    '<section class="card"><h2>'+tr("도움말")+'</h2><div class="actions"><button class="secondary" data-action="movements">'+tr("크로스핏 동작")+'</button><button class="secondary" data-action="terms">'+tr("WOD 용어")+'</button></div></section>'+
+    '<section class="card"><button class="setting-row setting-delete" data-action="remove-demo">샘플 기록 지우기 <span aria-hidden="true">›</span></button></section></div>';
+}
+function render() {
+  const nav = document.querySelector("#nav");
+  nav.style.setProperty("--tab-index",pages.findIndex(([id])=>id===tab));
+  nav.innerHTML = pages.map(([id,icon,label])=>
+    '<button class="navitem" data-page="'+id+'" '+(id===tab?'aria-current="page"':"")+'><span class="navicon" aria-hidden="true">'+icon+'</span>'+label+'</button>').join("");
+  document.documentElement.lang=locale;
+  nav.setAttribute("aria-label",tr("주 메뉴"));
+  localize(nav);
+  main.dataset.screen=tab;
+  main.innerHTML = ({today:dashboard,history:historyPage,progress:progressPage,settings:settingsPage})[tab]();
+  localize(main);
+}
+function go(page) {
+  tab=page;
+  if (page==="today") day=todayKey;
+  render();
+  window.scrollTo(0,0);
+}
+function fitEditorToViewport() {
+  const viewport = window.visualViewport;
+  const editing = dialog.open && dialog.querySelector("#record-form");
+  if (!viewport || !editing || viewport.scale!==1) {
+    dialog.classList.remove("editor-keyboard","editor-keyboard-short");
+    dialog.style.removeProperty("--keyboard-inset");
+    dialog.style.removeProperty("--editor-viewport");
+    return;
+  }
+  const inset=Math.max(0,innerHeight-viewport.height-viewport.offsetTop);
+  if (inset>0) dialog.classList.add("editor-keyboard");
+  dialog.classList.toggle("editor-keyboard-short",inset>0 && viewport.height<300);
+  dialog.style.setProperty("--keyboard-inset",inset+"px");
+  dialog.style.setProperty("--editor-viewport",viewport.height+"px");
+  const focused=document.activeElement;
+  if (inset>0 && dialogBody.contains(focused) && focused.matches("input,textarea,select")) {
+    const input=focused.getBoundingClientRect();
+    const body=dialogBody.getBoundingClientRect();
+    const gap=6;
+    if (input.bottom>body.bottom-gap) dialogBody.scrollTop+=input.bottom-body.bottom+gap;
+    else if (input.top<body.top+gap) dialogBody.scrollTop-=body.top-input.top+gap;
+  }
+}
+window.visualViewport?.addEventListener("resize",fitEditorToViewport);
+window.visualViewport?.addEventListener("scroll",fitEditorToViewport);
+dialog.addEventListener("close",fitEditorToViewport);
+function show(title, body, actions="") {
+  document.querySelector("#dialog-title").textContent = tr(title);
+  dialog.querySelector(".dialog-head .quiet").setAttribute("aria-label",tr("닫기"));
+  document.querySelector("#sheet-message").textContent="";
+  dialogBody.innerHTML = body;
+  const footer=document.querySelector("#sheet-actions");
+  footer.innerHTML=actions;
+  footer.hidden=!actions;
+  localize(dialog);
+  if (!dialog.open) dialog.showModal();
+  fitEditorToViewport();
+  dialog.scrollTop = 0;
+  dialogBody.scrollTop = 0;
+}
+function start() {
+  recordForm("wod");
+}
+function setFields(set={weight:"",reps:"",rpe:""}) {
+  const value = set.weight===""?"":Math.round(set.weight*(data.unit==="lb"?poundsPerKg:1)*1000)/1000;
+  return '<div class="set"><label>'+tr("중량")+' ('+data.unit+')<input aria-label="'+tr("중량")+' ('+data.unit+')" name="weight" type="number" min="0" step="any" value="'+value+'" required></label>'+
+    '<label>반복<input name="reps" type="number" min="1" step="1" value="'+set.reps+'" required></label>'+
+    '<label>RPE<input name="rpe" type="number" min="1" max="10" step="0.5" value="'+(set.rpe??"")+'"></label>'+
+    '<button type="button" class="quiet" aria-label="세트 삭제" data-action="remove-set">✕</button></div>';
+}
+function metricInput(name,label,value,props="") {
+  return '<label>'+tr(label)+'<input name="'+name+'" type="number" inputmode="decimal" min="0" '+props+' value="'+escapeHtml(value??"")+'"></label>';
+}
+const choices = {
+  "For Time":[["time","완료"],["cap","타임캡"],["stopped","중단 (DNF)"]],
+  RFT:[["time","완료"],["cap","타임캡"],["stopped","중단 (DNF)"]],
+  AMRAP:[["rounds","라운드 + 추가 반복"],["reps","총 반복"]],
+  EMOM:[["intervals","완료 구간"],["reps","총 반복"],["load","최고 중량"]],
+  E2MOM:[["intervals","완료 구간"],["reps","총 반복"],["load","최고 중량"]],
+  Intervals:[["intervals","완료 구간"],["reps","총 반복"],["distance","거리"],["calories","칼로리"],["points","합산 점수"]],
+  Tabata:[["lowest","최저 구간 반복"],["total","전체 반복"],["points","합산 점수"]],
+  "Max Load":[["load","최고 중량"]],"Max Reps":[["reps","총 반복"]],
+  "For Distance":[["distance","거리"]],"For Calories":[["calories","칼로리"]],
+  "자유 형식":[["text","직접 입력"]]
+};
+function scoreInputs(format, kind, prior, free="") {
+  const optionsForFormat=choices[format];
+  kind=optionsForFormat.some(([id])=>id===kind)?kind:optionsForFormat[0][0];
+  const current=prior?.kind===kind?prior:{};
+  const clock=value=>value===undefined?"":Math.floor(value/60)+":"+String(value%60).padStart(2,"0");
+  const timeField=(name,label,value,required=false)=>'<label>'+tr(label)+'<input name="'+name+'" placeholder="5:42" pattern="[0-9]+:[0-5][0-9]" value="'+clock(value)+'" '+(required?"required":"")+'></label>';
+  const required="required step=1";
+  const fields={
+    time:()=>timeField("finish","완료 시간 (분:초)",current.value,true),
+    stopped:()=>'<p class="hint wide">'+tr("중단 기록은 PR 비교에 포함되지 않아요.")+'</p>',
+    cap:()=>'<p class="hint wide">'+tr("타임캡을 기록하려면 제한 시간을 입력하세요.")+'</p>'+metricInput("value","완료 반복",current.value,required)+timeField("tie","타이브레이크 (선택)",current.tie),
+    rounds:()=>metricInput("value","완료 라운드",current.value,required)+metricInput("extra","추가 반복",current.extra??0,required),
+    intervals:()=>metricInput("value","완료 구간",current.value,required)+metricInput("extra","전체 구간",current.extra,"required step=1 min=1"),
+    load:()=>metricInput("value",tr("최고 중량")+" ("+data.unit+")",current.value===undefined?"":Number((current.value*(data.unit==="lb"?poundsPerKg:1)).toFixed(4)),"required step=any"),
+    reps:()=>metricInput("value","총 반복",current.value,required),
+    lowest:()=>metricInput("value","최저 구간 반복",current.value,required),
+    total:()=>metricInput("value","전체 반복",current.value,required),
+    distance:()=>metricInput("value","거리 (m)",current.value,"required step=any"),
+    calories:()=>metricInput("value","칼로리 (cal)",current.value,required),
+    points:()=>metricInput("value","합산 점수",current.value,required),
+    text:()=>'<label>'+tr("스코어")+'<input name="score" value="'+escapeHtml(free)+'"></label>'
+  };
+  return '<p class="hint wide">'+tr(formatHints[format])+'</p>'+
+    '<label class="wide">'+tr("채점 방식")+'<select name="score-kind">'+options(optionsForFormat,kind)+'</select></label>'+fields[kind]();
+}
+function movementFields(move={}) {
+  const units=["reps","m","km","mi","ft","cal","sec","min"];
+  const value=move.kg==null?"":Number((move.kg*(data.unit==="lb"?poundsPerKg:1)).toFixed(4));
+  return '<fieldset class="wod-move"><legend>'+tr("동작")+'</legend><button type="button" class="quiet move-remove" data-action="remove-move" aria-label="'+tr("동작 삭제")+'">✕</button>'+
+    '<label class="wide">'+tr("동작 이름")+'<input name="move-name" value="'+escapeHtml(move.name)+'" placeholder="Wall-ball Shot · TTB · SkiErg" required></label>'+
+    '<div class="wide move-tools"><button type="button" class="quiet" data-action="move-up" aria-label="'+tr("동작을 위로")+'">↑</button>'+
+    '<button type="button" class="quiet" data-action="move-down" aria-label="'+tr("동작을 아래로")+'">↓</button><button type="button" class="quiet" data-action="browse-movement">'+tr("동작 찾기")+' ›</button></div>'+
+    '<label>'+tr("반복·거리·패턴")+'<input name="move-amount" placeholder="15 · 21-15-9" value="'+escapeHtml(move.amount)+'" required></label>'+
+    '<label>'+tr("단위")+'<select name="move-unit">'+options(units,move.unit)+'</select></label>'+
+    metricInput("move-load",tr("중량")+" ("+data.unit+")",value,"step=any")+
+    '<label>'+tr("사용한 장비")+'<input name="move-equipment" value="'+escapeHtml(move.equipment)+'" placeholder="RowErg · Echo Bike"></label>'+
+    '<label>'+tr("동작 기준")+'<input name="move-standard" value="'+escapeHtml(move.standard)+'" placeholder="'+tr("예: 10 ft 타깃")+'"></label></fieldset>';
+}
+const movementCategories = [
+  ["","전체"],["짐네스틱","짐네스틱"],["머신","머신"],["바벨·역도","바벨·역도"],
+  ["덤벨·케틀벨","덤벨·케틀벨"],["맨몸·코어","맨몸·코어"],
+  ["러닝·수영","러닝·수영"],["기타 장비","볼·박스·기타 장비"]
+];
+
+let movementTarget = null;
+
+function movementPicker(selectable) {
+  return '<section class="movement-picker" aria-label="'+tr("동작 찾기")+'" data-selectable="'+selectable+'">'+
+    '<div class="picker-head"><h3 tabindex="-1">'+tr("동작 찾기")+'</h3>'+
+    (selectable?'<button type="button" class="quiet" data-action="cancel-movement">'+tr("닫기")+'</button>':"")+'</div>'+
+    '<label class="picker-search">'+tr("이름이나 약어로 검색")+'<input type="search" id="movement-search" autocomplete="off" placeholder="Wall Ball · TTB · SkiErg"></label>'+
+    '<div class="movement-categories" role="group" aria-label="'+tr("카테고리")+'">'+
+    movementCategories.map(([value,label])=>'<button type="button" data-action="filter-movements" data-category="'+escapeHtml(value)+'" aria-pressed="'+(value==="")+'">'+tr(label)+'</button>').join("")+'</div>'+
+    '<div id="movement-results" class="movement-results" aria-label="'+tr("검색 결과")+'"></div>'+
+    (selectable?'<button class="quiet custom-movement" type="button" data-action="custom-move">'+tr("동작 직접 입력")+'</button>':"")+'</section>';
+}
+function showMovementLibrary() {
+  show("크로스핏 동작",movementPicker(false));
+  updateMovementLibrary();
+}
+function openMovementPicker(target) {
+  movementTarget=target;
+  const host=document.querySelector("#movement-picker-host");
+  host.innerHTML=movementPicker(true);
+  const panel=host.firstElementChild;
+  updateMovementLibrary();
+  panel.scrollIntoView({block:"nearest"});
+  panel.querySelector("h3").focus({preventScroll:true});
+}
+function closeMovementPicker() {
+  document.querySelector("#movement-picker-host").replaceChildren();
+  movementTarget=null;
+}
+function refreshMovementOrder() {
+  const rows=[...document.querySelectorAll("#moves > fieldset")];
+  rows.forEach((row,index)=>{
+    row.querySelector('[data-action="move-up"]').disabled=index===0;
+    row.querySelector('[data-action="move-down"]').disabled=index===rows.length-1;
+  });
+}
+function applyMovement(name) {
+  const target=movementTarget;
+  closeMovementPicker();
+  if (target) {
+    target.querySelector('[name="move-name"]').value=name;
+    target.querySelector(name?'[name="move-amount"]':'[name="move-name"]').focus();
+    return;
+  }
+  const moves=document.querySelector("#moves");
+  moves.insertAdjacentHTML("beforeend",movementFields({name}));
+  refreshMovementOrder();
+  moves.lastElementChild.querySelector(name?'[name="move-amount"]':'[name="move-name"]').focus();
+}
+function updateMovementLibrary() {
+  const panel=document.querySelector(".movement-picker");
+  const query=movementSearchKey(panel.querySelector("#movement-search").value);
+  const category=panel.querySelector('[aria-pressed="true"]').dataset.category;
+  const selectable=panel.dataset.selectable==="true";
+  const results=panel.querySelector("#movement-results");
+  results.innerHTML=movementCatalog.filter(([name,group,aliases])=>
+    (!category||category===group) && [name,...aliases].some(word=>movementSearchKey(word).includes(query)))
+    .map(([name,group,aliases])=>{
+      const label=movementCategories.find(([id])=>id===group)[1];
+      const alias=aliases.find(word=>query && movementSearchKey(word).includes(query))??aliases[0];
+      const content='<span><b>'+escapeHtml(name)+'</b><span class="hint">'+escapeHtml([tr(label),alias].filter(Boolean).join(" · "))+'</span></span>';
+      return selectable?'<button type="button" class="row" data-action="pick-movement" data-id="'+escapeHtml(name)+'">'+content+'<span class="end" aria-hidden="true">＋</span></button>':
+        '<div class="row">'+content+'</div>';
+    }).join("")||'<p class="empty">'+tr("검색 결과가 없어요.")+'</p>';
+  results.scrollTop=0;
+}
+function importFields(record) {
+  return '<details class="wide wod-import"><summary>'+tr("WOD 원문 붙여넣기")+'</summary>'+
+    '<p class="hint">'+tr("CrossFit WOD의 운동 부분을 복사해서 붙여넣으세요.")+'</p>'+
+    '<label>'+tr("WOD 원문")+'<textarea name="wod-source" placeholder="4 rounds for time:\n400-meter run\n20 wall-ball shots" rows="5">'+escapeHtml(record.sourceText)+'</textarea></label>'+
+    '<label hidden>'+tr("수행한 레벨")+'<select name="source-level"></select></label>'+
+    '<button class="secondary" type="button" data-action="apply-wod-source">'+tr("초안 채우기")+'</button>'+
+    '<p id="wod-import-status" class="hint" role="status"></p></details>'+
+    '<input type="hidden" name="applied-source" value="'+escapeHtml(record.sourceText)+'">'+
+    '<input type="hidden" name="applied-level" value="'+escapeHtml(record.sourceLevel)+'">'+
+    '<input type="hidden" name="needs-variant" value="'+(record.needsVariant?"yes":"")+'">';
+}
+function recordForm(type, entry=null, preset=null) {
+  editRecord=entry;
+  const record = entry??preset??{};
+  const strength = type==="strength";
+  show(entry?"기록 수정":strength?"근력 기록":record.repeat?"다시 기록":"WOD 기록",
+    '<form id="record-form" data-type="'+type+'"><div class="form-grid">'+(strength?"":importFields(record))+
+    '<label>운동 이름<input name="name" id="exercise-name" autocomplete="off" value="'+escapeHtml(record.name)+'" placeholder="'+(strength?"예: 백 스쿼트":"예: Fran")+'" required></label>'+
+    '<label>운동 날짜<input type="date" name="date" value="'+(record.date??day)+'" required></label>'+
+    (strength?'<div class="wide" id="exercise-matches"></div><div class="wide stack" id="sets">'+(record.sets??[undefined]).map(setFields).join("")+'</div>'+
+      '<div class="wide"><button class="secondary" type="button" data-action="add-set">＋ 세트 추가</button></div>':
+      '<label>운동 방식<select name="format">'+options(wodFormats,record.format)+'</select></label>'+
+      '<label>기준<select name="scale">'+options(scales,record.scale)+'</select></label>'+
+      '<label class="wide">버전·수행 조건<input name="variant" value="'+escapeHtml(record.variant)+'" placeholder="예: 14 lb · 9 ft / 2025 Scaled"></label>'+
+      (record.needsVariant?'<p class="hint wide">'+tr("원문에 여러 수행 기준이 있어요. PR 비교를 위해 실제 수행 조건을 적어 주세요.")+'</p>':"")+
+      '<label class="wide">라운드·구간 구성<input name="structure" value="'+escapeHtml(record.structure)+'" placeholder="예: 5 rounds / Every 2 min × 6"></label>'+
+      '<label class="wide">공통 구성<textarea name="plan" rows="2" placeholder="동작 또는 21-15-9, 라운드 구성, 타깃 높이 등을 적어주세요.">'+escapeHtml(record.plan)+'</textarea></label>'+
+      '<div class="wide stack" id="moves">'+(record.moves??[]).map(movementFields).join("")+'</div>'+
+      '<div class="wide"><button class="secondary" type="button" data-action="add-move">＋ 동작 추가</button></div><div class="wide" id="movement-picker-host"></div>'+
+      '<label class="wide">타임캡·제한 시간 (분)<input name="minutes" type="number" inputmode="decimal" min="0.016" max="180" step="any" value="'+(record.minutes||"")+'"></label>'+
+      '<label class="wide pending-score"><input type="checkbox" name="score-pending" '+(record.waitingForScore?"checked":"")+'>'+tr("스코어는 나중에 입력")+'</label>'+
+      '<div class="wide form-grid score-fields" id="score-fields">'+scoreInputs(record.format??"For Time",record.scoreKind??measures(record)?.kind,measures(record),record.score)+'</div>'+
+      '<p class="hint wide">구성과 수행 조건을 입력해 두면 다시 했을 때 PR을 비교할 수 있어요.</p>')+
+    '<label class="wide">메모<textarea name="note" rows="2" placeholder="컨디션, 동작 수정, 다음 목표">'+escapeHtml(record.note)+'</textarea></label>'+
+    '</div></form>',
+    '<button class="primary" type="submit" form="record-form">기록 저장</button><button type="button" class="quiet" data-action="close">취소</button>');
+  if (!strength) { showSourceLevels(); togglePendingScore(); refreshMovementOrder(); }
+}
+function showBenchmarks() {
+  show("벤치마크 WOD",'<div class="card">'+benchmarks.map((item,index)=>
+    '<button class="row" data-action="preset" data-id="'+index+'"><span class="icon purple" aria-hidden="true">↯</span><span><b>'+item.name+'</b><span class="hint">'+item.format+' · '+escapeHtml(item.plan.replaceAll("\n"," / "))+'</span></span><span class="end">›</span></button>').join("")+'</div>');
+}
+function detail(record) {
+  const strength = record.type==="strength";
+  show(record.name,'<p class="hint">'+fullDate(record.date)+' · '+(strength?tr("근력"):escapeHtml(tr(record.format)+" · "+tr(record.scale)))+'</p>'+
+    '<div class="section card">'+(strength?record.sets.map((set,i)=>'<div class="row"><b>'+ (locale==="en"?"Set "+(i+1):(i+1)+"세트")+'</b><span class="end">'+weight(set.weight)+' × '+set.reps+(set.rpe===null?"":" · RPE "+set.rpe)+'</span></div>').join(""):
+    '<h3>'+escapeHtml(scoreText(record))+' '+(getPRs().improvements.has(record.id)?prBadge:"")+'</h3>'+
+    '<p class="hint">'+escapeHtml(record.variant)+'</p><p style="white-space:pre-wrap">'+escapeHtml([record.structure,record.plan].filter(Boolean).join("\n"))+'</p>'+
+    (record.moves??[]).map(move=>'<div class="row"><b>'+escapeHtml(move.name)+'</b><span class="end">'+escapeHtml(move.amount+" "+move.unit+(move.kg===null?"":" · "+weight(move.kg))+(move.standard?" · "+move.standard:"")+(move.equipment?" · "+move.equipment:""))+'</span></div>').join(""))+
+    '</div>'+(record.note?'<p class="section" style="white-space:pre-wrap">'+escapeHtml(record.note)+'</p>':"")+
+    '<div class="actions"><button class="primary" data-action="edit" data-id="'+escapeHtml(record.id)+'">수정</button>'+
+    (strength?"":'<button class="secondary" data-action="retry" data-id="'+escapeHtml(record.id)+'">다시 기록</button>')+
+    '<button class="danger" data-action="delete" data-id="'+escapeHtml(record.id)+'">삭제</button></div>');
+}
+function repeatWods() {
+  const recent=new Map();
+  for (const record of sorted().filter(record=>record.type==="wod")) {
+    const key=wodKey(record)??record.id;
+    if (!recent.has(key)) recent.set(key,record);
+  }
+  show("지난 WOD 다시 하기",'<div class="card">'+recordRows([...recent.values()]).replaceAll('data-action="detail"','data-action="retry"')+'</div>');
+}
+const expandedPRGroups=new Set();
+document.addEventListener("toggle",event=>{
+  const group=event.target;
+  if (!group.isConnected || !group.matches("details[data-pr-group]")) return;
+  if (group.open) expandedPRGroups.add(group.dataset.prGroup);
+  else expandedPRGroups.delete(group.dataset.prGroup);
+},true);
+function prGroups() {
+  const {best,improvements}=getPRs();
+  const records=sorted().filter(record=>record.type==="wod");
+  return best.length?best.map(record=>{
+      const key=wodKey(record);
+      const attempts=records.filter(attempt=>wodKey(attempt)===key);
+      const improved=attempts.filter(attempt=>improvements.has(attempt.id));
+      return '<details class="section card pr-group" data-pr-group="'+escapeHtml(key)+'" '+(expandedPRGroups.has(key)?"open":"")+'><summary><strong>'+escapeHtml(record.name)+'</strong><span>'+
+        escapeHtml(tr(record.scale)+" · "+scoreText(record))+'</span></summary>'+
+        '<section class="section"><h3>'+tr("현재 최고 기록")+'</h3>'+recordRows([record])+'</section>'+
+        '<section class="section"><h3>'+tr("PR 갱신 이력")+'</h3>'+
+        (improved.length?recordRows(improved):'<p class="hint">'+tr("아직 갱신한 PR이 없어요.")+'</p>')+'</section>'+
+        '<section class="section"><h3>'+tr("같은 조건의 전체 스코어")+'</h3>'+recordRows(attempts)+'</section></details>';
+    }).join(""):'<p class="empty">'+tr("비교 조건이 확인된 WOD 기록이 없어요.")+'</p>';
+}
+function prList() {
+  show("와드 PR",'<p class="hint">같은 조건에서 최고 기록을 넘으면 PR 배지가 붙어요.</p>'+prGroups());
+}
+function scanMove(name) {
+  const query=movementSearchKey(name);
+  const exact=movementCatalog.find(([name])=>movementSearchKey(name)===query);
+  return exact?.[0] ?? movementCatalog.find(([, ,aliases])=>aliases.some(alias=>movementSearchKey(alias)===query))?.[0] ?? name.trim();
+}
+function readWod(fields,record,form) {
+  const read=name=>String(fields.get(name)??"").trim();
+  const waitingForScore=fields.has("score-pending");
+  const kind=waitingForScore?"text":read("score-kind");
+  const value=kind==="time"?asSeconds(read("finish")):Number(read("value"))/(kind==="load"&&data.unit==="lb"?poundsPerKg:1);
+  const extra=Number(read("extra"));
+  const tie=asSeconds(read("tie"));
+  const minutes=Number(read("minutes"));
+  const finishExceedsCap=kind==="time" && minutes>0 && value>minutes*60;
+  if (kind!=="text" && (!Number.isFinite(value)||value<0||
+      (kind==="time" && (!value || finishExceedsCap)) ||
+      (kind==="cap" && (!minutes || (read("tie") && (!tie||tie>minutes*60)))) ||
+      (kind==="intervals" && (!extra||value>extra)) ||
+      (read("format")==="AMRAP" && !minutes))) {
+    notify(finishExceedsCap?"완주 시간이 타임캡을 초과했어요. 시간을 수정하거나 종료 상태를 바꿔 주세요.":"스코어와 제한 시간을 확인해 주세요.");
+    const invalidName=kind==="time"?"finish":
+      kind==="cap" && read("tie") && (!tie||tie>minutes*60) && minutes?"tie":
+      !minutes && (kind==="cap" || read("format")==="AMRAP")?"minutes":
+      kind==="intervals" && !extra?"extra":"value";
+    const input=form.elements.namedItem(invalidName);
+    input?.focus({preventScroll:true});
+    input?.scrollIntoView({block:"nearest"});
+    fitEditorToViewport();
+    return false;
+  }
+  const names=fields.getAll("move-name");
+  const amounts=fields.getAll("move-amount");
+  const units=fields.getAll("move-unit");
+  const loads=fields.getAll("move-load");
+  const standards=fields.getAll("move-standard");
+  const equipment=fields.getAll("move-equipment");
+  const moves=names.map((name,i)=>({name:scanMove(name),amount:amounts[i].trim(),unit:units[i],
+    kg:loads[i]===""?null:Number(loads[i])/(data.unit==="lb"?poundsPerKg:1),standard:standards[i].trim(),equipment:equipment[i].trim()}));
+  if (moves.some(move=>!move.name||!move.amount|| (move.kg!==null && !Number.isFinite(move.kg)))) {
+    notify("동작 이름과 수량을 입력해 주세요.");
+    return false;
+  }
+  Object.assign(record,{format:read("format"),scale:read("scale"),variant:read("variant"),plan:read("plan"),structure:read("structure"),
+    score:read("score"),minutes,moves,sourceText:read("applied-source"),sourceLevel:read("applied-level"),waitingForScore,needsVariant:read("needs-variant")==="yes",performance:kind==="text"?null:{kind,value,...(["rounds","intervals"].includes(kind)?{extra}:{}),...(tie?{tie}:{})}});
+  return true;
+}
+function confirm(title, message, callback) {
+  show(title,'<p>'+message+'</p><div class="actions"><button id="confirm" class="danger">확인</button><button class="quiet" data-action="close">취소</button></div>');
+  document.querySelector("#confirm").onclick=callback;
+}
+function saveRecord(event) {
+  event.preventDefault();
+  const form = event.target;
+  const fields = new FormData(form);
+  const name = fields.get("name").trim();
+  if (!name) { notify("운동 이름을 입력해 주세요."); return; }
+  const record = {id:editRecord?.id??newId(),type:form.dataset.type,date:fields.get("date"),name,note:fields.get("note").trim()};
+  if (record.type==="strength") {
+    const reps=fields.getAll("reps");
+    const rpe=fields.getAll("rpe");
+    record.sets=fields.getAll("weight").map((value,i)=>({
+      weight:Number(value)/(data.unit==="lb"?poundsPerKg:1),reps:Number(reps[i]),rpe:rpe[i]===""?null:Number(rpe[i])
+    }));
+  } else if (!readWod(fields,record,form)) return;
+  const records = editRecord ? data.records.map(item=>item.id===record.id?record:item) : [...data.records,record];
+  if (!validData({...data,records})) { notify("운동 기록의 입력값을 확인해 주세요."); return; }
+  if (!store({...data,records})) return;
+  day=record.date;
+  dialog.close();
+  render();
+  if (getPRs().improvements.has(record.id)) {
+    detail(record);
+    document.querySelector("#dialog-title").textContent=tr("새 PR!")+" · "+record.name;
+  } else {
+    if (record.type==="wod") detail(record);
+    notify("운동 기록을 저장했어요.");
+  }
+}
+document.addEventListener("submit",event=>{if(event.target.id==="record-form") saveRecord(event);});
+document.addEventListener("keydown",event=>{
+  if (event.target.id==="movement-search" && event.key==="Enter" && !event.isComposing) event.preventDefault();
+});
+document.addEventListener("input",event=>{
+  const field=event.target;
+  if (field.id==="movement-search") updateMovementLibrary();
+  if (field.name==="wod-source") showSourceLevels();
+  if (field.id==="conversion-input") updateConversion();
+  if (field.id==="search") {
+    search=field.value;
+    document.querySelector("#history-list").innerHTML=historyRows();
+    localize(document.querySelector("#history-list"));
+  }
+  if (field.id==="exercise-name" && field.form.dataset.type==="strength") {
+    const query=field.value.trim().toLowerCase();
+    const matches=query?catalog.filter(item=>item.join(" ").toLowerCase().includes(query)).slice(0,5):[];
+    document.querySelector("#exercise-matches").innerHTML=matches.map(item=>
+      '<button type="button" class="secondary" data-action="exercise" data-id="'+escapeHtml(item[0])+'">'+escapeHtml(item[0])+'</button>').join(" ");
+  }
+});
+document.addEventListener("change",event=>{
+  const field=event.target;
+  if (field.name==="score-pending") togglePendingScore();
+  if (field.name==="format" || field.name==="score-kind") {
+    const target=document.querySelector("#score-fields");
+    target.innerHTML=scoreInputs(field.form.elements.format.value,field.name==="score-kind"?field.value:undefined);
+    localize(target);
+    togglePendingScore();
+    if (field.name==="score-kind") target.querySelector('[name="score-kind"]').focus();
+  }
+  switch(field.id) {
+    case "language":
+      if (store({...data,locale:field.value})) { locale=field.value; render(); }
+      break;
+    case "type-filter":
+      typeFilter=field.value;
+      document.querySelector("#history-repeat").hidden=typeFilter==="strength";
+      document.querySelector("#history-list").innerHTML=historyRows();
+    localize(document.querySelector("#history-list"));
+      break;
+    case "progress-name": progressName=field.value; render(); break;
+    case "goal": store({...data,goal:Number(field.value)}); render(); break;
+
+  }
+});
+document.addEventListener("click",event=>{
+  const button=event.target.closest("[data-action],[data-page]");
+  if (!button) return;
+  const {action,id,page}=button.dataset;
+  if (page) { go(page); return; }
+  const record=data.records.find(item=>item.id===id);
+  switch(action) {
+    case "unit":
+      if (store({...data,unit:id})) {
+        render();
+        document.querySelector('[data-action="unit"][aria-pressed="true"]').focus();
+      }
+      break;
+    case "calculator":
+      conversionFrom="kg";
+      conversionInput="";
+      showCalculator();
+      break;
+    case "convert-direction":
+      conversionFrom=id;
+      showCalculator();
+      document.querySelector('[data-action="convert-direction"][aria-pressed="true"]').focus();
+      break;
+    case "close": dialog.close(); break;
+    case "repeat": repeatWods(); break;
+    case "prs": prList(); break;
+    case "movements": showMovementLibrary(); break;
+    case "terms":
+      show("WOD 용어",'<div class="card">'+terms.map(([term,definition])=>'<div class="row"><span><b>'+tr(term)+'</b><span class="hint">'+tr(definition)+'</span></span></div>').join("")+'</div>');
+      break;
+    case "retry":
+      if (record) recordForm("wod",null,{...record,date:todayKey,repeat:true,score:"",scoreKind:measures(record)?.kind==="stopped"?"time":measures(record)?.kind,performance:null,note:""});
+      break;
+    case "add-move": openMovementPicker(null); break;
+    case "browse-movement": openMovementPicker(button.closest("fieldset")); break;
+    case "cancel-movement": {
+      const focusTarget=movementTarget?.querySelector('[data-action="browse-movement"]')??document.querySelector('[data-action="add-move"]');
+      closeMovementPicker();
+      focusTarget.focus();
+      break;
+    }
+    case "filter-movements":
+      button.parentElement.querySelector('[aria-pressed="true"]').setAttribute("aria-pressed","false");
+      button.setAttribute("aria-pressed","true");
+      updateMovementLibrary();
+      break;
+    case "pick-movement": applyMovement(id); break;
+    case "custom-move": applyMovement(""); break;
+    case "move-up":
+    case "move-down": {
+      const row=button.closest("fieldset");
+      const sibling=action==="move-up"?row.previousElementSibling:row.nextElementSibling;
+      if (!sibling) break;
+      if (action==="move-up") sibling.before(row);
+      else sibling.after(row);
+      refreshMovementOrder();
+      (button.disabled?row.querySelector('[data-action="'+(action==="move-up"?"move-down":"move-up")+'"]'):button).focus();
+      break;
+    }
+    case "remove-move": {
+      const fieldset=button.closest("fieldset");
+      if (fieldset===movementTarget) closeMovementPicker();
+      fieldset.remove();
+      refreshMovementOrder();
+      break;
+    }
+    case "start": start(); break;
+    case "strength": case "wod": recordForm(action); break;
+    case "benchmarks": showBenchmarks(); break;
+    case "preset": recordForm("wod",null,benchmarkDraft(benchmarks[Number(id)])); break;
+    case "apply-wod-source": applyWodImport(); break;
+    case "detail": if(record) detail(record); break;
+    case "edit": if(record) recordForm(record.type,record); break;
+    case "delete":
+      confirm("운동 기록 삭제","이 운동 기록을 삭제할까요?",()=>{
+        if (!store({...data,records:data.records.filter(item=>item.id!==id)})) return;
+        dialog.close(); render(); notify("운동 기록을 삭제했어요.");
+      }); break;
+    case "exercise":
+      document.querySelector("#exercise-name").value=id;
+      document.querySelector("#exercise-matches").replaceChildren(); break;
+    case "add-set":
+      document.querySelector("#sets").insertAdjacentHTML("beforeend",setFields());
+      document.querySelector(".set:last-child input").focus(); break;
+    case "remove-set":
+      if(document.querySelectorAll(".set").length>1) button.closest(".set").remove();
+      else notify("세트를 한 개 이상 남겨주세요.");
+      break;
+    case "day": day=id; render(); break;
+    case "choose-date":
+      show("운동 날짜 선택",'<form id="date-form"><label>날짜<input type="date" name="day" value="'+day+'" required></label><div class="actions"><button class="primary">이 날짜 보기</button></div></form>');
+      document.querySelector("#date-form").onsubmit = event=>{
+        event.preventDefault(); day=new FormData(event.target).get("day"); dialog.close(); render();
+      }; break;
+    case "remove-demo":
+      confirm("샘플 기록 삭제","시안에 포함된 샘플 기록을 지울까요?",()=>{
+        if (!store({...data,records:data.records.filter(item=>!item.id.startsWith("demo-"))})) return;
+        dialog.close(); render(); notify("샘플 기록을 지웠어요.");
+      }); break;
+  }
+});
+render();
+})();
+</script>
+</body>
+</html>
