@@ -1282,7 +1282,7 @@ function fitEditorToViewport() {
     return;
   }
   const inset=Math.max(0,innerHeight-viewport.height-viewport.offsetTop);
-  if (inset>0) dialog.classList.add("editor-keyboard");
+  dialog.classList.toggle("editor-keyboard",inset>0);
   dialog.classList.toggle("editor-keyboard-short",inset>0 && viewport.height<300);
   dialog.style.setProperty("--keyboard-inset",inset+"px");
   dialog.style.setProperty("--editor-viewport",viewport.height+"px");
