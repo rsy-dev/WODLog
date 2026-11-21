@@ -263,6 +263,32 @@ void main() {
       expect(find.text(l10n.todaySummary), findsNothing);
 
       await show(const WorkoutHistoryScreen());
+      expect(find.text(l10n.recordWod), findsOneWidget);
+      expect(find.textContaining(l10n.wodUnconfirmedStandard), findsOneWidget);
+      if (locale.languageCode == 'en') {
+        await tester.tap(find.text(l10n.recordWod));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextFormField, l10n.wodName),
+          'Records entry',
+        );
+        final time = find.widgetWithText(TextFormField, l10n.wodFinishTime);
+        await tester.scrollUntilVisible(time, 100, scrollable: editorFields);
+        await tester.enterText(time, '5:00');
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(FilledButton, l10n.save));
+        await tester.pumpAndSettle();
+        expect(wodWriter.savedPrescription?.title, 'Records entry');
+        expect(wodWriter.savedRepeatScore?.elapsedMs, 300000);
+        expect(
+          wodWriter.savedWorkoutDate,
+          DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        );
+        expect(find.byTooltip(l10n.closeSheet), findsOneWidget);
+        await tester.tap(find.byTooltip(l10n.closeSheet));
+        await tester.pumpAndSettle();
+      }
       final scoreLabel = find.text('07:45');
       await tester.scrollUntilVisible(
         scoreLabel,
@@ -330,7 +356,9 @@ void main() {
         final editor = editorFields;
         final ending = find.text(l10n.wodFinished);
         await tester.scrollUntilVisible(ending, 100, scrollable: editor);
-        await tester.tap(ending);
+        await tester.ensureVisible(ending);
+        await tester.pumpAndSettle();
+        await tester.tap(ending.hitTestable());
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.wodCapped).last);
         await tester.pumpAndSettle();
@@ -393,6 +421,26 @@ void main() {
       }
 
       await show(const ProgressScreen());
+      if (locale.languageCode == 'en') {
+        final selector = find.byType(DropdownButtonFormField<String>);
+        await tester.tap(selector);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Fran').last);
+        await tester.pumpAndSettle();
+        expect(
+          tester.widget<DropdownButtonFormField<String>>(selector).initialValue,
+          'Fran',
+        );
+        await tester.tap(selector);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l10n.allMovements).last);
+        await tester.pumpAndSettle();
+        expect(
+          tester.widget<DropdownButtonFormField<String>>(selector).initialValue,
+          isNull,
+        );
+      }
+
       await tester.scrollUntilVisible(find.text('Back Squat'), 120);
       await tester.scrollUntilVisible(find.text(displayedWeight), 120);
       expect(find.text(displayedWeight), findsOneWidget);
@@ -462,7 +510,17 @@ void main() {
           find.widgetWithText(TextFormField, l10n.wodName),
           'Saved workout',
         );
-        await tester.tap(find.widgetWithText(OutlinedButton, l10n.addExercise));
+        final addMovement = find.text(l10n.addExercise);
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          addMovement,
+          100,
+          scrollable: editorFields,
+        );
+        await tester.ensureVisible(addMovement);
+        await tester.pumpAndSettle();
+        await tester.tap(addMovement.hitTestable());
         await tester.pumpAndSettle();
         await tester.enterText(
           find.widgetWithText(TextField, l10n.searchMovements),
@@ -472,6 +530,10 @@ void main() {
         await tester.tap(find.text('Double-Unders'));
         await tester.pumpAndSettle();
         expect(find.text('Double-Unders'), findsOneWidget);
+        await tester.ensureVisible(
+          find.byType(DropdownButtonFormField<String>),
+        );
+        await tester.pumpAndSettle();
         await tester.tap(find.byType(DropdownButtonFormField<String>));
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.resultLoad).last);

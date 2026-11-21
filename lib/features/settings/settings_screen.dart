@@ -48,6 +48,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final number = NumberFormat.decimalPattern(
       Localizations.localeOf(context).toString(),
     );
+    final largeText = MediaQuery.textScalerOf(context).scale(16) > 22;
+    final goal = display.value == null
+        ? '—'
+        : number.format(display.value!.weeklyGoal);
     return Scaffold(
       appBar: AppBar(title: const Text('WODLog')),
       body: ListView(
@@ -79,6 +83,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final dropdown = OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                    ),
                     onPressed: display.isLoading
                         ? null
                         : () => _language(context),
@@ -90,7 +100,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             locale == null
                                 ? l10n.deviceLanguage
                                 : _name(locale),
-                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.end,
                           ),
                         ),
                         const Icon(Icons.unfold_more, size: 18),
@@ -100,7 +110,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (constraints.maxWidth < 360) ...[
+                      if (constraints.maxWidth < 280 ||
+                          MediaQuery.textScalerOf(context).scale(16) > 22) ...[
                         Text(
                           l10n.languageSetting,
                           style: Theme.of(context).textTheme.titleMedium,
@@ -133,6 +144,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: SegmentedButton<WeightUnit>(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.resolveWith(
+                              (states) => states.contains(WidgetState.selected)
+                                  ? WodLogColors.accentSoft
+                                  : WodLogColors.surface,
+                            ),
+                            foregroundColor: const WidgetStatePropertyAll(
+                              WodLogColors.navy,
+                            ),
+                          ),
                           segments: [
                             for (final unit in WeightUnit.values)
                               ButtonSegment(
@@ -186,12 +207,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 color: WodLogColors.navy,
               ),
               title: Text(l10n.weeklyGoal),
-              subtitle: Text(
-                display.value == null
-                    ? '—'
-                    : number.format(display.value!.weeklyGoal),
+              subtitle: largeText ? Text(goal) : null,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (!largeText)
+                    Text(goal, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.chevron_right),
+                ],
               ),
-              trailing: const Icon(Icons.chevron_right),
               onTap: display.isLoading
                   ? null
                   : () => _weeklyGoal(context, number),

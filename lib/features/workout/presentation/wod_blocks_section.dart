@@ -391,6 +391,13 @@ Future<void> showWodResultEditor(
               second: workoutDatePicker(setState),
             ),
             OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
               onPressed: saving
                   ? null
                   : () async {
@@ -415,6 +422,10 @@ Future<void> showWodResultEditor(
             ),
           ],
           OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
             onPressed: saving
                 ? null
                 : () async {
@@ -502,6 +513,96 @@ Future<void> showWodResultEditor(
                   )
                 : null,
           ),
+          ExpansionTile(
+            key: fieldKey('prescriptionFields', (titleRevision, notesRevision)),
+            tilePadding: EdgeInsets.zero,
+            title: Text(l10n.wodPrescription),
+            maintainState: true,
+            onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
+            children: [
+              DropdownButtonFormField<WodStructure>(
+                isExpanded: true,
+                initialValue: prescription.structure,
+                decoration: InputDecoration(labelText: l10n.wodSectionTitle),
+                items: [
+                  for (final structure in WodStructure.values)
+                    DropdownMenuItem(
+                      value: structure,
+                      child: Text(switch (structure) {
+                        WodStructure.forTime => l10n.resultForTime,
+                        WodStructure.amrap => l10n.resultAmrap,
+                        WodStructure.emom => l10n.resultEmom,
+                        WodStructure.intervals => l10n.wodIntervals,
+                        WodStructure.other => l10n.resultOther,
+                        WodStructure.unknown => l10n.wodUnconfirmedStandard,
+                      }),
+                    ),
+                ],
+                onChanged: saving
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          updatePrescription({'structure': value.name});
+                        }
+                      },
+              ),
+              for (final (field, label, value) in [
+                ('rounds', l10n.wodTotalRounds, prescription.rounds),
+                if (!isCapped())
+                  (
+                    'timeCapSeconds',
+                    l10n.wodTimeCapSeconds,
+                    prescription.timeCapSeconds,
+                  ),
+                (
+                  'durationSeconds',
+                  l10n.wodDurationSeconds,
+                  prescription.durationSeconds,
+                ),
+                (
+                  'intervalCount',
+                  l10n.wodTotalIntervals,
+                  prescription.intervalCount,
+                ),
+                (
+                  'intervalSeconds',
+                  l10n.wodIntervalLengthSeconds,
+                  prescription.intervalSeconds,
+                ),
+              ])
+                TextFormField(
+                  key: fieldKey(field, (titleRevision, notesRevision)),
+                  initialValue: value == null ? '' : number.format(value),
+                  enabled: !saving,
+                  decoration: InputDecoration(labelText: label),
+                  keyboardType: TextInputType.number,
+                  onChanged: (text) {
+                    final amount = whole(text);
+                    if (text.trim().isNotEmpty &&
+                        (amount == null || amount == 0)) {
+                      invalidPrescriptionFields.add(field);
+                    } else {
+                      invalidPrescriptionFields.remove(field);
+                      updatePrescription({field: amount});
+                    }
+                  },
+                ),
+              if (prescription.unparsedLines.isNotEmpty) ...[
+                Text(l10n.unreadWodLines),
+                for (final line in prescription.unparsedLines) Text(line),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.wodUnreadLinesConfirmed),
+                  value: false,
+                  onChanged: saving
+                      ? null
+                      : (_) => setState(() {
+                          updatePrescription({'unparsedLines': <String>[]});
+                        }),
+                ),
+              ],
+            ],
+          ),
           for (final (index, movement) in prescription.movements.indexed)
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -545,7 +646,11 @@ Future<void> showWodResultEditor(
                 icon: const Icon(Icons.remove_circle_outline),
               ),
             ),
-          OutlinedButton(
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
             onPressed: saving
                 ? null
                 : () async {
@@ -558,7 +663,8 @@ Future<void> showWodResultEditor(
                       ]),
                     );
                   },
-            child: Text(l10n.addExercise),
+            icon: const Icon(Icons.add, size: 18),
+            label: Text(l10n.addExercise),
           ),
           const SizedBox(height: 12),
           if (type == 'for_time' && !usePreviousScore)
@@ -659,95 +765,6 @@ Future<void> showWodResultEditor(
               decoration: InputDecoration(labelText: l10n.wodExtraReps),
               onChanged: (value) => secondScore = value,
             ),
-          ExpansionTile(
-            key: fieldKey('prescriptionFields', (titleRevision, notesRevision)),
-            title: Text(l10n.wodPrescription),
-            maintainState: true,
-            onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
-            children: [
-              DropdownButtonFormField<WodStructure>(
-                isExpanded: true,
-                initialValue: prescription.structure,
-                decoration: InputDecoration(labelText: l10n.wodSectionTitle),
-                items: [
-                  for (final structure in WodStructure.values)
-                    DropdownMenuItem(
-                      value: structure,
-                      child: Text(switch (structure) {
-                        WodStructure.forTime => l10n.resultForTime,
-                        WodStructure.amrap => l10n.resultAmrap,
-                        WodStructure.emom => l10n.resultEmom,
-                        WodStructure.intervals => l10n.wodIntervals,
-                        WodStructure.other => l10n.resultOther,
-                        WodStructure.unknown => l10n.wodUnconfirmedStandard,
-                      }),
-                    ),
-                ],
-                onChanged: saving
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          updatePrescription({'structure': value.name});
-                        }
-                      },
-              ),
-              for (final (field, label, value) in [
-                ('rounds', l10n.wodTotalRounds, prescription.rounds),
-                if (!isCapped())
-                  (
-                    'timeCapSeconds',
-                    l10n.wodTimeCapSeconds,
-                    prescription.timeCapSeconds,
-                  ),
-                (
-                  'durationSeconds',
-                  l10n.wodDurationSeconds,
-                  prescription.durationSeconds,
-                ),
-                (
-                  'intervalCount',
-                  l10n.wodTotalIntervals,
-                  prescription.intervalCount,
-                ),
-                (
-                  'intervalSeconds',
-                  l10n.wodIntervalLengthSeconds,
-                  prescription.intervalSeconds,
-                ),
-              ])
-                TextFormField(
-                  key: fieldKey(field, (titleRevision, notesRevision)),
-                  initialValue: value == null ? '' : number.format(value),
-                  enabled: !saving,
-                  decoration: InputDecoration(labelText: label),
-                  keyboardType: TextInputType.number,
-                  onChanged: (text) {
-                    final amount = whole(text);
-                    if (text.trim().isNotEmpty &&
-                        (amount == null || amount == 0)) {
-                      invalidPrescriptionFields.add(field);
-                    } else {
-                      invalidPrescriptionFields.remove(field);
-                      updatePrescription({field: amount});
-                    }
-                  },
-                ),
-              if (prescription.unparsedLines.isNotEmpty) ...[
-                Text(l10n.unreadWodLines),
-                for (final line in prescription.unparsedLines) Text(line),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.wodUnreadLinesConfirmed),
-                  value: false,
-                  onChanged: saving
-                      ? null
-                      : (_) => setState(() {
-                          updatePrescription({'unparsedLines': <String>[]});
-                        }),
-                ),
-              ],
-            ],
-          ),
           if (usePreviousScore)
             TextButton(
               onPressed: saving
