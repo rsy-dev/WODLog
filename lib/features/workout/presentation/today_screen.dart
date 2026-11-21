@@ -157,39 +157,44 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             const SizedBox(height: 16),
             Card(
               margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: WodLogColors.accent,
-                        foregroundColor: Colors.white,
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                      ),
-                      onPressed: _startWorkout,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.white24,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.add),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(child: Text(l10n.recordWod)),
-                          const Icon(Icons.chevron_right, size: 24),
-                        ],
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: WodLogColors.accent,
+                      foregroundColor: Colors.white,
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(18),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    LayoutBuilder(
+                    onPressed: _startWorkout,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.add),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(child: Text(l10n.recordWod)),
+                        const Icon(Icons.chevron_right, size: 24),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+                    child: LayoutBuilder(
                       builder: (context, constraints) {
                         const spacing = 6.0;
                         final shortcuts = <(String, IconData, VoidCallback)>[
@@ -235,34 +240,71 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                             });
                         painter.dispose();
 
-                        return Wrap(
-                          spacing: spacing,
-                          runSpacing: 4,
+                        if (equalWidths) {
+                          return Row(
+                            children: [
+                              for (final (index, shortcut)
+                                  in shortcuts.indexed) ...[
+                                Expanded(
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: shortcut.$3,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8,
+                                        horizontal: 3,
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            shortcut.$2,
+                                            size: 20,
+                                            color: WodLogColors.accent,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            shortcut.$1,
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge
+                                                ?.copyWith(
+                                                  color: WodLogColors.ink,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (index < shortcuts.length - 1)
+                                  const SizedBox(
+                                    height: 48,
+                                    child: VerticalDivider(width: 1),
+                                  ),
+                              ],
+                            ],
+                          );
+                        }
+                        return Column(
                           children: [
                             for (final (label, icon, onPressed) in shortcuts)
                               SizedBox(
-                                width: equalWidths
-                                    ? width.floorToDouble()
-                                    : constraints.maxWidth,
-                                child: OutlinedButton(
+                                width: constraints.maxWidth,
+                                child: TextButton.icon(
                                   style: shortcutStyle,
                                   onPressed: onPressed,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(icon, size: 17),
-                                      const SizedBox(height: 4),
-                                      Text(label, textAlign: TextAlign.center),
-                                    ],
-                                  ),
+                                  icon: Icon(icon),
+                                  label: Text(label),
                                 ),
                               ),
                           ],
                         );
                       },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 14),
@@ -280,7 +322,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
-                        Flexible(
+                        Expanded(
                           child: Text(
                             [
                               l10n.weeklyGoal,
@@ -432,12 +474,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: () => setState(() => _selectedDate = date),
           child: Ink(
-            decoration: BoxDecoration(
-              color: selected
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : null,
-              borderRadius: BorderRadius.circular(12),
-            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Column(
@@ -447,8 +483,35 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(DateFormat.d(locale).format(date)),
-                  Icon(recorded ? Icons.check : Icons.remove, size: 14),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: selected ? WodLogColors.navy : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      NumberFormat.decimalPattern(locale).format(date.day),
+                      style: TextStyle(
+                        color: selected ? Colors.white : null,
+                        fontWeight: selected ? FontWeight.w700 : null,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 3),
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: recorded
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.transparent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

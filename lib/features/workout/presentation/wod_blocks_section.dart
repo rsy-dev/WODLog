@@ -171,8 +171,10 @@ Future<void> showWodResultEditor(
   if ((!isNew && record == null) || !context.mounted) return;
   final result = repeat ? null : record?.result;
   final attemptId = repeat ? const Uuid().v4() : blockId;
-  var repeatDate = DateUtils.dateOnly(DateTime.now());
-  final dateLabel = DateFormat.yMMMd(l10n.localeName);
+  var repeatDate = DateUtils.dateOnly(
+    DateTime.tryParse(newWorkoutDate ?? '') ?? DateTime.now(),
+  );
+  final compactDateLabel = DateFormat.yMd(l10n.localeName);
   String? savedWorkoutDate;
 
   WodPrescription benchmarkDraft(String title) {
@@ -352,6 +354,19 @@ Future<void> showWodResultEditor(
     });
   }
 
+  Widget workoutDatePicker(StateSetter update) => OutlinedButton.icon(
+    icon: const Icon(Icons.calendar_today_outlined),
+    label: Text(compactDateLabel.format(repeatDate)),
+    onPressed: saving
+        ? null
+        : () async {
+            final date = await showWorkoutDateSheet(context, repeatDate);
+            if (date != null && context.mounted) {
+              update(() => repeatDate = date);
+            }
+          },
+  );
+
   final saved = await showWodLogSheet<bool>(
     context: context,
     expandForKeyboard: true,
@@ -363,29 +378,17 @@ Future<void> showWodResultEditor(
     builder: (_) => StatefulBuilder(
       builder: (context, setState) => _WodEditorLayout(
         fields: [
-          if (repeat)
-            OutlinedButton.icon(
-              icon: const Icon(Icons.calendar_today_outlined),
-              label: Text(dateLabel.format(repeatDate)),
-              onPressed: saving
-                  ? null
-                  : () async {
-                      final date = await showWorkoutDateSheet(
-                        context,
-                        repeatDate,
-                      );
-                      if (date != null && context.mounted) {
-                        setState(() => repeatDate = date);
-                      }
-                    },
-            ),
+          if (repeat && !isNew) workoutDatePicker(setState),
           if (isNew) ...[
-            TextFormField(
-              key: fieldKey('titleField', titleRevision),
-              initialValue: title,
-              enabled: !saving,
-              decoration: InputDecoration(labelText: l10n.wodName),
-              onChanged: (value) => title = value,
+            _ResponsiveFieldPair(
+              first: TextFormField(
+                key: fieldKey('titleField', titleRevision),
+                initialValue: title,
+                enabled: !saving,
+                decoration: InputDecoration(labelText: l10n.wodName),
+                onChanged: (value) => title = value,
+              ),
+              second: workoutDatePicker(setState),
             ),
             OutlinedButton(
               onPressed: saving
@@ -939,12 +942,10 @@ Future<void> showWodResultEditor(
                                   score: attemptScore,
                                 );
                               } else if (repeat || newWorkoutDate != null) {
-                                final workoutDate =
-                                    newWorkoutDate ??
-                                    DateFormat(
-                                      'yyyy-MM-dd',
-                                      'en',
-                                    ).format(repeatDate);
+                                final workoutDate = DateFormat(
+                                  'yyyy-MM-dd',
+                                  'en',
+                                ).format(repeatDate);
                                 await repository.saveRepeat(
                                   attemptId: attemptId,
                                   workoutDate: workoutDate,
@@ -1055,7 +1056,7 @@ class _ResponsiveFieldPair extends StatelessWidget {
     builder: (context, constraints) {
       final sideBySide =
           second != null &&
-          constraints.maxWidth >= 380 &&
+          constraints.maxWidth >= 340 &&
           MediaQuery.textScalerOf(context).scale(14) <= 18;
       if (!sideBySide) {
         return Column(

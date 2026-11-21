@@ -69,6 +69,7 @@ class WodLogApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       locale: ref.watch(displayPreferencesProvider).value?.locale,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

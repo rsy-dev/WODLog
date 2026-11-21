@@ -86,10 +86,12 @@ class WodRecordList extends ConsumerWidget {
         if (loading) const LinearProgressIndicator(),
         if (failed) Text(l10n.loadWorkoutError),
         if (showEmpty && !failed && !loading && records.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              query.isEmpty ? l10n.emptyWodBlocks : l10n.noMatchingWorkouts,
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                query.isEmpty ? l10n.emptyWodBlocks : l10n.noMatchingWorkouts,
+              ),
             ),
           ),
         for (final (:session, :block, :dateLabel) in records.take(
