@@ -71,7 +71,32 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('WODLog')),
+      appBar: AppBar(
+        titleSpacing: 20,
+        title: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: WodLogColors.navy,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'W',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text('WODLog'),
+          ],
+        ),
+      ),
       body: SafeArea(
         bottom: false,
         child: ListView(
@@ -89,29 +114,36 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isToday ? l10n.todayWorkout : l10n.workoutLog,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
                         l10n.workoutDate(
                           _formatDisplayDate(_selectedDate, context),
                         ),
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isToday ? '오늘의 WOD' : l10n.workoutLog,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontSize: 31),
                       ),
                     ],
                   ),
                 ),
-                IconButton.outlined(
-                  style: IconButton.styleFrom(
-                    backgroundColor: WodLogColors.surface,
-                    foregroundColor: WodLogColors.navy,
-                    minimumSize: const Size(48, 48),
+                Tooltip(
+                  message: l10n.chooseDate,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: WodLogColors.surface,
+                      foregroundColor: WodLogColors.navy,
+                      minimumSize: const Size(48, 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    onPressed: _chooseDate,
+                    icon: const Icon(Icons.calendar_month_outlined, size: 18),
+                    label: MediaQuery.sizeOf(context).width < 360
+                        ? const SizedBox.shrink()
+                        : Text(l10n.chooseDate),
                   ),
-                  tooltip: l10n.chooseDate,
-                  onPressed: _chooseDate,
-                  icon: const Icon(Icons.calendar_month_outlined),
                 ),
               ],
             ),
@@ -123,10 +155,31 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    FilledButton.icon(
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: WodLogColors.accent,
+                        foregroundColor: Colors.white,
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                      ),
                       onPressed: _startWorkout,
-                      icon: const Icon(Icons.add),
-                      label: Text(l10n.recordWod),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white24,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.add),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text(l10n.recordWod)),
+                          const Icon(Icons.chevron_right, size: 24),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 10),
                     LayoutBuilder(
@@ -196,22 +249,47 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            Text(
-              l10n.lastSevenDays,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            Row(
-              children: [
-                for (final date in dates)
-                  Expanded(child: _dayChip(context, date, days, locale)),
-              ],
-            ),
-            Text(
-              [
-                l10n.weeklyGoal,
-                if (activityReady && goal != null)
-                  '${number.format(days.length)} / ${number.format(goal)}',
-              ].join(' · '),
+            Card(
+              color: WodLogColors.blueSurface,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.lastSevenDays,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        Flexible(
+                          child: Text(
+                            [
+                              l10n.weeklyGoal,
+                              if (activityReady && goal != null)
+                                '${number.format(days.length)} / ${number.format(goal)}',
+                            ].join(' · '),
+                            textAlign: TextAlign.end,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        for (final date in dates)
+                          Expanded(
+                            child: _dayChip(context, date, days, locale),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Row(
