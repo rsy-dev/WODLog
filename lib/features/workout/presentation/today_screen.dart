@@ -36,6 +36,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     );
     final progress = ref.watch(exerciseProgressProvider);
     final locale = Localizations.localeOf(context).toString();
+    final textScaler = MediaQuery.textScalerOf(context);
+    final compactDate =
+        MediaQuery.sizeOf(context).width < 360 || textScaler.scale(16) > 24;
     final today = DateUtils.dateOnly(DateTime.now());
     final isToday = DateUtils.isSameDay(_selectedDate, today);
 
@@ -122,7 +125,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        isToday ? '오늘의 WOD' : l10n.workoutLog,
+                        isToday
+                            ? (locale.startsWith('ko')
+                                  ? '오늘의 WOD'
+                                  : l10n.todayWorkout)
+                            : l10n.workoutLog,
                         style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(fontSize: 31),
                       ),
@@ -140,7 +147,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     ),
                     onPressed: _chooseDate,
                     icon: const Icon(Icons.calendar_month_outlined, size: 18),
-                    label: MediaQuery.sizeOf(context).width < 360
+                    label: compactDate
                         ? const SizedBox.shrink()
                         : Text(l10n.chooseDate),
                   ),
@@ -185,9 +192,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     LayoutBuilder(
                       builder: (context, constraints) {
                         const spacing = 6.0;
-                        final shortcuts = <(String, VoidCallback)>[
+                        final shortcuts = <(String, IconData, VoidCallback)>[
                           (
                             l10n.benchmarkWorkouts,
+                            Icons.grid_view_rounded,
                             () async {
                               final template = await showWodLibrary(context);
                               if (template != null && mounted) {
@@ -197,46 +205,55 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                           ),
                           (
                             l10n.pastWods,
+                            Icons.refresh_rounded,
                             () => showPastWods(context, recent ?? []),
                           ),
                           (
                             wodPersonalRecordsLabel(l10n),
+                            Icons.north_east_rounded,
                             () => context.go('/progress'),
                           ),
                         ];
                         final width = (constraints.maxWidth - 2 * spacing) / 3;
                         final painter = TextPainter(
                           textDirection: Directionality.of(context),
-                          textScaler: MediaQuery.textScalerOf(context),
+                          textScaler: textScaler,
                         );
                         final labelStyle = Theme.of(context)
                             .textTheme
                             .labelLarge;
-                        final equalWidths = shortcuts.every((shortcut) {
-                          painter.text = TextSpan(
-                            text: shortcut.$1,
-                            style: labelStyle,
-                          );
-                          painter.layout();
-                          return painter.width + 16 <= width.floorToDouble();
-                        });
+                        final equalWidths =
+                            painter.textScaler.scale(16) <= 24 &&
+                            shortcuts.every((shortcut) {
+                              painter.text = TextSpan(
+                                text: shortcut.$1,
+                                style: labelStyle,
+                              );
+                              painter.layout();
+                              return painter.width + 16 <=
+                                  width.floorToDouble();
+                            });
                         painter.dispose();
 
                         return Wrap(
                           spacing: spacing,
                           runSpacing: 4,
                           children: [
-                            for (final (label, onPressed) in shortcuts)
+                            for (final (label, icon, onPressed) in shortcuts)
                               SizedBox(
                                 width: equalWidths
                                     ? width.floorToDouble()
-                                    : null,
+                                    : constraints.maxWidth,
                                 child: OutlinedButton(
                                   style: shortcutStyle,
                                   onPressed: onPressed,
-                                  child: Text(
-                                    label,
-                                    textAlign: TextAlign.center,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(icon, size: 17),
+                                      const SizedBox(height: 4),
+                                      Text(label, textAlign: TextAlign.center),
+                                    ],
                                   ),
                                 ),
                               ),
