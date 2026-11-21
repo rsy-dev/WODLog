@@ -616,7 +616,7 @@ abstract class AppLocalizations {
   /// No description provided for @chooseDate.
   ///
   /// In en, this message translates to:
-  /// **'Choose workout date'**
+  /// **'Choose date'**
   String get chooseDate;
 
   /// No description provided for @allMovements.
@@ -718,7 +718,7 @@ abstract class AppLocalizations {
   /// No description provided for @weightUnit.
   ///
   /// In en, this message translates to:
-  /// **'Weight unit'**
+  /// **'Logging unit'**
   String get weightUnit;
 
   /// No description provided for @weightUnitError.
@@ -748,7 +748,7 @@ abstract class AppLocalizations {
   /// No description provided for @recordWod.
   ///
   /// In en, this message translates to:
-  /// **'Record WOD'**
+  /// **'Log a WOD'**
   String get recordWod;
 
   /// No description provided for @languageSetting.
@@ -778,7 +778,7 @@ abstract class AppLocalizations {
   /// No description provided for @weightCalculator.
   ///
   /// In en, this message translates to:
-  /// **'Weight calculator'**
+  /// **'Weight converter'**
   String get weightCalculator;
 
   /// No description provided for @movementLibrary.
@@ -988,7 +988,7 @@ abstract class AppLocalizations {
   /// No description provided for @wodPersonalRecords.
   ///
   /// In en, this message translates to:
-  /// **'WOD personal records'**
+  /// **'WOD PR'**
   String get wodPersonalRecords;
 
   /// No description provided for @wodNoComparableRecords.
@@ -1272,6 +1272,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A personal record under comparable workout conditions.'**
   String get glossaryPr;
+
+  /// No description provided for @todayWodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s WOD'**
+  String get todayWodTitle;
+
+  /// No description provided for @homeBenchmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Benchmarks'**
+  String get homeBenchmarks;
+
+  /// No description provided for @homeRepeatWod.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat a WOD'**
+  String get homeRepeatWod;
+
+  /// No description provided for @homeWodPr.
+  ///
+  /// In en, this message translates to:
+  /// **'WOD PR'**
+  String get homeWodPr;
+
+  /// No description provided for @recordsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Log'**
+  String get recordsTab;
+
+  /// No description provided for @settingsEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get settingsEyebrow;
+
+  /// No description provided for @weightUnitDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to workout loads, logs and stats.'**
+  String get weightUnitDescription;
+
+  /// No description provided for @resources.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get resources;
 }
 
 class _AppLocalizationsDelegate

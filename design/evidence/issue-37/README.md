@@ -1,52 +1,40 @@
-# Issue 37 visual evidence and verification
+# Issue 37 UI review and evidence
 
-The fixed reference is `design/mockups/wodlog.html` at 393 × 852 CSS px. The
-Flutter screenshots use an iPhone 15 Pro simulator at 393 × 852 logical points
-(1179 × 2556 physical pixels, 3×). The side-by-side compositions compare the
-empty Korean home and new-record editor against the pinned mock at matching
-dimensions. The app half retains iOS status-bar chrome; its debug banner is
-disabled.
+## Reference
 
-## P0 comparison
+Visual review uses the pinned [HTML mock](https://github.com/rsy-dev/WODLog/blob/75fd9d3056c249d3af428923ea2f5965f8b6cad4/design/mockups/wodlog.html), the [approved launcher icon](https://github.com/rsy-dev/WODLog/blob/75fd9d3056c249d3af428923ea2f5965f8b6cad4/design/mockups/wodlog-app-icon.png), and the issue's iPhone 15 Pro build 9 comparisons. `assets/branding/wodlog-launcher.png` is byte-for-byte identical to the pinned icon; the home header now uses that asset.
 
-| App capture | Approved mock | Notes |
+## English mock comparison set
+
+The fixed HTML mock screenshots use English, 393 × 852 CSS px, 21 November 2026, kg, and weekly goal 3. The populated mock contains Fran, For Time, Rx, 5:42. Latest app captures use the same Fran result on a Pixel 3a API 33 (1080 × 2220 physical pixels, approximately 393 × 807 logical px), so compare the layout and component treatment while accounting for Android status/navigation chrome and the shorter viewport.
+
+| Screen | Android app | Fixed HTML mock |
 | --- | --- | --- |
-| ![iPhone app home](home-ios-15pro.png) | ![Approved empty home mock](home-mock-393.png) | [Full-width comparison](home-comparison-393.png) |
-| ![iPhone app new WOD editor](editor-ios-15pro.png) | ![Approved editor mock](editor-mock-393.png) | [Full-width comparison](editor-comparison-393.png) |
+| Home | ![Pixel home](home-android-final.png) | ![English mock home](home-mock-english-fran-393.png) |
+| Records | ![Pixel records](records-android-final.png) | ![English mock records](records-mock-english-393.png) |
+| Stats / PR | ![Pixel stats](stats-android-final.png) | ![English mock stats](stats-mock-english-393.png) |
+| Settings | ![Pixel settings](settings-android-final.png) | ![English mock settings](settings-mock-english-393.png) |
 
-The existing 393pt screenshots also show the selected Fran benchmark, entered
-5:42 score, and saved record detail in `editor-score-entered-ios-15pro.png` and
-`saved-detail-ios-15pro.png`. That is a real simulator save and detail flow.
+The app home uses the approved W mark, date and title, orange CTA, three equal shortcut columns, blue seven-day card, recent result, and floating four-tab navigation. The settings capture shows language, kg/lb, weekly goal, converter, and resource links. The Pixel launcher capture `launcher-android-adaptive-mask.png` shows the installed icon under its circular mask. The earlier Korean empty-state comparison is `home-comparison-393.png`; HTML empty-state English is `home-mock-english-393.png`.
 
-## Remaining screen captures
+Earlier iPhone 15 Pro captures for home, records, stats/PR, settings, landscape, large text, and reduced transparency remain under the corresponding `*-ios-15pro.png` names. Those iOS captures predate the latest settings and brand-header refinement; the current design review is paired with the Android app captures above.
 
-| Acceptance item | Evidence | Result |
-| --- | --- | --- |
-| English home | ![English iPhone home](home-english-ios-15pro.png) | Captured on iPhone 15 Pro; the fixed HTML mock content is Korean, so an English-to-English image comparison is unavailable. |
-| Landscape and wide layout | ![Landscape home](home-landscape-ios-15pro.png) | Captured at the iPhone 15 Pro landscape size; the existing Flutter layout test also rotates the editor to 852 × 393 with an inset and checks that the focused field and fixed save action remain reachable. |
-| Narrow layout, 320 × 640 | Flutter `workout_ui_test.dart` | The widget test renders 320 × 640 at 1.3× text scale in every supported locale and asserts no Flutter layout exception. This is a widget-test viewport rather than a simulator screenshot. |
-| Larger accessibility text | ![Large-text home with transparency reduction](home-large-text-reduce-transparency-ios-15pro.png), ![Large-text WOD editor](editor-large-text-ios-15pro.png) | Captured with iOS `accessibility-large` text. The editor vertically stacks paired fields and adds scaled spacing; the save and cancel actions stay fixed while fields scroll. |
-| Reduce Transparency | ![Home with Reduce Transparency enabled](home-large-text-reduce-transparency-ios-15pro.png) | Enabled in iOS Accessibility settings. The app uses its native accessibility event stream and renders the floating tab surface opaque. The simulator setting was restored to off after capture. |
-| Records tab | ![English records](records-english-ios-15pro.png) | Captured with a saved Fran result; search, WOD/strength filter, and past-WOD action are visible. |
-| Stats / PR | ![English WOD PR screen](stats-pr-english-ios-15pro.png) | Captured in the empty-comparison state because the saved Fran result has no confirmed comparison standard. |
-| Settings | ![English settings](settings-english-ios-15pro.png) | Captured with kg/lb, weekly goal, movement library, and glossary visible. |
-| iOS launcher | ![iOS home screen with WODLog icon](launcher-ios-15pro.png) | Captured on the iPhone home screen. `assets/branding/wodlog-launcher.png` is byte-identical to the pinned approved `wodlog-app-icon.png`. |
-| Android adaptive icon | — | The debug APK builds and installs on Pixel 3a API 33. The emulator launcher drawer did not open during capture, so no adaptive-mask screenshot is claimed. |
-| Focused score field / actual keyboard | ![Focused score field with no visible software keyboard](editor-score-focused-no-software-keyboard-ios-15pro.png) | The score field was tapped directly and shows focus/caret, but this CoreSimulator session does not render the software keyboard. The visible-keyboard save-flow acceptance item remains incomplete. |
+## Editor and save flow
 
-The extra strength summary and strength-entry action below the home WOD list
-remain visible in the app and are absent from the approved mock; review that
-difference while preserving access to the strength flow. Other remaining
-acceptance work is the actual visible-keyboard run, an English mock comparison,
-screen-specific before/after comparisons for every tab, and Android adaptive
-icon mask capture.
+`editor-android-final.png` shows the new-record sheet and `editor-fran-android-final.png` shows the Fran prescription. `android-keyboard-score-entered.png` captures the real Gboard visible with `05:42` entered and the fixed Save action still visible. Tapping Save opened Fran detail with a `5:42` result; see `saved-detail-android-final.png`. The approved HTML's Korean editor capture is `editor-mock-393.png`, and the app/mock editor composition is `editor-comparison-393.png`.
+
+This verifies the editor interaction on Android; it does not satisfy the issue's iOS software-keyboard acceptance item. The earlier iPhone 15 Pro score field was focused, but that CoreSimulator did not render its software keyboard; see `editor-score-focused-no-software-keyboard-ios-15pro.png`. A final `flutter run` built and launched the app on the booted iPhone 15 Pro simulator, but both `simctl screenshot` and `flutter screenshot` returned without producing an image, so no new iOS screen or keyboard evidence is claimed.
+
+## Layout and behavior
+
+The Flutter UI test suite covers the 320 × 640 narrow viewport across supported locales, Korean 2× text, keyboard insets, landscape editor scrolling, and fixed-save reachability. At normal text scale, the home shortcut row keeps three columns and allows two-line labels; larger text uses the reachable stacked fallback. Strength creation remains in the Records tab after its duplicate home entry was removed. Stats keeps score history visible even when there is no confirmed PR comparison.
 
 ## Verification
 
-- `flutter analyze --no-pub` — passed.
-- `flutter test --no-pub` — all 64 tests passed. This includes narrow 320 × 640
-  layouts across supported locales, Korean 2× text scaling, and editor scrolling,
-  keyboard-inset, landscape, and fixed-save-action checks.
-- `flutter build ios --simulator --no-codesign --no-pub` — passed.
-- `flutter build apk --debug --no-pub` — passed with JDK 18 and installed on Pixel 3a API 33. The machine's default Java 11 is too old for the configured Gradle 9.3.1, so Flutter's JDK setting was pointed at the installed JDK 18 for this build.
-- `git diff --check` — passed before this evidence update; rerun before commit.
+- `flutter pub get` completed.
+- `flutter build apk --debug --no-pub` passed; the resulting APK was installed on Pixel 3a API 33 for the captures above.
+- `flutter analyze --no-pub` passed with no issues.
+- `flutter test --no-pub` passed all 64 tests, including 320 × 640 supported-locale layouts, Korean 2× text, keyboard insets, landscape editor scrolling, and fixed-save reachability.
+- `flutter build ios --simulator --no-codesign --no-pub` and `flutter build apk --debug --no-pub` passed; the Android APK was installed on Pixel 3a API 33.
+- `git diff --check` passed after the final source and evidence updates.
+- The iOS software-keyboard acceptance item remains open. The draft PR is ready for the release owner to review; Release remains with the coordinator.

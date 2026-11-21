@@ -78,6 +78,12 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                 ),
                 WodRecordList(sessions: sessions, query: _query),
               ] else ...[
+                FilledButton.icon(
+                  onPressed: _startStrengthSession,
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.addStrengthBlock),
+                ),
+                const SizedBox(height: 8),
                 if (items.isEmpty) Text(l10n.noMatchingWorkouts),
                 for (final session in items)
                   Builder(
@@ -109,5 +115,23 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _startStrengthSession() async {
+    try {
+      final date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final sessionId = await ref
+          .read(workoutRepositoryProvider)
+          .createSession(workoutDate: date);
+      if (mounted) context.push('/sessions/$sessionId');
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.loadWorkoutError),
+          ),
+        );
+      }
+    }
   }
 }

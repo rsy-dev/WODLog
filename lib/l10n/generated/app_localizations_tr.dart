@@ -333,7 +333,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get todayTab => 'Today';
 
   @override
-  String get recordWod => 'Record WOD';
+  String get recordWod => 'Log a WOD';
 
   @override
   String get languageSetting => 'Language';
@@ -350,7 +350,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get weightCalculator => 'Weight calculator';
+  String get weightCalculator => 'Weight converter';
 
   @override
   String get movementLibrary => 'Movement library';
@@ -458,7 +458,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get wodInvalidScore => 'Enter a valid result for this workout type.';
 
   @override
-  String get wodPersonalRecords => 'WOD personal records';
+  String get wodPersonalRecords => 'WOD PR';
 
   @override
   String get wodNoComparableRecords =>
@@ -615,4 +615,29 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get glossaryPr =>
       'A personal record under comparable workout conditions.';
+
+  @override
+  String get todayWodTitle => 'Today\'s WOD';
+
+  @override
+  String get homeBenchmarks => 'Benchmarks';
+
+  @override
+  String get homeRepeatWod => 'Repeat a WOD';
+
+  @override
+  String get homeWodPr => 'WOD PR';
+
+  @override
+  String get recordsTab => 'Log';
+
+  @override
+  String get settingsEyebrow => 'Preferences';
+
+  @override
+  String get weightUnitDescription =>
+      'Applies to workout loads, logs and stats.';
+
+  @override
+  String get resources => 'Resources';
 }

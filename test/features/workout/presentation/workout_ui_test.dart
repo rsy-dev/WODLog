@@ -124,9 +124,9 @@ void main() {
         tester.view.physicalSize = const Size(390, 844);
         final shortcuts = [
           for (final label in [
-            l10n.benchmarkWorkouts,
-            l10n.pastWods,
-            l10n.wodPersonalRecords,
+            l10n.homeBenchmarks,
+            l10n.homeRepeatWod,
+            l10n.homeWodPr,
           ])
             find.text(label),
         ];
@@ -260,11 +260,7 @@ void main() {
         await show(const SizedBox.shrink());
         await show(const TodayScreen());
       }
-      final todayVolume = find.text(
-        '\u2066${number.format(500.625)}\u00a0lb\u2069·${l10n.reps}',
-      );
-      await tester.scrollUntilVisible(todayVolume, 120);
-      expect(todayVolume, findsOneWidget);
+      expect(find.text(l10n.todaySummary), findsNothing);
 
       await show(const WorkoutHistoryScreen());
       final scoreLabel = find.text('07:45');
@@ -405,6 +401,16 @@ void main() {
       await show(const SettingsScreen());
       expect(find.text(l10n.weightUnit), findsOneWidget);
       if (locale.languageCode == 'en') {
+        await tester.scrollUntilVisible(
+          find.text(l10n.weightCalculator),
+          100,
+          scrollable: find
+              .descendant(
+                of: find.byType(SettingsScreen),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
         await tester.tap(find.text(l10n.weightCalculator));
         await tester.pumpAndSettle();
         final close = find.byTooltip(l10n.closeSheet);
@@ -522,7 +528,7 @@ void main() {
               .format(DateTime.parse(_session.workoutDate)),
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Fran'));
+        await tester.tap(find.text('Fran').first);
         await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.editWodResult));
         await tester.pumpAndSettle();
@@ -566,24 +572,41 @@ void main() {
       }
       if (locale.languageCode == 'en') {
         await show(const WodLogApp());
-        await tester.tap(find.text('WOD personal records'));
+        await tester.tap(find.text(l10n.homeWodPr));
         await tester.pumpAndSettle();
         expect(find.text('Current best · Rx · 07:45'), findsOneWidget);
-        await tester.tap(find.text('Fran'));
+        await tester.tap(find.text('Fran').first);
         await tester.pumpAndSettle();
-        expect(find.text('Score history'), findsOneWidget);
-        expect(find.text('08:20'), findsOneWidget);
+        expect(find.text('Score history'), findsWidgets);
+        expect(find.text('08:20'), findsWidgets);
+        expect(find.text(l10n.wodScoreHistory), findsWidgets);
         await tester.tap(find.text('07:45').first);
         await tester.pumpAndSettle();
         expect(find.text(l10n.openSession), findsOneWidget);
         await tester.tap(find.byTooltip(l10n.closeSheet));
         await tester.pumpAndSettle();
-        await tester.tap(find.byIcon(Icons.view_agenda_outlined));
+        await tester.tap(find.byIcon(Icons.view_list_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.searchWorkouts), findsOneWidget);
+        await tester.tap(find.text(l10n.strengthSessions));
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.addStrengthBlock), findsOneWidget);
         await tester.tap(find.byIcon(Icons.settings_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.languageSetting), findsOneWidget);
+        expect(find.text(l10n.weightUnitDescription), findsOneWidget);
+        await tester.scrollUntilVisible(
+          find.text(l10n.resources.toUpperCase()),
+          100,
+          scrollable: find
+              .descendant(
+                of: find.byType(SettingsScreen),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
+        expect(find.text(l10n.resources.toUpperCase()), findsOneWidget);
+        expect(find.byType(SegmentedButton<WeightUnit>), findsOneWidget);
         expect(tester.takeException(), isNull);
       }
     });

@@ -261,7 +261,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get lastWorkout => '최근';
 
   @override
-  String get chooseDate => '운동 날짜 선택';
+  String get chooseDate => '날짜 선택';
 
   @override
   String get allMovements => '전체';
@@ -312,7 +312,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get settings => '설정';
 
   @override
-  String get weightUnit => '중량 단위';
+  String get weightUnit => '기록 단위';
 
   @override
   String get weightUnitError => '중량 단위를 저장하지 못했어요.';
@@ -344,7 +344,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get weightCalculator => '중량 계산기';
+  String get weightCalculator => '중량 변환기';
 
   @override
   String get movementLibrary => '동작 목록';
@@ -592,4 +592,28 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get glossaryPr => '비교 가능한 조건에서 세운 개인 최고 기록';
+
+  @override
+  String get todayWodTitle => '오늘의 WOD';
+
+  @override
+  String get homeBenchmarks => '벤치마크';
+
+  @override
+  String get homeRepeatWod => '지난 WOD';
+
+  @override
+  String get homeWodPr => 'WOD PR';
+
+  @override
+  String get recordsTab => '기록';
+
+  @override
+  String get settingsEyebrow => '환경설정';
+
+  @override
+  String get weightUnitDescription => '운동 중량과 기록, 통계에 적용됩니다.';
+
+  @override
+  String get resources => '자료';
 }
