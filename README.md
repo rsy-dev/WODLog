@@ -40,6 +40,8 @@ flutter run
 
 웹 미리보기는 [iPhone Safari에서 열기](https://rsy-dev.github.io/WODLog/)로 테스트합니다. Safari 공유 메뉴에서 **Add to Home Screen**을 선택하세요. 웹과 네이티브 앱 기록은 서로 동기화되지 않습니다.
 
+iOS 시뮬레이터 빌드를 인계하고 설치 버전을 확인하는 절차는 [모바일 테스트 문서](docs/mobile-install-distribution.md#handing-off-an-ios-simulator-build)를 참고합니다.
+
 Android 우선 출시 및 광고 준비 항목은 [`docs/android-first-release.md`](docs/android-first-release.md)에 정리합니다.
 
 세부 범위와 단계별 완료 조건은 Notion의 [개발 로드맵](https://app.notion.com/p/407ef63c537b81b78a0bd93019c3560e?pvs=204)을 참고합니다.
