@@ -76,7 +76,7 @@ class WodTextParser {
 
   static const _levelName =
       r"(?:Rx(?:['’]d)?(?:\s*\+)?|Scaled|Foundations?|"
-      r"Beginner|Intermediate|Advanced|Performance|Fitness|Wellness|"
+      r"(?:Beginner|Intermediate|Advanced)(?:\s+option)?|Performance|Fitness|Wellness|"
       r"입문|초급|중급|상급|스케일(?:드)?|(?:Lv\.?|Level|레벨)\s*[1-9]\d*)";
   static final _levelHeading = _heading(
     _levelName +
@@ -132,11 +132,40 @@ class WodTextParser {
     caseSensitive: false,
   );
 
-  /// Parses pasted text into the shared editor model.
-  WodPrescription parsePrescription(String rawText, {String title = ''}) {
+  /// Parses pasted text into the shared editor model. When the source offers
+  /// levels, [levelIndex] selects one of the levels returned by [parse].
+  WodPrescription parsePrescription(
+    String rawText, {
+    String title = '',
+    int? levelIndex,
+  }) {
+    final (common, levels) = _splitLevels(rawText);
+    if (levelIndex == null) {
+      return _parseStructured(common, rawText: rawText, title: title);
+    }
+
+    final level = levels[levelIndex];
+    final shared = _parseStructured(common, rawText: rawText, reviewOnly: true);
+    return _parseStructured(
+      level.lines,
+      rawText: rawText,
+      title: title,
+      shared: shared,
+      levelLabel: level.label,
+    );
+  }
+
+  WodPrescription _parseStructured(
+    List<String> lines, {
+    required String rawText,
+    String title = '',
+    WodPrescription? shared,
+    String? levelLabel,
+    bool reviewOnly = false,
+  }) {
     final movements = <WodMovementPrescription>[];
-    final unparsed = <String>[];
-    final standards = <String>[];
+    final unparsed = <String>[...?shared?.unparsedLines];
+    final standards = <String>[...?shared?.standards];
     var structure = WodStructure.unknown;
     int? rounds;
     int? intervalSeconds;
@@ -144,9 +173,17 @@ class WodTextParser {
     int? timeCapSeconds;
     List<num> scheme = const [];
     int? interval;
-    for (final rawLine in rawText.split(RegExp(r'\r\n?|\n'))) {
+    var inGuidance = false;
+    var totalReps = false;
+    for (final rawLine in lines) {
       final line = rawLine.trim();
       if (line.isEmpty) continue;
+      if (_guidanceHeading.hasMatch(line)) inGuidance = true;
+      if (inGuidance) {
+        unparsed.add(rawLine);
+        continue;
+      }
+      if (_totalRepsScore.hasMatch(line)) totalReps = true;
       final cap = _pasteCap.firstMatch(line);
       if (cap != null) {
         final minutes = _positiveInt(cap[1]);
@@ -154,11 +191,13 @@ class WodTextParser {
             ? null
             : minutes * 60 + (int.tryParse(cap[2] ?? '') ?? 0);
       }
-      final withoutCap = cap == null
-          ? line
-          : line
-                .substring(0, cap.start)
-                .replaceFirst(RegExp(r'[\s(:,-]+$'), '');
+      final withoutCap = _normalizeHeader(
+        cap == null
+            ? line
+            : line
+                  .substring(0, cap.start)
+                  .replaceFirst(RegExp(r'[\s(:,-]+$'), ''),
+      );
       if (withoutCap.isEmpty && cap != null) continue;
 
       final intervalHeader = _intervalHeader.firstMatch(withoutCap);
@@ -209,25 +248,49 @@ class WodTextParser {
             .map(int.tryParse)
             .whereType<int>()
             .toList();
+        if (reviewOnly) unparsed.add(rawLine);
         continue;
       }
-      if (_reviewLine.hasMatch(line)) {
-        unparsed.add(rawLine);
-        standards.add(rawLine);
-        scheme = const [];
-        interval = null;
-        continue;
+      final slots = _minuteSlot.allMatches(line).toList();
+      final segments = [
+        if (slots.isEmpty || slots.first.start > 0)
+          line.substring(0, slots.isEmpty ? line.length : slots.first.start),
+        for (final (index, slot) in slots.indexed)
+          line.substring(
+            slot.start,
+            index + 1 < slots.length ? slots[index + 1].start : line.length,
+          ),
+      ];
+      for (final segment in segments) {
+        final text = segment.trim().replaceFirst(RegExp(r'[.;]+$'), '');
+        final source = segments.length == 1 ? rawLine : segment.trim();
+        final slot = _minuteSlot.matchAsPrefix(text);
+        if (slot != null) interval = _positiveInt(slot[1]);
+        final body = slot == null ? text : text.substring(slot.end);
+        if (_reviewLine.hasMatch(body) || _standaloneStandard.hasMatch(body)) {
+          unparsed.add(source);
+          standards.add(source);
+          scheme = const [];
+          if (slot == null) interval = null;
+          continue;
+        }
+        final movement = _pasteMovement(body, scheme, interval, source);
+        if (reviewOnly ||
+            movement == null ||
+            movement.movementId == null ||
+            movement.options.isNotEmpty) {
+          unparsed.add(source);
+        }
+        if (!reviewOnly && movement != null) movements.add(movement);
       }
-      final slot = _minuteSlot.firstMatch(line);
-      if (slot != null) interval = _positiveInt(slot[1]);
-      final body = slot == null ? line : line.substring(slot.end);
-      final movement = _pasteMovement(body, scheme, interval, rawLine);
-      if (movement == null ||
-          movement.movementId == null ||
-          movement.options.isNotEmpty) {
-        unparsed.add(rawLine);
-      }
-      if (movement != null) movements.add(movement);
+    }
+    final inheritsHeader = structure == WodStructure.unknown && shared != null;
+    if (inheritsHeader) {
+      structure = shared.structure;
+      rounds = shared.rounds ?? shared.intervalCount;
+      intervalSeconds = shared.intervalSeconds;
+      durationSeconds = shared.durationSeconds;
+      timeCapSeconds ??= shared.timeCapSeconds;
     }
     final count = switch (structure) {
       WodStructure.emom
@@ -242,6 +305,10 @@ class WodTextParser {
       title: title,
       structure: structure,
       scoreKind: switch (structure) {
+        WodStructure.emom || WodStructure.intervals
+            when totalReps ||
+                (inheritsHeader && shared.scoreKind == WodScoreKind.reps) =>
+          WodScoreKind.reps,
         WodStructure.forTime => WodScoreKind.time,
         WodStructure.amrap => WodScoreKind.roundsAndReps,
         WodStructure.emom => WodScoreKind.intervals,
@@ -253,12 +320,59 @@ class WodTextParser {
       timeCapSeconds: timeCapSeconds,
       durationSeconds: durationSeconds,
       movements: List.unmodifiable(movements),
-      standards: List.unmodifiable(standards),
+      version: switch (levelLabel?.toLowerCase().replaceAll('’', "'")) {
+        null => WodVersion.unknown,
+        'rx' || "rx'" || "rx'd" || 'rxd' => WodVersion.rx,
+        'scaled' => WodVersion.scaled,
+        'foundations' => WodVersion.foundations,
+        _ => WodVersion.custom,
+      },
+      standards: List.unmodifiable([...standards, ?levelLabel]),
       rawText: rawText,
       unparsedLines: List.unmodifiable(unparsed),
-      parserVersion: '1',
+      parserVersion: '2',
     );
   }
+
+  static final _officialAmrap = RegExp(
+    r'^complete as many rounds(?: and reps)? as possible in (\d+) minutes?(?: of)?\s*:?$',
+    caseSensitive: false,
+  );
+  static final _officialEmom = RegExp(
+    r'^every minute on the minute (?:for |x\s*)?(\d+)(?: minutes?)?(?: complete)?\s*:?$',
+    caseSensitive: false,
+  );
+  static final _officialIntervals = RegExp(
+    r'^every (\d+) minutes? for (\d+) rounds?\s*:?$',
+    caseSensitive: false,
+  );
+  static final _officialForTime = RegExp(
+    r'^((?:\d+ rounds? )?for time) of\s*:?$',
+    caseSensitive: false,
+  );
+
+  static String _normalizeHeader(String line) {
+    final amrap = _officialAmrap.firstMatch(line);
+    if (amrap != null) return 'AMRAP ${amrap[1]}';
+    final emom = _officialEmom.firstMatch(line);
+    if (emom != null) return 'EMOM ${emom[1]}';
+    final cadence = _officialIntervals.firstMatch(line);
+    if (cadence != null) return 'Intervals: ${cadence[2]} x ${cadence[1]} min';
+    return _officialForTime.firstMatch(line)?[1] ?? line;
+  }
+
+  static final _guidanceHeading = RegExp(
+    r'^(?:scaling|coaching cues?|stimulus(?: and strategy)?|strategy|resources)\s*:',
+    caseSensitive: false,
+  );
+  static final _totalRepsScore = RegExp(
+    r'^(?:post\s+total(?:\s+[\w-]+)*\s+reps(?:\s+(?:to|in)(?: the)? comments)?[.!]?|score\s*(?::|is)\s*(?:the\s+)?(?:total(?:\s+number\s+of)?|sum\s+of)\s+reps[.!]?)$',
+    caseSensitive: false,
+  );
+  static final _standaloneStandard = RegExp(
+    r'^(?:[♀♂]|(?:women|men|female|male)\s*:|\d+(?:[.,]\d+)?\s*(?:lb|kg)s?$)',
+    caseSensitive: false,
+  );
 
   static final _pasteCap = RegExp(
     r'\b(?:time\s*cap|cap)\s*[:(]?\s*(\d+)(?::([0-5]\d)|\s*(?:minutes?|min|분)\b)?\s*\)?$',
@@ -276,13 +390,14 @@ class WodTextParser {
   );
   static final _standaloneScheme = RegExp(r'^\d+(?:\s*[-–]\s*\d+)+$');
   static final _reviewLine = RegExp(
-    r'^\s*(?:part\b|rest\b|then\b|set\s+[a-z0-9]+\s*:|score\b|tiebreak\b)|\s+or\s+',
+    r'^\s*(?:part\b|rest\b|then\b|set\s+[a-z0-9]+\s*:|score\b|tiebreak\b|post\b|compare\s+to\b)|\s+or\s+',
     caseSensitive: false,
   );
   static final _minuteSlot = RegExp(
-    r'^minute\s+(\d+)\s*:\s*',
+    r'\bminute\s+(\d+)\s*:\s*',
     caseSensitive: false,
   );
+  static final _maxReps = RegExp(r'^max\s+(.+)$', caseSensitive: false);
   static final _metricMovement = RegExp(
     r'^(\d+(?:\.\d+)?)\s*-?\s*(m(?:eters?|etres?)?|km|cal(?:orie)?s?|seconds?|sec|minutes?|min)\s+(.+)$',
     caseSensitive: false,
@@ -305,11 +420,14 @@ class WodTextParser {
   ) {
     final metrics = _metricMovement.firstMatch(text);
     final movement = metrics == null ? _parseMovement(text) : null;
-    if (metrics == null && movement == null && scheme.isEmpty) return null;
+    final max = interval == null ? null : _maxReps.firstMatch(text);
+    if (metrics == null && movement == null && scheme.isEmpty && max == null) {
+      return null;
+    }
     final options =
         _multipleStandards.hasMatch(text) ||
         _weightPattern.allMatches(text).length > 1;
-    final label = metrics?[3] ?? movement?.name ?? text;
+    final label = metrics?[3] ?? movement?.name ?? max?[1] ?? text;
     final singleLoad = options ? null : _weightPattern.firstMatch(label);
     final name =
         (singleLoad == null
@@ -331,7 +449,7 @@ class WodTextParser {
         ? 60
         : 1;
     final quantities = metrics == null
-        ? movement?.repScheme ?? scheme
+        ? (max == null ? movement?.repScheme ?? scheme : const <num>[])
         : [double.parse(metrics[1]!) * multiplier];
     final resolved = CrossFitCatalog.resolveMovement(name);
     final singular = resolved.entry == null && name.endsWith('s')
@@ -350,6 +468,7 @@ class WodTextParser {
       quantities: List.unmodifiable(quantities),
       unit: unit,
       interval: interval,
+      standard: max == null ? null : text,
       weightKg: weight == null
           ? null
           : (weightUnit?.startsWith('lb') == true ||
@@ -360,26 +479,29 @@ class WodTextParser {
     );
   }
 
-  WodDraft parse(String rawText) {
+  (List<String>, List<({String label, List<String> lines})>) _splitLevels(
+    String rawText,
+  ) {
     final lines = rawText
         .replaceAll('\r\n', '\n')
         .replaceAll('\r', '\n')
         .split('\n')
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
+        .where((line) => line.trim().isNotEmpty)
         .toList(growable: false);
 
     final commonLines = <String>[];
     final sections = <({String label, List<String> lines})>[];
     final letterLabels = lines
-        .map(_letterLevel.firstMatch)
+        .map((line) => _letterLevel.firstMatch(line.trim()))
         .whereType<RegExpMatch>()
         .map((match) => match.group(1)!.replaceFirst('[', '').substring(0, 1))
         .toSet();
     for (final line in lines) {
       final heading =
-          _levelHeading.firstMatch(line) ??
-          (letterLabels.length > 1 ? _letterLevel.firstMatch(line) : null);
+          _levelHeading.firstMatch(line.trim()) ??
+          (letterLabels.length > 1
+              ? _letterLevel.firstMatch(line.trim())
+              : null);
       if (heading != null) {
         final label = heading.group(1)!.replaceAll(RegExp(r'[\[\]]'), '');
         final inline = heading.group(2)?.trim();
@@ -391,6 +513,18 @@ class WodTextParser {
         (sections.isEmpty ? commonLines : sections.last.lines).add(line);
       }
     }
+    // Official posts put Rx first without a level label.
+    if (sections.isNotEmpty &&
+        sections.first.label.toLowerCase().endsWith(' option') &&
+        _parseStructured(commonLines, rawText: rawText).movements.isNotEmpty) {
+      sections.insert(0, (label: 'Rx', lines: List.of(commonLines)));
+      commonLines.clear();
+    }
+    return (commonLines, sections);
+  }
+
+  WodDraft parse(String rawText) {
+    final (commonLines, sections) = _splitLevels(rawText);
     final common = _parsePrescription(rawText, commonLines);
     if (sections.isEmpty) return common;
 
@@ -443,8 +577,10 @@ class WodTextParser {
     final unknownLines = <String>[];
     var recognizedHeader = false;
 
-    for (final line in lines) {
-      final amrap = _amrapPattern.firstMatch(line);
+    for (final rawLine in lines) {
+      final line = rawLine.trim();
+      final heading = _normalizeHeader(line);
+      final amrap = _amrapPattern.firstMatch(heading);
       if (amrap != null) {
         if (format != WodFormat.unknown && format != WodFormat.amrap) {
           unknownLines.add(line);
@@ -458,7 +594,7 @@ class WodTextParser {
         continue;
       }
 
-      final emom = _emomPattern.firstMatch(line);
+      final emom = _emomPattern.firstMatch(heading);
       if (emom != null) {
         if (format != WodFormat.unknown && format != WodFormat.emom) {
           unknownLines.add(line);
@@ -470,8 +606,8 @@ class WodTextParser {
         continue;
       }
 
-      final roundMatch = _roundsPattern.firstMatch(line);
-      if (roundMatch != null || _forTimePattern.hasMatch(line)) {
+      final roundMatch = _roundsPattern.firstMatch(heading);
+      if (roundMatch != null || _forTimePattern.hasMatch(heading)) {
         if (format != WodFormat.unknown && format != WodFormat.forTime) {
           unknownLines.add(line);
           continue;

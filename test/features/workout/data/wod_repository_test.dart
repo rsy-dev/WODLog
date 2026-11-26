@@ -129,6 +129,47 @@ void main() {
     },
   );
 
+  test(
+    'keeps specific bikes distinct through WOD storage and PR comparison',
+    () async {
+      const parser = WodTextParser();
+      for (final (attempt, equipment, duration) in [
+        ('echo-first', 'EchoBike', 120000),
+        ('assault', 'Assault Bike', 90000),
+        ('echo-faster', '에코바이크', 100000),
+        ('legacy-air', 'Air Bike', 80000),
+      ]) {
+        final draft = parser.parsePrescription(
+          'Rx:\n4 rounds for time of:\n20-calorie $equipment\n'
+          'Beginner:\n10-calorie row',
+          title: 'Bike WOD',
+          levelIndex: 0,
+        );
+        await repository.saveRepeat(
+          attemptId: attempt,
+          workoutDate: '2026-11-08',
+          prescription: draft,
+          score: WodAttemptScore(
+            outcome: WodOutcome.completed,
+            elapsedMs: duration,
+          ),
+        );
+      }
+      final records = await repository.watchCompletedRecords().first;
+      expect(
+        records.map(
+          (record) => record.prescription.movements.single.movementId,
+        ),
+        unorderedEquals(['echo_bike', 'assault_bike', 'echo_bike', 'air_bike']),
+      );
+      final bests = wodPersonalBests(records);
+      expect(
+        bests.map((group) => group.best.block.id),
+        unorderedEquals(['echo-faster', 'assault', 'legacy-air']),
+      );
+    },
+  );
+
   Future<String> save({WodAttemptScore result = score}) =>
       repository.saveConfirmed(
         attemptId: 'attempt',

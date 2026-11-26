@@ -32,50 +32,12 @@ class _WodSourceReviewState extends State<_WodSourceReview> {
   WodPrescription? _prescription() {
     final draft = _draft;
     if (draft == null) return null;
-    if (draft.levels.isEmpty) {
-      return _parser.parsePrescription(_source.trim(), title: widget.title);
-    }
-    final levelIndex = _levelIndex;
-    if (levelIndex == null) return null;
-    final level = draft.levels[levelIndex];
-    final selected = level.prescription;
-    final header = switch (selected.format) {
-      WodFormat.forTime => [
-        if (selected.rounds case final rounds?) '$rounds rounds',
-        'For Time',
-      ].join(' '),
-      WodFormat.amrap => 'AMRAP ${selected.durationMinutes ?? ''}',
-      WodFormat.emom => 'EMOM ${selected.durationMinutes ?? ''}',
-      WodFormat.unknown => '',
-    };
-    final parsed = _parser.parsePrescription(
-      [
-        if (header.isNotEmpty) header,
-        if (selected.timeCapMinutes case final cap?) 'Time Cap $cap min',
-        ...selected.rawText.split('\n').where((line) {
-          final parsedLine = _parser.parsePrescription(line);
-          return parsedLine.structure == WodStructure.unknown &&
-              parsedLine.timeCapSeconds == null;
-        }),
-      ].join('\n'),
+    if (draft.levels.isNotEmpty && _levelIndex == null) return null;
+    return _parser.parsePrescription(
+      _source,
       title: widget.title,
+      levelIndex: _levelIndex,
     );
-    return WodPrescription.fromJson({
-      ...parsed.toJson(),
-      'rawText': _source.trim(),
-      'standards': [...parsed.standards, level.label],
-      'unparsedLines': [
-        ...parsed.unparsedLines,
-        ...draft.unknownLines,
-        ...draft.movements.map((movement) => movement.rawLine),
-      ],
-      'version': switch (level.label.toLowerCase()) {
-        'rx' || 'rx\'' || 'rxd' => WodVersion.rx.name,
-        'scaled' => WodVersion.scaled.name,
-        'foundations' => WodVersion.foundations.name,
-        _ => WodVersion.custom.name,
-      },
-    });
   }
 
   @override
