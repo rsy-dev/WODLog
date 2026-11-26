@@ -1,6 +1,6 @@
 # WODLog Mobile Testing and Distribution
 
-**Updated:** 2026-11-09
+**Updated:** 2026-11-26
 
 ## iPhone testing at work
 
@@ -19,6 +19,20 @@ Run **Deploy web preview** manually from GitHub Actions when a web deployment is
 - Xcode installed the Release build on the connected iPhone 15 Pro using the free Personal Team. The installed app can launch from the Home Screen without keeping the Mac connected.
 - Each new native version must be signed and installed again through Xcode. Free Personal Team provisioning expires after seven days.
 - TestFlight remains a later option after Apple Developer Program activation and App Store Connect setup.
+
+### Handing off an iOS simulator build
+
+Release shares the source commit, the path to the `iphonesimulator` app built from it, and the version and build number from that app’s `Info.plist`. Name the QA simulator by UDID so the tester can select the same installation when several simulators have similar names.
+
+Before recording a result, install that exact artifact on the designated QA simulator and launch it. With its UDID in `sim_udid`, check the installed app:
+
+```sh
+app_path=$(xcrun simctl get_app_container "$sim_udid" dev.rsy.wodlog app)
+/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app_path/Info.plist"
+/usr/libexec/PlistBuddy -c 'Print CFBundleVersion' "$app_path/Info.plist"
+```
+
+Record the observed version, build number and source commit with the tested flow. If the artifact is for a physical device, the installed values differ, or launch fails, leave the flow unverified and report the missing artifact or observed mismatch in the handoff.
 
 ## Android testing
 
