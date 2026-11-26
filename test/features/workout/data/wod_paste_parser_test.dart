@@ -5,6 +5,130 @@ import 'package:wodlog/features/workout/data/wod_prescription.dart';
 void main() {
   const parser = WodTextParser();
 
+  test('parses official AMRAP and round-for-time headings', () {
+    final amrap = parser.parsePrescription(
+      'Complete as many rounds and reps as possible in 16 minutes of:\n'
+      '20-calorie row',
+    );
+    expect(amrap.structure, WodStructure.amrap);
+    expect(amrap.durationSeconds, 960);
+    expect(amrap.movements.single.movementId, 'row');
+
+    final forTime = parser.parsePrescription(
+      '4 rounds for time of:\n400-meter run\nTime cap: 15 min',
+    );
+    expect(forTime.structure, WodStructure.forTime);
+    expect(forTime.rounds, 4);
+    expect(forTime.timeCapSeconds, 900);
+    expect(forTime.movements.single.quantities, [400]);
+  });
+
+  test('parses EMOM slots and keeps official instructions for review', () {
+    const raw = '''
+Every minute on the minute for 15 minutes complete:
+Minute 1: 20 wall-ball shots
+Minute 3: 10 deadlifts. Minute 4: Max ring muscle-ups
+Minute 5: Rest
+♀ 14-lb medicine ball to a 9-foot target
+Post total ring muscle-up reps to comments.
+Scaling:
+10 ring rows per minute
+Coaching cues:
+2 sets with a consistent pace
+''';
+    final draft = parser.parsePrescription(raw);
+    expect(draft.rawText, raw);
+    expect(draft.structure, WodStructure.emom);
+    expect(draft.intervalCount, 15);
+    expect(draft.intervalSeconds, 60);
+    expect(draft.scoreKind, WodScoreKind.reps);
+    expect(draft.movements.map((movement) => movement.interval), [1, 3, 4]);
+    expect(draft.movements.map((movement) => movement.movementId), [
+      'wall_ball',
+      'deadlift',
+      'ring_muscle_up',
+    ]);
+    expect(draft.movements.last.quantities, isEmpty);
+    expect(
+      draft.unparsedLines,
+      containsAll([
+        'Minute 5: Rest',
+        'Post total ring muscle-up reps to comments.',
+        '10 ring rows per minute',
+        '2 sets with a consistent pace',
+      ]),
+    );
+    expect(
+      draft.standards,
+      contains('♀ 14-lb medicine ball to a 9-foot target'),
+    );
+  });
+
+  test(
+    'inherits a shared interval header and keeps common standards for review',
+    () {
+      const raw = '''
+Every 3 minutes for 8 rounds:
+♀ 20-inch box
+Rx’d:
+12 box jumps
+Intermediate:
+10 box step-ups
+Beginner:
+8 box step-ups
+''';
+      expect(parser.parse(raw).levels.map((level) => level.label), [
+        'Rx’d',
+        'Intermediate',
+        'Beginner',
+      ]);
+      final prescription = parser.parsePrescription(raw, levelIndex: 0);
+      expect(prescription.version, WodVersion.rx);
+      expect(prescription.structure, WodStructure.intervals);
+      expect(prescription.intervalSeconds, 180);
+      expect(prescription.intervalCount, 8);
+      expect(prescription.movements.single.movementId, 'box_jump');
+      expect(prescription.unparsedLines, ['♀ 20-inch box']);
+      expect(prescription.standards, ['♀ 20-inch box', 'Rx’d']);
+    },
+  );
+
+  test(
+    'separates implicit Rx and official options without mixing movements',
+    () {
+      const raw = '''
+Every minute on the minute for 15 minutes complete:
+Minute 1: 20 wall-ball shots
+Scaling:
+10 ring rows per minute
+Intermediate option:
+E2MOM 12 min
+Minute 1: 15 box jumps
+Beginner option:
+4 rounds for time of:
+400-meter run
+''';
+      expect(parser.parse(raw).levels.map((level) => level.label), [
+        'Rx',
+        'Intermediate option',
+        'Beginner option',
+      ]);
+      final rx = parser.parsePrescription(raw, levelIndex: 0);
+      final intermediate = parser.parsePrescription(raw, levelIndex: 1);
+      final beginner = parser.parsePrescription(raw, levelIndex: 2);
+      expect(rx.version, WodVersion.rx);
+      expect(rx.intervalSeconds, 60);
+      expect(rx.movements.single.movementId, 'wall_ball');
+      expect(intermediate.intervalSeconds, 120);
+      expect(intermediate.intervalCount, 6);
+      expect(intermediate.movements.single.movementId, 'box_jump');
+      expect(intermediate.unparsedLines, isEmpty);
+      expect(beginner.rounds, 4);
+      expect(beginner.movements.single.movementId, 'run');
+      expect(beginner.rawText, raw);
+    },
+  );
+
   test('parses official RFT metrics, explicit loads and cap', () {
     final draft = parser.parsePrescription('''
 3 rounds for time (time cap: 12:30)

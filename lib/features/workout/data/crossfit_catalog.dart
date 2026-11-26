@@ -409,7 +409,7 @@ class CrossFitCatalog {
       id: 'air_bike',
       name: 'Air Bike',
       category: CrossFitCategory.cardio,
-      aliases: ['에어 바이크', 'Assault Bike', 'Echo Bike'],
+      aliases: ['에어 바이크', '에어바이크', 'AirBike'],
     ),
     CrossFitCatalogEntry(
       id: 'single_unders',
@@ -494,7 +494,14 @@ class CrossFitCatalog {
       id: 'wall_ball',
       name: 'Wall Ball',
       category: CrossFitCategory.otherEquipment,
-      aliases: ['월볼', 'Wall-Ball Shots', 'Wall Balls', 'Wall-Ball Shot'],
+      aliases: [
+        '월볼',
+        '월볼샷',
+        '월볼 샷',
+        'Wall-Ball Shots',
+        'Wall Balls',
+        'Wall-Ball Shot',
+      ],
     ),
     CrossFitCatalogEntry(
       id: 'medicine_ball_clean',
@@ -894,13 +901,13 @@ class CrossFitCatalog {
       id: 'echo_bike',
       name: 'Echo Bike',
       category: CrossFitCategory.cardio,
-      aliases: ['Rogue Echo Bike', '에코 바이크'],
+      aliases: ['Rogue Echo Bike', 'EchoBike', '에코 바이크', '에코바이크'],
     ),
     CrossFitCatalogEntry(
       id: 'assault_bike',
       name: 'Assault Bike',
       category: CrossFitCategory.cardio,
-      aliases: ['AssaultBike', '어썰트 바이크'],
+      aliases: ['AssaultBike', '어썰트 바이크', '어썰트바이크'],
     ),
 
     // Named benchmarks are WOD templates, not strength movements.

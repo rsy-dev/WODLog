@@ -34,8 +34,13 @@ void main() {
 
     test('resolves machines independently while retaining legacy lookup', () {
       expect(CrossFitCatalog.find('Echo Bike')?.id, 'air_bike');
+      expect(CrossFitCatalog.find('Assault Bike')?.id, 'air_bike');
+      expect(CrossFitCatalog.find('AssaultBike')?.id, 'assault_bike');
       for (final (name, id) in [
         ('Echo Bike', 'echo_bike'),
+        ('EchoBike', 'echo_bike'),
+        ('에코바이크', 'echo_bike'),
+        ('어썰트바이크', 'assault_bike'),
         ('Assault Bike', 'assault_bike'),
         ('SkiErg', 'ski_erg'),
         ('로잉', 'row'),
@@ -45,6 +50,23 @@ void main() {
         expect(match.entry?.movementCategory, MovementCategory.machine);
       }
     });
+
+    test(
+      'searches specific equipment and the compact Korean movement alias',
+      () {
+        for (final (query, id) in [
+          ('월볼샷', 'wall_ball'),
+          ('EchoBike', 'echo_bike'),
+          ('AssaultBike', 'assault_bike'),
+          ('Echo Bike', 'echo_bike'),
+          ('Assault Bike', 'assault_bike'),
+          ('에어바이크', 'air_bike'),
+        ]) {
+          expect(CrossFitCatalog.searchMovements(query).single.id, id);
+          expect(CrossFitCatalog.resolveMovement(query).entry?.id, id);
+        }
+      },
+    );
 
     test('supports custom entry and offers candidates for ambiguous names', () {
       final match = CrossFitCatalog.resolveMovement('muscle-up');
