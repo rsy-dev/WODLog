@@ -32,9 +32,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       sessionsForDateProvider(_formatDate(_selectedDate)),
     );
     final locale = Localizations.localeOf(context).toString();
-    final textScaler = MediaQuery.textScalerOf(context);
-    final compactDate =
-        MediaQuery.sizeOf(context).width < 360 || textScaler.scale(16) > 24;
     final today = DateUtils.dateOnly(DateTime.now());
     final isToday = DateUtils.isSameDay(_selectedDate, today);
 
@@ -64,10 +61,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         if (item.blocks.value?.isNotEmpty ?? false) item.date,
     };
     final number = NumberFormat.decimalPattern(locale);
-    final shortcutStyle = OutlinedButton.styleFrom(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      minimumSize: const Size(48, 48),
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -121,224 +114,149 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     ],
                   ),
                 ),
-                Tooltip(
-                  message: l10n.chooseDate,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: WodLogColors.surface,
-                      foregroundColor: WodLogColors.navy,
-                      minimumSize: const Size(48, 48),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                    onPressed: _chooseDate,
-                    icon: const Icon(Icons.calendar_month_outlined, size: 18),
-                    label: compactDate
-                        ? const SizedBox.shrink()
-                        : Text(l10n.chooseDate),
+                IconButton(
+                  tooltip: l10n.chooseDate,
+                  constraints: const BoxConstraints(
+                    minWidth: 48,
+                    minHeight: 48,
                   ),
+                  onPressed: _chooseDate,
+                  icon: const Icon(Icons.calendar_month_outlined),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Card(
               margin: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  DecoratedBox(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFC43C12), Color(0xFFA82B0A)],
-                      ),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _startWorkout,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 28,
-                                height: 28,
-                                alignment: Alignment.center,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white24,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  l10n.recordWod,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                              const Icon(
-                                Icons.chevron_right,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final shortcuts = <(String, IconData, VoidCallback)>[
-                          (
-                            l10n.homeBenchmarks,
-                            Icons.grid_view_rounded,
-                            () async {
-                              final template = await showWodLibrary(context);
-                              if (template != null && mounted) {
-                                await _startWorkout(template.name);
-                              }
-                            },
-                          ),
-                          (
-                            l10n.homeRepeatWod,
-                            Icons.refresh_rounded,
-                            () => showPastWods(context, recent ?? []),
-                          ),
-                          (
-                            l10n.homeWodPr,
-                            Icons.trending_up_rounded,
-                            () => context.go('/progress'),
-                          ),
-                        ];
-                        final equalWidths = textScaler.scale(16) <= 24;
-
-                        if (equalWidths) {
-                          return Row(
-                            children: [
-                              for (final (index, shortcut)
-                                  in shortcuts.indexed) ...[
-                                Expanded(
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: shortcut.$3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
-                                        horizontal: 3,
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            shortcut.$2,
-                                            size: 20,
-                                            color: WodLogColors.accent,
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            shortcut.$1,
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelLarge
-                                                ?.copyWith(
-                                                  color: WodLogColors.ink,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                if (index < shortcuts.length - 1)
-                                  const SizedBox(
-                                    height: 48,
-                                    child: VerticalDivider(width: 1),
-                                  ),
-                              ],
-                            ],
-                          );
-                        }
-                        return Column(
-                          children: [
-                            for (final (label, icon, onPressed) in shortcuts)
-                              SizedBox(
-                                width: constraints.maxWidth,
-                                child: TextButton.icon(
-                                  style: shortcutStyle,
-                                  onPressed: onPressed,
-                                  icon: Icon(icon),
-                                  label: Text(label),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-            Card(
-              color: WodLogColors.blueSurface,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: Text(
-                            l10n.lastSevenDays,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
+                        const ExcludeSemantics(
+                          child: Icon(Icons.fitness_center, size: 32),
                         ),
-                        Expanded(
-                          child: Text(
-                            [
-                              l10n.weeklyGoal,
-                              if (activityReady && goal != null)
-                                '${number.format(days.length)} / ${number.format(goal)}',
-                            ].join(' · '),
-                            textAlign: TextAlign.end,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall,
+                        const Spacer(),
+                        PopupMenuButton<int>(
+                          tooltip: MaterialLocalizations.of(context)
+                              .moreButtonTooltip,
+                          constraints: const BoxConstraints(
+                            minWidth: 200,
+                            maxWidth: 320,
                           ),
+                          icon: const Icon(Icons.more_horiz),
+                          style: IconButton.styleFrom(
+                            minimumSize: const Size(48, 48),
+                          ),
+                          onSelected: (action) async {
+                            switch (action) {
+                              case 0:
+                                final template = await showWodLibrary(context);
+                                if (template != null && mounted) {
+                                  await _startWorkout(template.name);
+                                }
+                              case 1:
+                                if (mounted) {
+                                  showPastWods(context, recent ?? []);
+                                }
+                              case 2:
+                                context.go('/progress');
+                              case 3:
+                                context.go('/history');
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            for (final (index, item) in [
+                              (l10n.homeBenchmarks, Icons.fitness_center),
+                              (l10n.homeRepeatWod, Icons.replay),
+                              (l10n.homeWodPr, Icons.trending_up),
+                              (l10n.history, Icons.history),
+                            ].indexed)
+                              PopupMenuItem(
+                                value: index,
+                                height: 48,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      ExcludeSemantics(child: Icon(item.$2)),
+                                      const SizedBox(width: 12),
+                                      Expanded(child: Text(item.$1)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        for (final date in dates)
-                          Expanded(
-                            child: _dayChip(context, date, days, locale),
-                          ),
-                      ],
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(48, 56),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                      onPressed: _startWorkout,
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.recordWod, textAlign: TextAlign.center),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
+            Card(
+              margin: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                title: Text(l10n.lastSevenDays),
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      [
+                        l10n.weeklyGoal,
+                        if (activityReady && goal != null)
+                          '${number.format(days.length)} / ${number.format(goal)}',
+                      ].join(' · '),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Wrap instead of shrinking interactive dates below 48 px.
+                      final dayWidth = (constraints.maxWidth / 7).clamp(
+                        48.0 * MediaQuery.textScalerOf(context).scale(14) / 14,
+                        double.infinity,
+                      );
+                      return Wrap(
+                        runSpacing: 12,
+                        children: [
+                          for (final date in dates)
+                            SizedBox(
+                              width: dayWidth,
+                              child: _dayChip(context, date, days, locale),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
@@ -350,6 +268,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                   ),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                   onPressed: () => context.go('/history'),
                   child: Text(l10n.wodViewAll),
                 ),
@@ -405,7 +324,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final selected = DateUtils.isSameDay(date, _selectedDate);
     final recorded = dates.contains(_formatDate(date));
     return Semantics(
+      button: true,
       selected: selected,
+      label: _formatDisplayDate(date, context),
       child: Tooltip(
         message: _formatDisplayDate(date, context),
         child: InkWell(
@@ -422,8 +343,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Container(
-                    width: 32,
-                    height: 32,
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                    padding: const EdgeInsets.all(4),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: selected ? WodLogColors.navy : Colors.transparent,
