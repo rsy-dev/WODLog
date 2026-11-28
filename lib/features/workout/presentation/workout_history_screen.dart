@@ -43,10 +43,10 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
           );
           return ListView(
             padding: EdgeInsets.fromLTRB(
-              16,
-              16,
-              16,
-              16 + MediaQuery.paddingOf(context).bottom,
+              20,
+              24,
+              20,
+              24 + MediaQuery.paddingOf(context).bottom,
             ),
             children: [
               Wrap(
@@ -59,67 +59,75 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   FilledButton.icon(
-                    onPressed: () => showWodResultEditor(
-                      context,
-                      ref,
-                      const Uuid().v4(),
-                      newWorkoutDate: DateFormat('yyyy-MM-dd')
-                          .format(DateTime.now()),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(48, 48),
                     ),
+                    onPressed: !_showWods
+                        ? _startStrengthSession
+                        : () => showWodResultEditor(
+                            context,
+                            ref,
+                            const Uuid().v4(),
+                            newWorkoutDate: DateFormat('yyyy-MM-dd')
+                                .format(DateTime.now()),
+                          ),
                     icon: const Icon(Icons.add),
-                    label: Text(l10n.recordWod),
+                    label: Text(
+                      _showWods ? l10n.recordWod : l10n.addStrengthBlock,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
+              const SizedBox(height: 24),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: l10n.searchWorkouts,
+                  prefixIcon: const Icon(Icons.search),
+                ),
+                textInputAction: TextInputAction.search,
+                onChanged: (value) =>
+                    setState(() => _query = value.trim().toLowerCase()),
+              ),
+              const SizedBox(height: 12),
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: Text(
+                  _showWods ? l10n.wodSectionTitle : l10n.strengthSessions,
+                ),
+                childrenPadding: const EdgeInsets.only(bottom: 16),
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          ChoiceChip(
-                            label: const Text('WOD'),
-                            selected: _showWods,
-                            onSelected: (_) => setState(() => _showWods = true),
-                          ),
-                          ChoiceChip(
-                            label: Text(l10n.strengthSessions),
-                            selected: !_showWods,
-                            onSelected: (_) =>
-                                setState(() => _showWods = false),
-                          ),
-                        ],
+                      ChoiceChip(
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        label: const Text('WOD'),
+                        selected: _showWods,
+                        onSelected: (_) => setState(() => _showWods = true),
                       ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: l10n.searchWorkouts,
-                          prefixIcon: const Icon(Icons.search),
+                      ChoiceChip(
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        label: Text(l10n.strengthSessions),
+                        selected: !_showWods,
+                        onSelected: (_) => setState(() => _showWods = false),
+                      ),
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(48, 48),
                         ),
-                        onChanged: (value) =>
-                            setState(() => _query = value.trim().toLowerCase()),
+                        onPressed: () => showPastWods(context, sessions),
+                        icon: const Icon(Icons.history),
+                        label: Text(l10n.pastWods),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               if (_showWods) ...[
-                OutlinedButton(
-                  onPressed: () => showPastWods(context, sessions),
-                  child: Text(l10n.pastWods),
-                ),
                 WodRecordList(sessions: sessions, query: _query),
               ] else ...[
-                FilledButton.icon(
-                  onPressed: _startStrengthSession,
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.addStrengthBlock),
-                ),
-                const SizedBox(height: 8),
                 if (items.isEmpty) Text(l10n.noMatchingWorkouts),
                 for (final session in items)
                   Builder(

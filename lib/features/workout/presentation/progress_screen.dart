@@ -69,6 +69,35 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               ),
               const SizedBox(height: 16),
               Text(
+                l10n.trainingOverview,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Wrap(
+                    spacing: 20,
+                    runSpacing: 12,
+                    children: [
+                      _SummaryMetric(
+                        value: number.format(totalSessions.length),
+                        label: l10n.strengthSessions,
+                      ),
+                      _SummaryMetric(
+                        value: number.format(totalSets),
+                        label: l10n.setsLabel,
+                      ),
+                      _SummaryMetric(
+                        value: number.format(totalReps),
+                        label: l10n.reps,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
                 wodPersonalRecordsLabel(l10n),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
@@ -101,21 +130,34 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      DropdownButtonFormField<String>(
-                        key: ValueKey(selected),
-                        initialValue: selected,
-                        isExpanded: true,
-                        decoration: InputDecoration(labelText: l10n.wodName),
-                        items: [
-                          DropdownMenuItem<String>(
-                            value: null,
-                            child: Text(l10n.allMovements),
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: Text(selected ?? l10n.wodName),
+                        childrenPadding: const EdgeInsets.only(bottom: 16),
+                        children: [
+                          DropdownButtonFormField<String>(
+                            key: ValueKey(selected),
+                            initialValue: selected,
+                            isExpanded: true,
+                            itemHeight: null,
+                            decoration: InputDecoration(
+                              labelText: l10n.wodName,
+                            ),
+                            items: [
+                              DropdownMenuItem<String>(
+                                value: null,
+                                child: Text(l10n.allMovements),
+                              ),
+                              for (final name in names)
+                                DropdownMenuItem(
+                                  value: name,
+                                  child: Text(name),
+                                ),
+                            ],
+                            onChanged: (value) =>
+                                setState(() => selectedWod = value),
                           ),
-                          for (final name in names)
-                            DropdownMenuItem(value: name, child: Text(name)),
                         ],
-                        onChanged: (value) =>
-                            setState(() => selectedWod = value),
                       ),
                       const SizedBox(height: 12),
                       if (groups.isEmpty)
@@ -129,19 +171,20 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                             dateFormat: dateFormat,
                           ),
                       const SizedBox(height: 16),
-                      Text(
-                        l10n.wodScoreHistory,
-                        style: Theme.of(context).textTheme.titleMedium,
+                      ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        title: Text(l10n.wodScoreHistory),
+                        children: [
+                          if (records.isEmpty)
+                            Text(l10n.emptyWodBlocks)
+                          else
+                            for (final record in visible.reversed.take(10))
+                              _WodHistoryTile(
+                                record: record,
+                                dateFormat: dateFormat,
+                              ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      if (records.isEmpty)
-                        Text(l10n.emptyWodBlocks)
-                      else
-                        for (final record in visible.reversed.take(10))
-                          _WodHistoryTile(
-                            record: record,
-                            dateFormat: dateFormat,
-                          ),
                     ],
                   );
                 },
@@ -155,35 +198,6 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                   number: number,
                 )
               else ...[
-                Text(
-                  l10n.trainingOverview,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Wrap(
-                      spacing: 20,
-                      runSpacing: 12,
-                      children: [
-                        _SummaryMetric(
-                          value: number.format(totalSessions.length),
-                          label: l10n.sessionsLabel,
-                        ),
-                        _SummaryMetric(
-                          value: number.format(totalSets),
-                          label: l10n.setsLabel,
-                        ),
-                        _SummaryMetric(
-                          value: number.format(totalReps),
-                          label: l10n.reps,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
                 Text(
                   l10n.progress,
                   style: Theme.of(context).textTheme.headlineSmall,
@@ -230,10 +244,13 @@ class _WodHistoryTile extends ConsumerWidget {
     return Card(
       child: ListTile(
         title: Text(record.prescription.title),
-        subtitle: Text(dateLabel ?? ''),
-        trailing: Text(
-          score ?? '—',
-          style: Theme.of(context).textTheme.titleLarge,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(dateLabel ?? ''),
+            const SizedBox(height: 8),
+            Text(score ?? '—', style: Theme.of(context).textTheme.titleLarge),
+          ],
         ),
         onTap: () => showWodRecordDetail(
           context,
@@ -273,12 +290,22 @@ class _WodPersonalRecordCard extends ConsumerWidget {
     return Card(
       child: ExpansionTile(
         title: Text(best.prescription.title),
-        subtitle: Text(
-          [
-            l10n.wodCurrentBest,
-            wodVersionLabel(l10n, best.prescription.version),
-            ?wodScoreLabel(context, ref, best.result),
-          ].join(' · '),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 8),
+            Text(
+              wodScoreLabel(context, ref, best.result) ?? '—',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              [
+                l10n.wodCurrentBest,
+                wodVersionLabel(l10n, best.prescription.version),
+              ].join(' · '),
+            ),
+          ],
         ),
         children: [
           _attemptTile(context, ref, best),
@@ -392,69 +419,63 @@ class _MovementTypeTrends extends StatelessWidget {
         '${dateFormat.format(previousStart)} – ${dateFormat.format(previousEnd)}';
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.movementTypes,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            if (visibleGroups.isEmpty) Text(l10n.noRecentMovementRecords),
-            for (final entry in visibleGroups)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(movementCategoryLabel(l10n, entry.key)),
-                    const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 16,
-                      runSpacing: 4,
-                      children: [
-                        _PeriodValue(
-                          label: '${l10n.last7Days} ($currentLabel)',
-                          value: _formatPeriod(
-                            entry.value.currentVolume,
-                            entry.value.currentReps,
-                            l10n,
-                          ),
-                        ),
-                        _PeriodValue(
-                          label: '${l10n.previous7Days} ($previousLabel)',
-                          value: _formatPeriod(
-                            entry.value.previousVolume,
-                            entry.value.previousReps,
-                            l10n,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (entry.value.previousSets > 0 &&
-                        entry.value.currentSets > 0)
-                      Text(
-                        _formatDelta(
-                          switch ((
-                            entry.value.currentVolume,
-                            entry.value.previousVolume,
-                          )) {
-                            (final current?, final previous?) =>
-                              current - previous,
-                            _ => null,
-                          },
-                          entry.value.currentReps - entry.value.previousReps,
+      child: ExpansionTile(
+        title: Text(l10n.movementTypes),
+        childrenPadding: const EdgeInsets.all(20),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (visibleGroups.isEmpty) Text(l10n.noRecentMovementRecords),
+          for (final entry in visibleGroups)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(movementCategoryLabel(l10n, entry.key)),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 4,
+                    children: [
+                      _PeriodValue(
+                        label: '${l10n.last7Days} ($currentLabel)',
+                        value: _formatPeriod(
+                          entry.value.currentVolume,
+                          entry.value.currentReps,
                           l10n,
                         ),
-                        style: Theme.of(context).textTheme.bodySmall,
                       ),
-                  ],
-                ),
+                      _PeriodValue(
+                        label: '${l10n.previous7Days} ($previousLabel)',
+                        value: _formatPeriod(
+                          entry.value.previousVolume,
+                          entry.value.previousReps,
+                          l10n,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (entry.value.previousSets > 0 &&
+                      entry.value.currentSets > 0)
+                    Text(
+                      _formatDelta(
+                        switch ((
+                          entry.value.currentVolume,
+                          entry.value.previousVolume,
+                        )) {
+                          (final current?, final previous?) =>
+                            current - previous,
+                          _ => null,
+                        },
+                        entry.value.currentReps - entry.value.previousReps,
+                        l10n,
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -553,6 +574,8 @@ class _MovementProgressCard extends StatelessWidget {
           children: [
             Text(progress.name, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
+            _snapshot(latest, l10n.lastWorkout, l10n),
+            const SizedBox(height: 12),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               title: Text(l10n.strengthPersonalRecords),
@@ -584,32 +607,40 @@ class _MovementProgressCard extends StatelessWidget {
                     in progress.dailyBestWeightKg.entries.toList().reversed)
                   ListTile(
                     title: Text(_dateLabel(entry.key)),
-                    trailing: Text(_weightOrEmpty(entry.value)),
+                    subtitle: Text(_weightOrEmpty(entry.value)),
                   ),
               ],
             ),
-            _snapshot(latest, l10n.lastWorkout, l10n),
-            if (previous != null) ...[
-              const Divider(height: 24),
-              _snapshot(previous, l10n.previousWorkout, l10n),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 16,
-                runSpacing: 4,
+            if (previous != null)
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: Text(l10n.previousWorkout),
+                childrenPadding: const EdgeInsets.only(bottom: 16),
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (progress.bestWeightChangeKg case final change?)
-                    Text('${l10n.bestLoadChange}  ${_signedWeight(change)}'),
-                  if (progress.repChange case final change?)
-                    Text(
-                      '${l10n.repChange}  ${_sign(change)}${number.format(change)} ${l10n.reps}',
-                    ),
-                  if (progress.volumeChangeKg case final change?)
-                    Text(
-                      '${l10n.volumeChange}  ${_signedWeight(change)}·${l10n.reps}',
-                    ),
+                  _snapshot(previous, l10n.previousWorkout, l10n),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 4,
+                    children: [
+                      if (progress.bestWeightChangeKg case final change?)
+                        Text(
+                          '${l10n.bestLoadChange}  ${_signedWeight(change)}',
+                        ),
+                      if (progress.repChange case final change?)
+                        Text(
+                          '${l10n.repChange}  ${_sign(change)}${number.format(change)} ${l10n.reps}',
+                        ),
+                      if (progress.volumeChangeKg case final change?)
+                        Text(
+                          '${l10n.volumeChange}  ${_signedWeight(change)}·${l10n.reps}',
+                        ),
+                    ],
+                  ),
                 ],
-              ),
-            ] else ...[
+              )
+            else ...[
               const SizedBox(height: 8),
               Text(l10n.noProgressYet, style: theme.textTheme.bodySmall),
             ],
@@ -631,6 +662,7 @@ class _MovementProgressCard extends StatelessWidget {
       (workout) => readWeight(workout) == weight,
     );
     return TextButton(
+      style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
       onPressed: () => context.push('/sessions/${source.sessionId}'),
       child: metric,
     );
