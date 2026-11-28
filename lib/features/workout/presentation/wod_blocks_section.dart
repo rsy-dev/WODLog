@@ -56,6 +56,7 @@ class WodBlocksSection extends ConsumerWidget {
                 ),
               ),
               IconButton(
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 tooltip: l10n.reviewWodText,
                 onPressed: () async {
                   final draft = await showWodSourceReview(context, title: '');
@@ -72,6 +73,10 @@ class WodBlocksSection extends ConsumerWidget {
               ),
               if (items.isNotEmpty)
                 IconButton(
+                  constraints: const BoxConstraints(
+                    minWidth: 48,
+                    minHeight: 48,
+                  ),
                   tooltip: l10n.addWodBlock,
                   onPressed: () => _addBlock(context, ref),
                   icon: const Icon(Icons.add),
@@ -355,6 +360,7 @@ Future<void> showWodResultEditor(
   }
 
   Widget workoutDatePicker(StateSetter update) => OutlinedButton.icon(
+    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
     icon: const Icon(Icons.calendar_today_outlined),
     label: Text(compactDateLabel.format(repeatDate)),
     onPressed: saving
@@ -390,7 +396,7 @@ Future<void> showWodResultEditor(
               ),
               second: workoutDatePicker(setState),
             ),
-            OutlinedButton(
+            TextButton(
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(
@@ -421,49 +427,6 @@ Future<void> showWodResultEditor(
               child: Text(l10n.chooseBenchmark),
             ),
           ],
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            onPressed: saving
-                ? null
-                : () async {
-                    final draft = await showWodSourceReview(
-                      context,
-                      title: title,
-                    );
-                    final source = draft?.rawText;
-                    if (!context.mounted ||
-                        draft == null ||
-                        source == null ||
-                        source == prescription.rawText ||
-                        !appliedSources.add(source)) {
-                      return;
-                    }
-                    setState(() {
-                      prescription = draft;
-                      invalidPrescriptionFields.clear();
-                      version = prescription.version;
-                      if (prescription.scoreKind != WodScoreKind.unknown) {
-                        usePreviousScore = false;
-                        type = typeFor(prescription.scoreKind);
-                        typeRevision++;
-                        score = '';
-                        secondScore = '';
-                        ending = _WodEnding.finished;
-                        invalid = false;
-                      }
-                      notes = [
-                        if (notes.trim().isNotEmpty) notes.trim(),
-                        source,
-                      ].join('\n\n');
-                      notesRevision++;
-                      prescriptionExpanded = false;
-                    });
-                  },
-            child: Text(l10n.reviewWodText),
-          ),
           _ResponsiveFieldPair(
             topSpacing: true,
             first: DropdownButtonFormField<String>(
@@ -512,159 +475,6 @@ Future<void> showWodResultEditor(
                           },
                   )
                 : null,
-          ),
-          ExpansionTile(
-            key: fieldKey('prescriptionFields', (titleRevision, notesRevision)),
-            tilePadding: EdgeInsets.zero,
-            title: Text(l10n.wodPrescription),
-            maintainState: true,
-            onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
-            children: [
-              DropdownButtonFormField<WodStructure>(
-                isExpanded: true,
-                initialValue: prescription.structure,
-                decoration: InputDecoration(labelText: l10n.wodSectionTitle),
-                items: [
-                  for (final structure in WodStructure.values)
-                    DropdownMenuItem(
-                      value: structure,
-                      child: Text(switch (structure) {
-                        WodStructure.forTime => l10n.resultForTime,
-                        WodStructure.amrap => l10n.resultAmrap,
-                        WodStructure.emom => l10n.resultEmom,
-                        WodStructure.intervals => l10n.wodIntervals,
-                        WodStructure.other => l10n.resultOther,
-                        WodStructure.unknown => l10n.wodUnconfirmedStandard,
-                      }),
-                    ),
-                ],
-                onChanged: saving
-                    ? null
-                    : (value) {
-                        if (value != null) {
-                          updatePrescription({'structure': value.name});
-                        }
-                      },
-              ),
-              for (final (field, label, value) in [
-                ('rounds', l10n.wodTotalRounds, prescription.rounds),
-                if (!isCapped())
-                  (
-                    'timeCapSeconds',
-                    l10n.wodTimeCapSeconds,
-                    prescription.timeCapSeconds,
-                  ),
-                (
-                  'durationSeconds',
-                  l10n.wodDurationSeconds,
-                  prescription.durationSeconds,
-                ),
-                (
-                  'intervalCount',
-                  l10n.wodTotalIntervals,
-                  prescription.intervalCount,
-                ),
-                (
-                  'intervalSeconds',
-                  l10n.wodIntervalLengthSeconds,
-                  prescription.intervalSeconds,
-                ),
-              ])
-                TextFormField(
-                  key: fieldKey(field, (titleRevision, notesRevision)),
-                  initialValue: value == null ? '' : number.format(value),
-                  enabled: !saving,
-                  decoration: InputDecoration(labelText: label),
-                  keyboardType: TextInputType.number,
-                  onChanged: (text) {
-                    final amount = whole(text);
-                    if (text.trim().isNotEmpty &&
-                        (amount == null || amount == 0)) {
-                      invalidPrescriptionFields.add(field);
-                    } else {
-                      invalidPrescriptionFields.remove(field);
-                      updatePrescription({field: amount});
-                    }
-                  },
-                ),
-              if (prescription.unparsedLines.isNotEmpty) ...[
-                Text(l10n.unreadWodLines),
-                for (final line in prescription.unparsedLines) Text(line),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.wodUnreadLinesConfirmed),
-                  value: false,
-                  onChanged: saving
-                      ? null
-                      : (_) => setState(() {
-                          updatePrescription({'unparsedLines': <String>[]});
-                        }),
-                ),
-              ],
-            ],
-          ),
-          for (final (index, movement) in prescription.movements.indexed)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(movement.name),
-              subtitle: movement.quantities.isEmpty
-                  ? null
-                  : Text(movement.quantities.map(number.format).join(' / ')),
-              onTap: saving
-                  ? null
-                  : () async {
-                      final edited = await editWodMovement(
-                        context,
-                        movement,
-                        unit,
-                        number,
-                        index > 0
-                            ? () =>
-                                  setState(() => moveMovement(index, index - 1))
-                            : null,
-                        index < prescription.movements.length - 1
-                            ? () =>
-                                  setState(() => moveMovement(index, index + 1))
-                            : null,
-                      );
-                      if (edited == null || !context.mounted) return;
-                      setState(
-                        () => updateMovements(
-                          [...prescription.movements]..[index] = edited,
-                        ),
-                      );
-                    },
-              trailing: IconButton(
-                tooltip: l10n.deleteExercise,
-                onPressed: saving
-                    ? null
-                    : () => setState(() {
-                        updateMovements(
-                          [...prescription.movements]..removeAt(index),
-                        );
-                      }),
-                icon: const Icon(Icons.remove_circle_outline),
-              ),
-            ),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            onPressed: saving
-                ? null
-                : () async {
-                    final movement = await pickWodMovement(context);
-                    if (movement == null || !context.mounted) return;
-                    setState(
-                      () => updateMovements([
-                        ...prescription.movements,
-                        movement,
-                      ]),
-                    );
-                  },
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(l10n.addExercise),
           ),
           const SizedBox(height: 12),
           if (type == 'for_time' && !usePreviousScore)
@@ -777,13 +587,235 @@ Future<void> showWodResultEditor(
               child: Text(l10n.wodEnterNewScore),
             ),
           const SizedBox(height: 12),
-          TextFormField(
-            key: ValueKey(('notes', notesRevision)),
-            initialValue: notes,
-            enabled: !saving,
-            decoration: InputDecoration(labelText: l10n.wodNotes),
-            maxLines: 3,
-            onChanged: (value) => notes = value,
+          ExpansionTile(
+            key: fieldKey('prescriptionFields', (titleRevision, notesRevision)),
+            tilePadding: EdgeInsets.zero,
+            leading: const Icon(Icons.fitness_center_outlined),
+            title: Text(l10n.wodPrescription),
+            childrenPadding: const EdgeInsets.only(bottom: 16),
+            maintainState: true,
+            onExpansionChanged: (expanded) => prescriptionExpanded = expanded,
+            children: [
+              DropdownButtonFormField<WodStructure>(
+                isExpanded: true,
+                initialValue: prescription.structure,
+                decoration: InputDecoration(labelText: l10n.wodSectionTitle),
+                items: [
+                  for (final structure in WodStructure.values)
+                    DropdownMenuItem(
+                      value: structure,
+                      child: Text(switch (structure) {
+                        WodStructure.forTime => l10n.resultForTime,
+                        WodStructure.amrap => l10n.resultAmrap,
+                        WodStructure.emom => l10n.resultEmom,
+                        WodStructure.intervals => l10n.wodIntervals,
+                        WodStructure.other => l10n.resultOther,
+                        WodStructure.unknown => l10n.wodUnconfirmedStandard,
+                      }),
+                    ),
+                ],
+                onChanged: saving
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          updatePrescription({'structure': value.name});
+                        }
+                      },
+              ),
+              for (final (field, label, value) in [
+                ('rounds', l10n.wodTotalRounds, prescription.rounds),
+                if (!isCapped())
+                  (
+                    'timeCapSeconds',
+                    l10n.wodTimeCapSeconds,
+                    prescription.timeCapSeconds,
+                  ),
+                (
+                  'durationSeconds',
+                  l10n.wodDurationSeconds,
+                  prescription.durationSeconds,
+                ),
+                (
+                  'intervalCount',
+                  l10n.wodTotalIntervals,
+                  prescription.intervalCount,
+                ),
+                (
+                  'intervalSeconds',
+                  l10n.wodIntervalLengthSeconds,
+                  prescription.intervalSeconds,
+                ),
+              ])
+                TextFormField(
+                  key: fieldKey(field, (titleRevision, notesRevision)),
+                  initialValue: value == null ? '' : number.format(value),
+                  enabled: !saving,
+                  decoration: InputDecoration(labelText: label),
+                  keyboardType: TextInputType.number,
+                  onChanged: (text) {
+                    final amount = whole(text);
+                    if (text.trim().isNotEmpty &&
+                        (amount == null || amount == 0)) {
+                      invalidPrescriptionFields.add(field);
+                    } else {
+                      invalidPrescriptionFields.remove(field);
+                      updatePrescription({field: amount});
+                    }
+                  },
+                ),
+              if (prescription.unparsedLines.isNotEmpty) ...[
+                Text(l10n.unreadWodLines),
+                for (final line in prescription.unparsedLines) Text(line),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(l10n.wodUnreadLinesConfirmed),
+                  value: false,
+                  onChanged: saving
+                      ? null
+                      : (_) => setState(() {
+                          updatePrescription({'unparsedLines': <String>[]});
+                        }),
+                ),
+              ],
+              for (final (index, movement) in prescription.movements.indexed)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(movement.name),
+                  subtitle: movement.quantities.isEmpty
+                      ? null
+                      : Text(
+                          movement.quantities.map(number.format).join(' / '),
+                        ),
+                  onTap: saving
+                      ? null
+                      : () async {
+                          final edited = await editWodMovement(
+                            context,
+                            movement,
+                            unit,
+                            number,
+                            index > 0
+                                ? () => setState(
+                                    () => moveMovement(index, index - 1),
+                                  )
+                                : null,
+                            index < prescription.movements.length - 1
+                                ? () => setState(
+                                    () => moveMovement(index, index + 1),
+                                  )
+                                : null,
+                          );
+                          if (edited == null || !context.mounted) return;
+                          setState(
+                            () => updateMovements(
+                              [...prescription.movements]..[index] = edited,
+                            ),
+                          );
+                        },
+                  trailing: IconButton(
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
+                    ),
+                    tooltip: l10n.deleteExercise,
+                    onPressed: saving
+                        ? null
+                        : () => setState(() {
+                            updateMovements(
+                              [...prescription.movements]..removeAt(index),
+                            );
+                          }),
+                    icon: const Icon(Icons.remove_circle_outline),
+                  ),
+                ),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                ),
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final movement = await pickWodMovement(context);
+                        if (movement == null || !context.mounted) return;
+                        setState(
+                          () => updateMovements([
+                            ...prescription.movements,
+                            movement,
+                          ]),
+                        );
+                      },
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.addExercise),
+              ),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                ),
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final draft = await showWodSourceReview(
+                          context,
+                          title: title,
+                        );
+                        final source = draft?.rawText;
+                        if (!context.mounted ||
+                            draft == null ||
+                            source == null ||
+                            source == prescription.rawText ||
+                            !appliedSources.add(source)) {
+                          return;
+                        }
+                        setState(() {
+                          prescription = draft;
+                          invalidPrescriptionFields.clear();
+                          version = prescription.version;
+                          if (prescription.scoreKind != WodScoreKind.unknown) {
+                            usePreviousScore = false;
+                            type = typeFor(prescription.scoreKind);
+                            typeRevision++;
+                            score = '';
+                            secondScore = '';
+                            ending = _WodEnding.finished;
+                            invalid = false;
+                          }
+                          notes = [
+                            if (notes.trim().isNotEmpty) notes.trim(),
+                            source,
+                          ].join('\n\n');
+                          notesRevision++;
+                          prescriptionExpanded = false;
+                        });
+                      },
+                child: Text(l10n.reviewWodText),
+              ),
+            ],
+          ),
+          ExpansionTile(
+            key: ValueKey(('notes-disclosure', notesRevision)),
+            tilePadding: EdgeInsets.zero,
+            leading: const Icon(Icons.notes_outlined),
+            title: Text(l10n.wodNotes),
+            initiallyExpanded: notes.trim().isNotEmpty,
+            maintainState: true,
+            children: [
+              TextFormField(
+                key: ValueKey(('notes', notesRevision)),
+                initialValue: notes,
+                enabled: !saving,
+                decoration: InputDecoration(labelText: l10n.wodNotes),
+                maxLines: 3,
+                onChanged: (value) => notes = value,
+              ),
+            ],
           ),
         ],
         actions: [
@@ -795,10 +827,10 @@ Future<void> showWodResultEditor(
               Expanded(
                 child: FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF243552),
-                    foregroundColor: Colors.white,
                     minimumSize: const Size.fromHeight(52),
-                    shape: const StadiumBorder(),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   onPressed: saving
                       ? null
@@ -1001,6 +1033,7 @@ Future<void> showWodResultEditor(
               ),
               const SizedBox(width: 8),
               TextButton(
+                style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                 onPressed: saving ? null : () => Navigator.pop(context),
                 child: Text(l10n.cancel),
               ),
@@ -1039,11 +1072,16 @@ class _WodEditorLayout extends StatelessWidget {
         Expanded(
           child: ListView(
             key: const ValueKey('wod-editor-fields'),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: fields,
+                children: [
+                  for (final (index, field) in fields.indexed) ...[
+                    if (index > 0) const SizedBox(height: 16),
+                    field,
+                  ],
+                ],
               ),
             ],
           ),
@@ -1091,7 +1129,7 @@ class _ResponsiveFieldPair extends StatelessWidget {
             if (topSpacing && needsFieldSpacing) SizedBox(height: fieldSpacing),
             first,
             if (second != null) ...[
-              if (needsFieldSpacing) SizedBox(height: fieldSpacing),
+              SizedBox(height: needsFieldSpacing ? fieldSpacing : 16),
               second!,
             ],
           ],
@@ -1298,6 +1336,7 @@ class _WodBlockTile extends ConsumerWidget {
               ),
       ),
       trailing: IconButton(
+        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         tooltip: l10n.editWodResult,
         icon: const Icon(Icons.edit_outlined),
         onPressed: onEdit,

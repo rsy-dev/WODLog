@@ -46,7 +46,7 @@ class _WodSourceReviewState extends State<_WodSourceReview> {
     final draft = _draft;
     final prescription = _prescription();
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       children: [
         TextField(
           minLines: 4,
@@ -58,8 +58,11 @@ class _WodSourceReviewState extends State<_WodSourceReview> {
             _levelIndex = null;
           }),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 24),
         OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+          ),
           onPressed: _source.trim().isEmpty
               ? null
               : () => setState(() => _draft = _parser.parse(_source)),
@@ -68,9 +71,11 @@ class _WodSourceReviewState extends State<_WodSourceReview> {
         if (draft != null && draft.levels.isNotEmpty)
           Wrap(
             spacing: 8,
+            runSpacing: 8,
             children: [
               for (final (index, level) in draft.levels.indexed)
                 ChoiceChip(
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
                   label: Text(level.label),
                   selected: _levelIndex == index,
                   onSelected: (_) => setState(() => _levelIndex = index),
@@ -99,7 +104,11 @@ class _WodSourceReviewState extends State<_WodSourceReview> {
             for (final line in prescription.unparsedLines)
               ListTile(title: Text(line)),
           ],
+          const SizedBox(height: 24),
           FilledButton(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+            ),
             onPressed: () => Navigator.pop(context, prescription),
             child: Text(l10n.applyWodSource),
           ),
