@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:uuid/uuid.dart';
 
 import '../../../app/wodlog_theme.dart';
@@ -63,31 +63,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final number = NumberFormat.decimalPattern(locale);
 
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 20,
-        title: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(7),
-              child: Image.asset(
-                'assets/branding/wodlog-launcher.png',
-                width: 28,
-                height: 28,
-                fit: BoxFit.cover,
-                semanticLabel: 'WODLog',
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text('WODLog'),
-          ],
-        ),
-      ),
       body: SafeArea(
         bottom: false,
         child: ListView(
           padding: EdgeInsets.fromLTRB(
             20,
-            8,
+            20,
             20,
             16 + MediaQuery.paddingOf(context).bottom,
           ),
@@ -126,91 +107,103 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Card(
-              margin: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        const ExcludeSemantics(
-                          child: Icon(Icons.fitness_center, size: 32),
-                        ),
-                        const Spacer(),
-                        PopupMenuButton<int>(
-                          tooltip: MaterialLocalizations.of(context)
-                              .moreButtonTooltip,
-                          constraints: const BoxConstraints(
-                            minWidth: 200,
-                            maxWidth: 320,
-                          ),
-                          icon: const Icon(Icons.more_horiz),
-                          style: IconButton.styleFrom(
-                            minimumSize: const Size(48, 48),
-                          ),
-                          onSelected: (action) async {
-                            switch (action) {
-                              case 0:
-                                final template = await showWodLibrary(context);
-                                if (template != null && mounted) {
-                                  await _startWorkout(template.name);
-                                }
-                              case 1:
-                                if (mounted) {
-                                  showPastWods(context, recent ?? []);
-                                }
-                              case 2:
-                                context.go('/progress');
-                              case 3:
-                                context.go('/history');
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            for (final (index, item) in [
-                              (l10n.homeBenchmarks, Icons.fitness_center),
-                              (l10n.homeRepeatWod, Icons.replay),
-                              (l10n.homeWodPr, Icons.trending_up),
-                              (l10n.history, Icons.history),
-                            ].indexed)
-                              PopupMenuItem(
-                                value: index,
-                                height: 48,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      ExcludeSemantics(child: Icon(item.$2)),
-                                      const SizedBox(width: 12),
-                                      Expanded(child: Text(item.$1)),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(48, 56),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
                     ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(48, 56),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                    onPressed: _startWorkout,
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.recordWod, textAlign: TextAlign.center),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                PopupMenuButton<int>(
+                  tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
+                  constraints: const BoxConstraints(
+                    minWidth: 200,
+                    maxWidth: 320,
+                  ),
+                  icon: const Icon(Icons.more_horiz),
+                  style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onSelected: (action) async {
+                    switch (action) {
+                      case 0:
+                        final template = await showWodLibrary(context);
+                        if (template != null && mounted) {
+                          await _startWorkout(template.name);
+                        }
+                      case 1:
+                        if (mounted) {
+                          showPastWods(context, recent ?? []);
+                        }
+                      case 2:
+                        context.go('/progress');
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    for (final (index, item) in [
+                      (l10n.homeBenchmarks, Icons.fitness_center),
+                      (l10n.homeRepeatWod, Icons.replay),
+                      (l10n.homeWodPr, Icons.trending_up),
+                    ].indexed)
+                      PopupMenuItem(
+                        value: index,
+                        height: 48,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              ExcludeSemantics(child: Icon(item.$2)),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(item.$1)),
+                            ],
+                          ),
                         ),
                       ),
-                      onPressed: _startWorkout,
-                      icon: const Icon(Icons.add),
-                      label: Text(l10n.recordWod, textAlign: TextAlign.center),
-                    ),
                   ],
                 ),
-              ),
+              ],
             ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    isToday
+                        ? l10n.wodRecentRecords
+                        : _formatDisplayDate(_selectedDate, context),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  tooltip: l10n.wodViewAll,
+                  onPressed: () => context.go('/history'),
+                  icon: Icon(
+                    Directionality.of(context) == TextDirection.rtl
+                        ? Icons.chevron_left
+                        : Icons.chevron_right,
+                  ),
+                ),
+              ],
+            ),
+            if (sessions.value case final currentSessions?)
+              WodRecordList(
+                sessions: isToday
+                    ? [
+                        ...currentSessions,
+                        for (final item in (recent ?? const <WorkoutSession>[]))
+                          if (item.workoutDate != _formatDate(today)) item,
+                      ]
+                    : currentSessions,
+                limit: isToday ? 3 : null,
+              ),
             const SizedBox(height: 24),
             Card(
               margin: EdgeInsets.zero,
@@ -256,35 +249,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    isToday
-                        ? l10n.wodRecentRecords
-                        : _formatDisplayDate(_selectedDate, context),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                  onPressed: () => context.go('/history'),
-                  child: Text(l10n.wodViewAll),
-                ),
-              ],
-            ),
-            if (sessions.value case final currentSessions?)
-              WodRecordList(
-                sessions: isToday
-                    ? [
-                        ...currentSessions,
-                        for (final item in (recent ?? const <WorkoutSession>[]))
-                          if (item.workoutDate != _formatDate(today)) item,
-                      ]
-                    : currentSessions,
-                limit: isToday ? 3 : null,
-              ),
           ],
         ),
       ),

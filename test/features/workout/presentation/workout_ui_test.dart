@@ -203,9 +203,16 @@ void main() {
           .format(DateTime.now());
       expect(find.text(l10n.workoutDate(date)), findsOneWidget);
       if (locale.languageCode == 'en') {
-        await tester.tap(find.text(l10n.lastSevenDays));
+        final weekly = find.text(l10n.lastSevenDays);
+        await tester.scrollUntilVisible(weekly, 100);
         await tester.pumpAndSettle();
-        expect(find.text('${l10n.weeklyGoal} · 1 / 3'), findsOneWidget);
+        await tester.tap(weekly.hitTestable());
+        await tester.pumpAndSettle();
+        final goal = find.text('${l10n.weeklyGoal} · 1 / 3');
+        await tester.scrollUntilVisible(goal, 100);
+        expect(goal, findsOneWidget);
+        await tester.scrollUntilVisible(find.text(l10n.recordWod), -100);
+        await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.recordWod));
         await tester.pumpAndSettle();
         expect(
@@ -236,7 +243,10 @@ void main() {
         await tester.pumpAndSettle();
       }
       if (locale.languageCode == 'en') {
-        await tester.tap(find.byTooltip(l10n.chooseDate));
+        final chooseDate = find.byTooltip(l10n.chooseDate);
+        await tester.scrollUntilVisible(chooseDate, -100);
+        await tester.pumpAndSettle();
+        await tester.tap(chooseDate.hitTestable());
         await tester.pumpAndSettle();
         await tester.tap(find.byTooltip('Previous month'));
         await tester.pumpAndSettle();
@@ -286,10 +296,10 @@ void main() {
       expect(find.text(l10n.todaySummary), findsNothing);
 
       await show(const WorkoutHistoryScreen());
-      expect(find.text(l10n.recordWod), findsOneWidget);
+      expect(find.byTooltip(l10n.recordWod), findsOneWidget);
       expect(find.textContaining(l10n.wodUnconfirmedStandard), findsOneWidget);
       if (locale.languageCode == 'en') {
-        await tester.tap(find.text(l10n.recordWod));
+        await tester.tap(find.byTooltip(l10n.recordWod));
         await tester.pumpAndSettle();
         await tester.enterText(
           find.widgetWithText(TextFormField, l10n.wodName),
@@ -710,14 +720,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text(l10n.searchWorkouts), findsOneWidget);
         await tester.tap(
-          find.widgetWithText(ExpansionTile, l10n.wodSectionTitle),
-        );
-        await tester.pumpAndSettle();
-        await tester.tap(
           find.widgetWithText(ChoiceChip, l10n.strengthSessions),
         );
         await tester.pumpAndSettle();
-        expect(find.text(l10n.addStrengthBlock), findsOneWidget);
+        expect(find.byTooltip(l10n.addStrengthBlock), findsOneWidget);
         await tester.tap(find.byIcon(Icons.settings_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.languageSetting), findsOneWidget);

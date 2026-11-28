@@ -29,7 +29,24 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
     final locale = Localizations.localeOf(context).toString();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('WODLog')),
+      appBar: AppBar(
+        title: Text(l10n.workoutLog),
+        actions: [
+          IconButton(
+            tooltip: _showWods ? l10n.recordWod : l10n.addStrengthBlock,
+            onPressed: !_showWods
+                ? _startStrengthSession
+                : () => showWodResultEditor(
+                    context,
+                    ref,
+                    const Uuid().v4(),
+                    newWorkoutDate: DateFormat('yyyy-MM-dd')
+                        .format(DateTime.now()),
+                  ),
+            icon: const Icon(Icons.add),
+          ),
+        ],
+      ),
       body: sessions.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
@@ -49,36 +66,6 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
               24 + MediaQuery.paddingOf(context).bottom,
             ),
             children: [
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  Text(
-                    l10n.workoutLog,
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                    ),
-                    onPressed: !_showWods
-                        ? _startStrengthSession
-                        : () => showWodResultEditor(
-                            context,
-                            ref,
-                            const Uuid().v4(),
-                            newWorkoutDate: DateFormat('yyyy-MM-dd')
-                                .format(DateTime.now()),
-                          ),
-                    icon: const Icon(Icons.add),
-                    label: Text(
-                      _showWods ? l10n.recordWod : l10n.addStrengthBlock,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
               TextField(
                 decoration: InputDecoration(
                   labelText: l10n.searchWorkouts,
@@ -89,38 +76,27 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                     setState(() => _query = value.trim().toLowerCase()),
               ),
               const SizedBox(height: 12),
-              ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                title: Text(
-                  _showWods ? l10n.wodSectionTitle : l10n.strengthSessions,
-                ),
-                childrenPadding: const EdgeInsets.only(bottom: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      ChoiceChip(
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        label: const Text('WOD'),
-                        selected: _showWods,
-                        onSelected: (_) => setState(() => _showWods = true),
-                      ),
-                      ChoiceChip(
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        label: Text(l10n.strengthSessions),
-                        selected: !_showWods,
-                        onSelected: (_) => setState(() => _showWods = false),
-                      ),
-                      TextButton.icon(
-                        style: TextButton.styleFrom(
-                          minimumSize: const Size(48, 48),
-                        ),
-                        onPressed: () => showPastWods(context, sessions),
-                        icon: const Icon(Icons.history),
-                        label: Text(l10n.pastWods),
-                      ),
-                    ],
+                  ChoiceChip(
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    label: const Text('WOD'),
+                    selected: _showWods,
+                    onSelected: (_) => setState(() => _showWods = true),
+                  ),
+                  ChoiceChip(
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    label: Text(l10n.strengthSessions),
+                    selected: !_showWods,
+                    onSelected: (_) => setState(() => _showWods = false),
+                  ),
+                  IconButton(
+                    tooltip: l10n.pastWods,
+                    onPressed: () => showPastWods(context, sessions),
+                    icon: const Icon(Icons.history),
                   ),
                 ],
               ),

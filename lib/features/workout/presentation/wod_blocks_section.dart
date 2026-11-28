@@ -394,37 +394,39 @@ Future<void> showWodResultEditor(
                 decoration: InputDecoration(labelText: l10n.wodName),
                 onChanged: (value) => title = value,
               ),
-              second: workoutDatePicker(setState),
-            ),
-            TextButton(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 48),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
+              second: Row(
+                children: [
+                  Expanded(child: workoutDatePicker(setState)),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    tooltip: l10n.chooseBenchmark,
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(48, 48),
+                    ),
+                    icon: const Icon(Icons.bookmark_border),
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final template = await showWodLibrary(context);
+                            if (template == null || !context.mounted) return;
+                            setState(() {
+                              title = template.name;
+                              titleRevision++;
+                              prescription = benchmarkDraft(title);
+                              invalidPrescriptionFields.clear();
+                              prescriptionExpanded = false;
+                              version = prescription.version;
+                              type = typeFor(prescription.scoreKind);
+                              typeRevision++;
+                              score = '';
+                              secondScore = '';
+                              ending = _WodEnding.finished;
+                              invalid = false;
+                            });
+                          },
+                  ),
+                ],
               ),
-              onPressed: saving
-                  ? null
-                  : () async {
-                      final template = await showWodLibrary(context);
-                      if (template == null || !context.mounted) return;
-                      setState(() {
-                        title = template.name;
-                        titleRevision++;
-                        prescription = benchmarkDraft(title);
-                        invalidPrescriptionFields.clear();
-                        prescriptionExpanded = false;
-                        version = prescription.version;
-                        type = typeFor(prescription.scoreKind);
-                        typeRevision++;
-                        score = '';
-                        secondScore = '';
-                        ending = _WodEnding.finished;
-                        invalid = false;
-                      });
-                    },
-              child: Text(l10n.chooseBenchmark),
             ),
           ],
           _ResponsiveFieldPair(

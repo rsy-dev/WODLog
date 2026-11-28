@@ -34,7 +34,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     final dateFormat = DateFormat.yMMMd(locale);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('WODLog')),
+      appBar: AppBar(title: Text(l10n.statsTab)),
       body: progress.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
@@ -63,40 +63,6 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               28 + MediaQuery.paddingOf(context).bottom,
             ),
             children: [
-              Text(
-                l10n.statsTab,
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l10n.trainingOverview,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Wrap(
-                    spacing: 20,
-                    runSpacing: 12,
-                    children: [
-                      _SummaryMetric(
-                        value: number.format(totalSessions.length),
-                        label: l10n.strengthSessions,
-                      ),
-                      _SummaryMetric(
-                        value: number.format(totalSets),
-                        label: l10n.setsLabel,
-                      ),
-                      _SummaryMetric(
-                        value: number.format(totalReps),
-                        label: l10n.reps,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
               Text(
                 wodPersonalRecordsLabel(l10n),
                 style: Theme.of(context).textTheme.headlineSmall,
@@ -188,6 +154,35 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                     ],
                   );
                 },
+              ),
+              const SizedBox(height: 24),
+              Text(
+                l10n.trainingOverview,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Wrap(
+                    spacing: 20,
+                    runSpacing: 12,
+                    children: [
+                      _SummaryMetric(
+                        value: number.format(totalSessions.length),
+                        label: l10n.strengthSessions,
+                      ),
+                      _SummaryMetric(
+                        value: number.format(totalSets),
+                        label: l10n.setsLabel,
+                      ),
+                      _SummaryMetric(
+                        value: number.format(totalReps),
+                        label: l10n.reps,
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
               if (items.isEmpty)
