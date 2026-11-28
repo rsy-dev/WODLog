@@ -53,7 +53,8 @@ class _MovementPickerSheetState extends State<MovementPickerSheet> {
               labelText: l10n.searchMovements,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: IconButton(
-                tooltip: l10n.cancel,
+                tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
                 onPressed: () {
                   _searchController.clear();
                   setState(() {});
@@ -65,13 +66,14 @@ class _MovementPickerSheetState extends State<MovementPickerSheet> {
           ),
           const SizedBox(height: 8),
           SizedBox(
-            height: 42,
+            height: MediaQuery.textScalerOf(context).scale(20) + 36,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
                 Padding(
                   padding: const EdgeInsetsDirectional.only(end: 8),
                   child: ChoiceChip(
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
                     label: Text(l10n.allMovements),
                     selected: _category == null,
                     onSelected: (_) => setState(() => _category = null),
@@ -81,6 +83,7 @@ class _MovementPickerSheetState extends State<MovementPickerSheet> {
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 8),
                     child: ChoiceChip(
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
                       label: Text(movementCategoryLabel(l10n, category)),
                       selected: _category == category,
                       onSelected: (_) => setState(() => _category = category),
@@ -98,6 +101,7 @@ class _MovementPickerSheetState extends State<MovementPickerSheet> {
                     itemBuilder: (context, index) {
                       final movement = movements.elementAt(index);
                       return ListTile(
+                        minVerticalPadding: 16,
                         contentPadding: EdgeInsets.zero,
                         title: Text(movement.name),
                         subtitle: Text(
@@ -113,6 +117,9 @@ class _MovementPickerSheetState extends State<MovementPickerSheet> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
               onPressed:
                   widget.useSearchAsCustom &&
                       _searchController.text.trim().isEmpty

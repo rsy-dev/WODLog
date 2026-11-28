@@ -35,6 +35,7 @@ class WorkoutSessionScreen extends ConsumerWidget {
         actions: [
           if (session.value != null)
             PopupMenuButton<String>(
+              tooltip: l10n.editSession,
               onSelected: (action) {
                 if (action == 'edit') {
                   _editSession(context, ref, session.value!);
@@ -57,7 +58,7 @@ class WorkoutSessionScreen extends ConsumerWidget {
               error: (error, stackTrace) =>
                   Center(child: Text(l10n.loadBlocksError)),
               data: (items) => ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 children: [
                   if (session.value case final record?) ...[
                     _SessionHeader(session: record),
@@ -249,6 +250,10 @@ class _WorkoutBlockCard extends ConsumerWidget {
                   ),
                 ),
                 IconButton(
+                  constraints: const BoxConstraints(
+                    minWidth: 48,
+                    minHeight: 48,
+                  ),
                   tooltip: l10n.addExercise,
                   onPressed: () =>
                       _addExercise(context, ref, exercises.value?.length ?? 0),
@@ -416,6 +421,10 @@ class _ExerciseCard extends ConsumerWidget {
                     ],
                   ),
                   IconButton(
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
+                    ),
                     tooltip: l10n.addSet,
                     onPressed: preference.isLoading
                         ? null

@@ -43,10 +43,14 @@ class _WodLibraryState extends State<_WodLibrary> {
         ),
         Expanded(
           child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             children: [
               if (items.isEmpty) ListTile(title: Text(l10n.noMatchingWorkouts)),
               for (final template in items)
                 ListTile(
+                  minVerticalPadding: 16,
+                  trailing: const Icon(Icons.chevron_right),
                   title: Text(template.name),
                   subtitle: Text(
                     '${template.format} · ${template.prescription}',

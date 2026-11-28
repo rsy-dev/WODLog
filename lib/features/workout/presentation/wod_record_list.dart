@@ -179,90 +179,65 @@ class _WodRecordTile extends ConsumerWidget {
           group.improvements.any((record) => record.block.id == block.id),
     );
     return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: repeat
-            ? () => showWodResultEditor(context, ref, block.id, repeat: true)
-            : () => showWodRecordDetail(
-                context,
-                blockId: block.id,
-                sessionId: session.id,
-                title: title,
-                workoutDate: session.workoutDate,
-                notes: block.notes,
-              ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  color: WodLogColors.blueSurface,
-                  shape: BoxShape.circle,
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: repeat
+              ? () => showWodResultEditor(context, ref, block.id, repeat: true)
+              : () => showWodRecordDetail(
+                  context,
+                  blockId: block.id,
+                  sessionId: session.id,
+                  title: title,
+                  workoutDate: session.workoutDate,
+                  notes: block.notes,
                 ),
-                child: Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Icon(
-                    Icons.fitness_center,
-                    size: 20,
-                    color: WodLogColors.navy,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.titleMedium),
-                    Text(
-                      [
-                        dateLabel,
-                        if (score != null) wodTypeLabel(l10n, score.resultType),
-                        wodVersionLabel(
-                          l10n,
-                          record?.prescription.version ?? WodVersion.unknown,
-                        ),
-                      ].join(' · '),
-                      style: Theme.of(context).textTheme.bodySmall,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 6),
+                Text(
+                  [
+                    dateLabel,
+                    wodVersionLabel(
+                      l10n,
+                      record?.prescription.version ?? WodVersion.unknown,
                     ),
+                  ].join(' · '),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (wodScoreLabel(context, ref, score) case final label?)
+                      Text(
+                        label,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    if (isPr)
+                      Tooltip(
+                        message: l10n.wodPersonalRecords,
+                        excludeFromSemantics: true,
+                        child: Semantics(
+                          label: l10n.wodPersonalRecords,
+                          child: const Icon(
+                            Icons.emoji_events_outlined,
+                            color: WodLogColors.prText,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              Flexible(
-                fit: FlexFit.tight,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 116),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      if (wodScoreLabel(context, ref, score) case final label?)
-                        Text(
-                          label,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                      if (isPr)
-                        DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: WodLogColors.prSurface,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 6),
-                            child: Text(
-                              'PR',
-                              style: TextStyle(color: WodLogColors.prText),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -120,6 +120,20 @@ void main() {
           )
           .first;
 
+      Future<void> openPrescription() async {
+        final prescription = find.text(l10n.wodPrescription);
+        await tester.scrollUntilVisible(
+          prescription,
+          100,
+          scrollable: editorFields,
+        );
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(prescription);
+        await tester.pumpAndSettle();
+        await tester.tap(prescription.hitTestable());
+        await tester.pumpAndSettle();
+      }
+
       if (locale.languageCode == 'ko') {
         tester.view.physicalSize = const Size(390, 844);
         final shortcuts = [
@@ -130,21 +144,21 @@ void main() {
           ])
             find.text(label),
         ];
-        textScale = 1;
-        await show(const TodayScreen());
-        final top = tester.getTopLeft(shortcuts.first).dy;
-        for (final shortcut in shortcuts) {
-          expect(tester.getTopLeft(shortcut).dy, top);
-          expect(tester.getSize(shortcut).height, greaterThanOrEqualTo(18));
-        }
-        textScale = 2;
-        await show(const TodayScreen());
-        expect(
-          tester.getTopLeft(shortcuts.last).dy,
-          greaterThan(tester.getTopLeft(shortcuts.first).dy),
-        );
-        for (final shortcut in shortcuts) {
-          expect(tester.getRect(shortcut).right, lessThanOrEqualTo(390));
+        for (final scale in [1.0, 2.0]) {
+          textScale = scale;
+          await show(const SizedBox.shrink());
+          await show(const TodayScreen());
+          for (final shortcut in shortcuts) {
+            expect(shortcut, findsNothing);
+          }
+          await tester.tap(find.byIcon(Icons.more_horiz));
+          await tester.pumpAndSettle();
+          for (final shortcut in shortcuts) {
+            expect(shortcut.hitTestable(), findsOneWidget);
+            expect(tester.getRect(shortcut).right, lessThanOrEqualTo(390));
+          }
+          await tester.tapAt(const Offset(1, 1));
+          await tester.pumpAndSettle();
         }
         expect(l10n.addStrengthBlock, '근력 블록 추가');
         tester.view.physicalSize = const Size(393, 852);
@@ -189,13 +203,29 @@ void main() {
           .format(DateTime.now());
       expect(find.text(l10n.workoutDate(date)), findsOneWidget);
       if (locale.languageCode == 'en') {
-        expect(find.text('${l10n.weeklyGoal} · 1 / 3'), findsOneWidget);
+        final weekly = find.text(l10n.lastSevenDays);
+        await tester.scrollUntilVisible(weekly, 100);
+        await tester.pumpAndSettle();
+        await tester.tap(weekly.hitTestable());
+        await tester.pumpAndSettle();
+        final goal = find.text('${l10n.weeklyGoal} · 1 / 3');
+        await tester.scrollUntilVisible(goal, 100);
+        expect(goal, findsOneWidget);
+        await tester.scrollUntilVisible(find.text(l10n.recordWod), -100);
+        await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.recordWod));
         await tester.pumpAndSettle();
         expect(
           find.widgetWithText(TextFormField, l10n.wodName),
           findsOneWidget,
         );
+        await openPrescription();
+        await tester.scrollUntilVisible(
+          find.text(l10n.reviewWodText),
+          150,
+          scrollable: editorFields,
+        );
+        await tester.pumpAndSettle();
         expect(find.text(l10n.reviewWodText).hitTestable(), findsOneWidget);
         expect(
           find.widgetWithText(FilledButton, l10n.save).hitTestable(),
@@ -213,7 +243,10 @@ void main() {
         await tester.pumpAndSettle();
       }
       if (locale.languageCode == 'en') {
-        await tester.tap(find.byTooltip(l10n.chooseDate));
+        final chooseDate = find.byTooltip(l10n.chooseDate);
+        await tester.scrollUntilVisible(chooseDate, -100);
+        await tester.pumpAndSettle();
+        await tester.tap(chooseDate.hitTestable());
         await tester.pumpAndSettle();
         await tester.tap(find.byTooltip('Previous month'));
         await tester.pumpAndSettle();
@@ -263,10 +296,10 @@ void main() {
       expect(find.text(l10n.todaySummary), findsNothing);
 
       await show(const WorkoutHistoryScreen());
-      expect(find.text(l10n.recordWod), findsOneWidget);
+      expect(find.byTooltip(l10n.recordWod), findsOneWidget);
       expect(find.textContaining(l10n.wodUnconfirmedStandard), findsOneWidget);
       if (locale.languageCode == 'en') {
-        await tester.tap(find.text(l10n.recordWod));
+        await tester.tap(find.byTooltip(l10n.recordWod));
         await tester.pumpAndSettle();
         await tester.enterText(
           find.widgetWithText(TextFormField, l10n.wodName),
@@ -300,9 +333,6 @@ void main() {
         Directionality.of(scoreContext),
         isRtl ? TextDirection.rtl : TextDirection.ltr,
       );
-      final leading = tester.getCenter(find.byIcon(Icons.fitness_center));
-      final trailing = tester.getCenter(scoreLabel);
-      expect(leading.dx > trailing.dx, isRtl);
 
       if (const {'ko', 'en'}.contains(locale.languageCode)) {
         await tester.tap(scoreLabel);
@@ -373,6 +403,20 @@ void main() {
         final notes = find.widgetWithText(TextFormField, l10n.wodNotes);
         tester.view.viewInsets = const FakeViewPadding(bottom: 240);
         await tester.pumpAndSettle();
+        final notesDisclosure = find.widgetWithText(
+          ExpansionTile,
+          l10n.wodNotes,
+        );
+        await tester.scrollUntilVisible(
+          notesDisclosure,
+          100,
+          scrollable: editor,
+        );
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(notesDisclosure);
+        await tester.pumpAndSettle();
+        await tester.tap(notesDisclosure.hitTestable());
+        await tester.pumpAndSettle();
         await tester.ensureVisible(notes);
         await tester.pumpAndSettle();
         expect(cap.hitTestable(), findsNothing);
@@ -422,6 +466,13 @@ void main() {
 
       await show(const ProgressScreen());
       if (locale.languageCode == 'en') {
+        final selection = find.widgetWithText(ExpansionTile, l10n.wodName);
+        await tester.scrollUntilVisible(selection, 100);
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(selection);
+        await tester.pumpAndSettle();
+        await tester.tap(selection.hitTestable());
+        await tester.pumpAndSettle();
         final selector = find.byType(DropdownButtonFormField<String>);
         await tester.tap(selector);
         await tester.pumpAndSettle();
@@ -513,6 +564,7 @@ void main() {
         final addMovement = find.text(l10n.addExercise);
         FocusManager.instance.primaryFocus?.unfocus();
         await tester.pumpAndSettle();
+        await openPrescription();
         await tester.scrollUntilVisible(
           addMovement,
           100,
@@ -634,15 +686,32 @@ void main() {
       }
       if (locale.languageCode == 'en') {
         await show(const WodLogApp());
+        await tester.tap(find.byIcon(Icons.more_horiz));
+        await tester.pumpAndSettle();
         await tester.tap(find.text(l10n.homeWodPr));
         await tester.pumpAndSettle();
-        expect(find.text('Current best · Rx · 07:45'), findsOneWidget);
-        await tester.tap(find.text('Fran').first);
+        expect(find.text('Current best · Rx'), findsOneWidget);
+        expect(find.text('07:45'), findsOneWidget);
+        final personalBest = find.widgetWithText(ExpansionTile, 'Fran');
+        await tester.ensureVisible(personalBest);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Fran').hitTestable());
         await tester.pumpAndSettle();
         expect(find.text('Score history'), findsWidgets);
         expect(find.text('08:20'), findsWidgets);
         expect(find.text(l10n.wodScoreHistory), findsWidgets);
-        await tester.tap(find.text('07:45').first);
+        final bestAttempt = find
+            .byWidgetPredicate(
+              (widget) =>
+                  widget is ListTile &&
+                  widget.title is Text &&
+                  (widget.title as Text).data == '07:45' &&
+                  widget.onTap != null,
+            )
+            .first;
+        await tester.ensureVisible(bestAttempt);
+        await tester.pumpAndSettle();
+        await tester.tap(bestAttempt.hitTestable());
         await tester.pumpAndSettle();
         expect(find.text(l10n.openSession), findsOneWidget);
         await tester.tap(find.byTooltip(l10n.closeSheet));
@@ -650,9 +719,11 @@ void main() {
         await tester.tap(find.byIcon(Icons.view_list_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.searchWorkouts), findsOneWidget);
-        await tester.tap(find.text(l10n.strengthSessions));
+        await tester.tap(
+          find.widgetWithText(ChoiceChip, l10n.strengthSessions),
+        );
         await tester.pumpAndSettle();
-        expect(find.text(l10n.addStrengthBlock), findsOneWidget);
+        expect(find.byTooltip(l10n.addStrengthBlock), findsOneWidget);
         await tester.tap(find.byIcon(Icons.settings_outlined));
         await tester.pumpAndSettle();
         expect(find.text(l10n.languageSetting), findsOneWidget);
